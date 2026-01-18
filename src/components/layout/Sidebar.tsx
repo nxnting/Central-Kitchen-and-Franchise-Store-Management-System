@@ -11,7 +11,6 @@ import {
   Users,
   Settings,
   LogOut,
-  ChefHat,
   Factory,
   Calendar,
   AlertTriangle,
@@ -21,6 +20,7 @@ import {
   FileText,
   Warehouse,
   User,
+  Coffee,
 } from 'lucide-react';
 
 interface NavItem {
@@ -32,41 +32,41 @@ interface NavItem {
 const getNavItems = (role: UserRole): NavItem[] => {
   const items: Record<UserRole, NavItem[]> = {
     franchise_store: [
-      { label: 'Dashboard', path: '/store', icon: <LayoutDashboard size={20} /> },
-      { label: 'Create Order', path: '/store/orders/new', icon: <ShoppingCart size={20} /> },
-      { label: 'My Orders', path: '/store/orders', icon: <ClipboardList size={20} /> },
-      { label: 'Receive Goods', path: '/store/receive', icon: <Package size={20} /> },
-      { label: 'Store Inventory', path: '/store/inventory', icon: <Warehouse size={20} /> },
+      { label: 'Trang chủ', path: '/store', icon: <LayoutDashboard size={20} /> },
+      { label: 'Tạo đơn hàng', path: '/store/orders/new', icon: <ShoppingCart size={20} /> },
+      { label: 'Đơn hàng của tôi', path: '/store/orders', icon: <ClipboardList size={20} /> },
+      { label: 'Nhận hàng', path: '/store/receive', icon: <Package size={20} /> },
+      { label: 'Tồn kho cửa hàng', path: '/store/inventory', icon: <Warehouse size={20} /> },
     ],
     central_kitchen: [
-      { label: 'Dashboard', path: '/kitchen', icon: <LayoutDashboard size={20} /> },
-      { label: 'Incoming Orders', path: '/kitchen/orders', icon: <ClipboardList size={20} /> },
-      { label: 'Production Plan', path: '/kitchen/production', icon: <Factory size={20} /> },
-      { label: 'Inventory', path: '/kitchen/inventory', icon: <Warehouse size={20} /> },
-      { label: 'Issue Goods', path: '/kitchen/issue', icon: <Package size={20} /> },
+      { label: 'Trang chủ', path: '/kitchen', icon: <LayoutDashboard size={20} /> },
+      { label: 'Đơn hàng đến', path: '/kitchen/orders', icon: <ClipboardList size={20} /> },
+      { label: 'Kế hoạch sản xuất', path: '/kitchen/production', icon: <Factory size={20} /> },
+      { label: 'Tồn kho', path: '/kitchen/inventory', icon: <Warehouse size={20} /> },
+      { label: 'Xuất kho', path: '/kitchen/issue', icon: <Package size={20} /> },
     ],
     supply_coordinator: [
-      { label: 'Dashboard', path: '/coordinator', icon: <LayoutDashboard size={20} /> },
-      { label: 'Aggregated Orders', path: '/coordinator/orders', icon: <ClipboardList size={20} /> },
-      { label: 'Coordination', path: '/coordinator/coordination', icon: <Factory size={20} /> },
-      { label: 'Delivery Schedule', path: '/coordinator/schedule', icon: <Calendar size={20} /> },
-      { label: 'Delivery Tracking', path: '/coordinator/tracking', icon: <Truck size={20} /> },
-      { label: 'Exceptions', path: '/coordinator/exceptions', icon: <AlertTriangle size={20} /> },
+      { label: 'Trang chủ', path: '/coordinator', icon: <LayoutDashboard size={20} /> },
+      { label: 'Tổng hợp đơn hàng', path: '/coordinator/orders', icon: <ClipboardList size={20} /> },
+      { label: 'Điều phối', path: '/coordinator/coordination', icon: <Factory size={20} /> },
+      { label: 'Lịch giao hàng', path: '/coordinator/schedule', icon: <Calendar size={20} /> },
+      { label: 'Theo dõi giao hàng', path: '/coordinator/tracking', icon: <Truck size={20} /> },
+      { label: 'Xử lý sự cố', path: '/coordinator/exceptions', icon: <AlertTriangle size={20} /> },
     ],
     manager: [
-      { label: 'Dashboard', path: '/manager', icon: <LayoutDashboard size={20} /> },
-      { label: 'Products', path: '/manager/products', icon: <Package size={20} /> },
-      { label: 'Recipes & BOM', path: '/manager/recipes', icon: <BookOpen size={20} /> },
-      { label: 'Inventory', path: '/manager/inventory', icon: <Warehouse size={20} /> },
-      { label: 'Reports', path: '/manager/reports', icon: <BarChart3 size={20} /> },
+      { label: 'Trang chủ', path: '/manager', icon: <LayoutDashboard size={20} /> },
+      { label: 'Menu trà sữa', path: '/manager/products', icon: <Coffee size={20} /> },
+      { label: 'Công thức & BOM', path: '/manager/recipes', icon: <BookOpen size={20} /> },
+      { label: 'Tồn kho tổng', path: '/manager/inventory', icon: <Warehouse size={20} /> },
+      { label: 'Báo cáo', path: '/manager/reports', icon: <BarChart3 size={20} /> },
     ],
     admin: [
-      { label: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} /> },
-      { label: 'Users', path: '/admin/users', icon: <Users size={20} /> },
-      { label: 'Roles & Permissions', path: '/admin/roles', icon: <Shield size={20} /> },
-      { label: 'Configuration', path: '/admin/config', icon: <Settings size={20} /> },
-      { label: 'Stores & Kitchens', path: '/admin/locations', icon: <Store size={20} /> },
-      { label: 'System Reports', path: '/admin/reports', icon: <FileText size={20} /> },
+      { label: 'Trang chủ', path: '/admin', icon: <LayoutDashboard size={20} /> },
+      { label: 'Quản lý người dùng', path: '/admin/users', icon: <Users size={20} /> },
+      { label: 'Phân quyền', path: '/admin/roles', icon: <Shield size={20} /> },
+      { label: 'Cấu hình hệ thống', path: '/admin/config', icon: <Settings size={20} /> },
+      { label: 'Cửa hàng & Bếp', path: '/admin/locations', icon: <Store size={20} /> },
+      { label: 'Báo cáo tổng hợp', path: '/admin/reports', icon: <FileText size={20} /> },
     ],
   };
 
@@ -87,11 +87,11 @@ export const Sidebar: React.FC = () => {
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-sidebar-primary flex items-center justify-center">
-            <ChefHat className="w-6 h-6 text-sidebar-primary-foreground" />
+            <Coffee className="w-6 h-6 text-sidebar-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-sidebar-accent-foreground">CK Manager</h1>
-            <p className="text-xs text-sidebar-foreground">Central Kitchen</p>
+            <h1 className="text-lg font-semibold text-sidebar-accent-foreground">Trà Sữa Pro</h1>
+            <p className="text-xs text-sidebar-foreground">Bếp Trung Tâm</p>
           </div>
         </div>
       </div>
@@ -136,7 +136,7 @@ export const Sidebar: React.FC = () => {
           className="nav-item w-full text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
           <LogOut size={20} />
-          <span>Logout</span>
+          <span>Đăng xuất</span>
         </button>
       </div>
     </aside>

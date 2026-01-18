@@ -7,18 +7,22 @@ import { mockOrders, mockProducts } from '@/data/mockData';
 import { ShoppingCart, Package, ClipboardList, AlertTriangle, ArrowRight } from 'lucide-react';
 
 const StoreDashboard: React.FC = () => {
-  const storeOrders = mockOrders.filter(o => o.storeName === 'Downtown Branch');
+  const storeOrders = mockOrders.filter(o => o.storeName === 'Chi nhánh Quận 1');
   const pendingOrders = storeOrders.filter(o => o.status === 'pending').length;
   const processingOrders = storeOrders.filter(o => o.status === 'processing').length;
   const lowStockItems = mockProducts.filter(p => p.stock <= p.minStock).length;
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  };
+
   return (
     <div className="animate-fade-in">
       <PageHeader 
-        title="Store Dashboard" 
-        subtitle="Downtown Branch - Overview of your store operations"
+        title="Trang chủ Cửa hàng" 
+        subtitle="Chi nhánh Quận 1 - Tổng quan hoạt động"
         action={{
-          label: 'New Order',
+          label: 'Tạo đơn hàng',
           icon: ShoppingCart,
           onClick: () => window.location.href = '/store/orders/new'
         }}
@@ -27,30 +31,30 @@ const StoreDashboard: React.FC = () => {
       {/* Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <MetricCard
-          title="Pending Orders"
+          title="Đơn chờ xử lý"
           value={pendingOrders}
-          subtitle="Awaiting processing"
+          subtitle="Đang chờ bếp xử lý"
           icon={ClipboardList}
           variant="warning"
         />
         <MetricCard
-          title="Processing"
+          title="Đang xử lý"
           value={processingOrders}
-          subtitle="Being prepared"
+          subtitle="Đang được chuẩn bị"
           icon={Package}
           variant="primary"
         />
         <MetricCard
-          title="Low Stock Items"
+          title="Tồn kho thấp"
           value={lowStockItems}
-          subtitle="Need reordering"
+          subtitle="Cần đặt hàng bổ sung"
           icon={AlertTriangle}
           variant="danger"
         />
         <MetricCard
-          title="Total Orders (MTD)"
+          title="Tổng đơn (tháng)"
           value={12}
-          subtitle="This month"
+          subtitle="Tháng này"
           icon={ShoppingCart}
           trend={{ value: 15, isPositive: true }}
         />
@@ -60,9 +64,9 @@ const StoreDashboard: React.FC = () => {
         {/* Recent Orders */}
         <div className="bg-card rounded-xl border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Recent Orders</h2>
+            <h2 className="text-lg font-semibold">Đơn hàng gần đây</h2>
             <Link to="/store/orders" className="text-sm text-primary hover:underline flex items-center gap-1">
-              View all <ArrowRight size={14} />
+              Xem tất cả <ArrowRight size={14} />
             </Link>
           </div>
           <div className="space-y-3">
@@ -74,7 +78,7 @@ const StoreDashboard: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <StatusBadge status={order.status} />
-                  <p className="text-sm text-muted-foreground mt-1">${order.totalAmount.toFixed(2)}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{formatCurrency(order.totalAmount)}</p>
                 </div>
               </div>
             ))}
@@ -84,9 +88,9 @@ const StoreDashboard: React.FC = () => {
         {/* Inventory Alerts */}
         <div className="bg-card rounded-xl border p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">Inventory Alerts</h2>
+            <h2 className="text-lg font-semibold">Cảnh báo tồn kho</h2>
             <Link to="/store/inventory" className="text-sm text-primary hover:underline flex items-center gap-1">
-              View inventory <ArrowRight size={14} />
+              Xem tồn kho <ArrowRight size={14} />
             </Link>
           </div>
           <div className="space-y-3">
@@ -100,7 +104,7 @@ const StoreDashboard: React.FC = () => {
                   <p className={`font-medium ${product.stock <= product.minStock ? 'text-destructive' : 'text-warning'}`}>
                     {product.stock} {product.unit}
                   </p>
-                  <p className="text-xs text-muted-foreground">Min: {product.minStock}</p>
+                  <p className="text-xs text-muted-foreground">Tối thiểu: {product.minStock}</p>
                 </div>
               </div>
             ))}

@@ -14,12 +14,12 @@ const StoreInventory: React.FC = () => {
   );
 
   const columns = [
-    { key: 'id', label: 'Product ID' },
-    { key: 'name', label: 'Product Name' },
-    { key: 'category', label: 'Category' },
+    { key: 'id', label: 'Mã SP' },
+    { key: 'name', label: 'Tên sản phẩm' },
+    { key: 'category', label: 'Danh mục' },
     { 
       key: 'stock', 
-      label: 'Current Stock',
+      label: 'Tồn kho hiện tại',
       render: (product: Product) => (
         <div className="flex items-center gap-2">
           <span className={product.stock <= product.minStock ? 'text-destructive font-medium' : ''}>
@@ -33,20 +33,20 @@ const StoreInventory: React.FC = () => {
     },
     { 
       key: 'minStock', 
-      label: 'Min Stock',
+      label: 'Tồn kho tối thiểu',
       render: (product: Product) => `${product.minStock} ${product.unit}`
     },
     { 
       key: 'status', 
-      label: 'Status',
+      label: 'Trạng thái',
       render: (product: Product) => {
         if (product.stock <= product.minStock) {
-          return <span className="status-badge status-cancelled">Low Stock</span>;
+          return <span className="status-badge status-cancelled">Sắp hết</span>;
         }
         if (product.stock <= product.minStock * 1.5) {
-          return <span className="status-badge status-pending">Reorder Soon</span>;
+          return <span className="status-badge status-pending">Cần đặt thêm</span>;
         }
-        return <span className="status-badge status-delivered">In Stock</span>;
+        return <span className="status-badge status-delivered">Đủ hàng</span>;
       }
     },
   ];
@@ -54,15 +54,15 @@ const StoreInventory: React.FC = () => {
   return (
     <div className="animate-fade-in">
       <PageHeader 
-        title="Store Inventory" 
-        subtitle="Current stock levels at Downtown Branch"
+        title="Tồn kho cửa hàng" 
+        subtitle="Tồn kho hiện tại tại Chi nhánh Quận 1"
       />
 
       {/* Search */}
       <div className="relative mb-6 max-w-md">
         <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Search products..."
+          placeholder="Tìm kiếm sản phẩm..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
@@ -72,17 +72,17 @@ const StoreInventory: React.FC = () => {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-card rounded-xl border p-4">
-          <p className="text-sm text-muted-foreground">Total Products</p>
+          <p className="text-sm text-muted-foreground">Tổng sản phẩm</p>
           <p className="text-2xl font-semibold">{mockProducts.length}</p>
         </div>
         <div className="bg-card rounded-xl border p-4">
-          <p className="text-sm text-muted-foreground">Low Stock Items</p>
+          <p className="text-sm text-muted-foreground">Sản phẩm sắp hết</p>
           <p className="text-2xl font-semibold text-destructive">
             {mockProducts.filter(p => p.stock <= p.minStock).length}
           </p>
         </div>
         <div className="bg-card rounded-xl border p-4">
-          <p className="text-sm text-muted-foreground">Categories</p>
+          <p className="text-sm text-muted-foreground">Danh mục</p>
           <p className="text-2xl font-semibold">
             {new Set(mockProducts.map(p => p.category)).size}
           </p>

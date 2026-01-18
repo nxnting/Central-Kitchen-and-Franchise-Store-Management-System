@@ -1,4 +1,4 @@
-// Mock data for the Central Kitchen & Franchise Store Management System
+// Mock data cho Hệ thống Quản lý Bếp Trung tâm & Cửa hàng Franchise Trà Sữa
 
 export interface Order {
   id: string;
@@ -102,159 +102,158 @@ export interface UserAccount {
   lastLogin: string;
 }
 
-// Mock Orders
+// Mock Đơn hàng
 export const mockOrders: Order[] = [
   {
-    id: 'ORD-001',
-    storeId: 'ST-001',
-    storeName: 'Downtown Branch',
+    id: 'DH-001',
+    storeId: 'CH-001',
+    storeName: 'Chi nhánh Quận 1',
     items: [
-      { productId: 'P-001', productName: 'Bread Dough', quantity: 50, unit: 'kg', unitPrice: 5.00 },
-      { productId: 'P-002', productName: 'Pizza Base', quantity: 100, unit: 'pcs', unitPrice: 2.50 },
+      { productId: 'SP-001', productName: 'Trân châu đen', quantity: 10, unit: 'kg', unitPrice: 85000 },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 50, unit: 'L', unitPrice: 28000 },
     ],
     status: 'pending',
     createdAt: '2024-01-15 09:30',
     deliveryDate: '2024-01-16',
-    totalAmount: 500.00,
+    totalAmount: 2250000,
   },
   {
-    id: 'ORD-002',
-    storeId: 'ST-002',
-    storeName: 'Mall Outlet',
+    id: 'DH-002',
+    storeId: 'CH-002',
+    storeName: 'Chi nhánh Quận 3',
     items: [
-      { productId: 'P-003', productName: 'Tomato Sauce', quantity: 20, unit: 'L', unitPrice: 8.00 },
-      { productId: 'P-004', productName: 'Cheese Blend', quantity: 15, unit: 'kg', unitPrice: 25.00 },
+      { productId: 'SP-003', productName: 'Bột trà xanh Nhật Bản', quantity: 5, unit: 'kg', unitPrice: 450000 },
+      { productId: 'SP-004', productName: 'Kem cheese', quantity: 20, unit: 'L', unitPrice: 95000 },
     ],
     status: 'processing',
     createdAt: '2024-01-15 10:15',
     deliveryDate: '2024-01-16',
-    totalAmount: 535.00,
+    totalAmount: 4150000,
   },
   {
-    id: 'ORD-003',
-    storeId: 'ST-003',
-    storeName: 'Airport Terminal',
+    id: 'DH-003',
+    storeId: 'CH-003',
+    storeName: 'Chi nhánh Quận 7',
     items: [
-      { productId: 'P-001', productName: 'Bread Dough', quantity: 30, unit: 'kg', unitPrice: 5.00 },
+      { productId: 'SP-001', productName: 'Trân châu đen', quantity: 8, unit: 'kg', unitPrice: 85000 },
     ],
     status: 'delivered',
     createdAt: '2024-01-14 14:00',
     deliveryDate: '2024-01-15',
-    totalAmount: 150.00,
+    totalAmount: 680000,
   },
   {
-    id: 'ORD-004',
-    storeId: 'ST-001',
-    storeName: 'Downtown Branch',
+    id: 'DH-004',
+    storeId: 'CH-001',
+    storeName: 'Chi nhánh Quận 1',
     items: [
-      { productId: 'P-005', productName: 'Pastry Cream', quantity: 10, unit: 'kg', unitPrice: 12.00 },
+      { productId: 'SP-005', productName: 'Sirô đào', quantity: 10, unit: 'L', unitPrice: 125000 },
     ],
     status: 'cancelled',
     createdAt: '2024-01-13 08:00',
     deliveryDate: '2024-01-14',
-    totalAmount: 120.00,
-    notes: 'Store requested cancellation',
+    totalAmount: 1250000,
+    notes: 'Cửa hàng yêu cầu huỷ đơn',
   },
   {
-    id: 'ORD-005',
-    storeId: 'ST-004',
-    storeName: 'University Campus',
+    id: 'DH-005',
+    storeId: 'CH-004',
+    storeName: 'Chi nhánh Thủ Đức',
     items: [
-      { productId: 'P-002', productName: 'Pizza Base', quantity: 200, unit: 'pcs', unitPrice: 2.50 },
-      { productId: 'P-003', productName: 'Tomato Sauce', quantity: 30, unit: 'L', unitPrice: 8.00 },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 100, unit: 'L', unitPrice: 28000 },
+      { productId: 'SP-003', productName: 'Bột trà xanh Nhật Bản', quantity: 3, unit: 'kg', unitPrice: 450000 },
     ],
     status: 'processing',
     createdAt: '2024-01-15 11:00',
     deliveryDate: '2024-01-17',
-    totalAmount: 740.00,
+    totalAmount: 4150000,
   },
 ];
 
-// Mock Products
+// Mock Sản phẩm
 export const mockProducts: Product[] = [
-  { id: 'P-001', name: 'Bread Dough', category: 'Dough', unit: 'kg', price: 5.00, stock: 200, minStock: 50 },
-  { id: 'P-002', name: 'Pizza Base', category: 'Semi-finished', unit: 'pcs', price: 2.50, stock: 500, minStock: 100 },
-  { id: 'P-003', name: 'Tomato Sauce', category: 'Sauce', unit: 'L', price: 8.00, stock: 100, minStock: 30 },
-  { id: 'P-004', name: 'Cheese Blend', category: 'Dairy', unit: 'kg', price: 25.00, stock: 80, minStock: 20 },
-  { id: 'P-005', name: 'Pastry Cream', category: 'Cream', unit: 'kg', price: 12.00, stock: 50, minStock: 15 },
-  { id: 'P-006', name: 'Croissant Dough', category: 'Dough', unit: 'kg', price: 8.00, stock: 120, minStock: 40 },
-  { id: 'P-007', name: 'Chicken Filling', category: 'Protein', unit: 'kg', price: 18.00, stock: 60, minStock: 25 },
-  { id: 'P-008', name: 'Vegetable Mix', category: 'Vegetables', unit: 'kg', price: 6.00, stock: 90, minStock: 30 },
+  { id: 'SP-001', name: 'Trân châu đen', category: 'Topping', unit: 'kg', price: 85000, stock: 50, minStock: 15 },
+  { id: 'SP-002', name: 'Sữa tươi không đường', category: 'Nguyên liệu chính', unit: 'L', price: 28000, stock: 200, minStock: 50 },
+  { id: 'SP-003', name: 'Bột trà xanh Nhật Bản', category: 'Bột trà', unit: 'kg', price: 450000, stock: 20, minStock: 5 },
+  { id: 'SP-004', name: 'Kem cheese', category: 'Topping', unit: 'L', price: 95000, stock: 30, minStock: 10 },
+  { id: 'SP-005', name: 'Sirô đào', category: 'Sirô', unit: 'L', price: 125000, stock: 25, minStock: 8 },
+  { id: 'SP-006', name: 'Bột oolong', category: 'Bột trà', unit: 'kg', price: 380000, stock: 18, minStock: 6 },
+  { id: 'SP-007', name: 'Thạch dừa', category: 'Topping', unit: 'kg', price: 65000, stock: 40, minStock: 12 },
+  { id: 'SP-008', name: 'Pudding trứng', category: 'Topping', unit: 'kg', price: 120000, stock: 15, minStock: 8 },
 ];
 
-// Mock Recipes
+// Mock Công thức
 export const mockRecipes: Recipe[] = [
   {
-    id: 'R-001',
-    productId: 'P-002',
-    productName: 'Pizza Base',
+    id: 'CT-001',
+    productId: 'TP-001',
+    productName: 'Trà sữa trân châu đường đen',
     ingredients: [
-      { productId: 'RM-001', productName: 'All-Purpose Flour', quantity: 0.3, unit: 'kg' },
-      { productId: 'RM-002', productName: 'Yeast', quantity: 0.01, unit: 'kg' },
-      { productId: 'RM-003', productName: 'Olive Oil', quantity: 0.02, unit: 'L' },
-      { productId: 'RM-004', productName: 'Salt', quantity: 0.005, unit: 'kg' },
+      { productId: 'SP-001', productName: 'Trân châu đen', quantity: 0.05, unit: 'kg' },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 0.15, unit: 'L' },
+      { productId: 'NL-001', productName: 'Đường đen', quantity: 0.03, unit: 'kg' },
+      { productId: 'NL-002', productName: 'Trà đen Ceylon', quantity: 0.01, unit: 'kg' },
     ],
     yield: 1,
-    unit: 'pcs',
-    instructions: 'Mix flour, yeast, and salt. Add water and olive oil. Knead for 10 minutes. Let rise for 1 hour. Shape into base.',
+    unit: 'ly',
+    instructions: 'Pha trà đen, thêm sữa tươi, thêm đường đen, thêm trân châu đã nấu chín.',
   },
   {
-    id: 'R-002',
-    productId: 'P-003',
-    productName: 'Tomato Sauce',
+    id: 'CT-002',
+    productId: 'TP-002',
+    productName: 'Trà xanh matcha kem cheese',
     ingredients: [
-      { productId: 'RM-005', productName: 'Crushed Tomatoes', quantity: 2, unit: 'kg' },
-      { productId: 'RM-006', productName: 'Garlic', quantity: 0.05, unit: 'kg' },
-      { productId: 'RM-003', productName: 'Olive Oil', quantity: 0.1, unit: 'L' },
-      { productId: 'RM-007', productName: 'Basil', quantity: 0.02, unit: 'kg' },
+      { productId: 'SP-003', productName: 'Bột trà xanh Nhật Bản', quantity: 0.008, unit: 'kg' },
+      { productId: 'SP-004', productName: 'Kem cheese', quantity: 0.05, unit: 'L' },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 0.12, unit: 'L' },
     ],
-    yield: 2,
-    unit: 'L',
-    instructions: 'Sauté garlic in olive oil. Add crushed tomatoes. Simmer for 30 minutes. Add basil and blend.',
+    yield: 1,
+    unit: 'ly',
+    instructions: 'Pha bột matcha với nước nóng, thêm sữa, đổ kem cheese lên trên.',
   },
 ];
 
-// Mock Stores
+// Mock Cửa hàng
 export const mockStores: Store[] = [
-  { id: 'ST-001', name: 'Downtown Branch', address: '123 Main Street, City Center', phone: '+1 555-0101', manager: 'John Smith', status: 'active' },
-  { id: 'ST-002', name: 'Mall Outlet', address: '456 Shopping Mall, Level 2', phone: '+1 555-0102', manager: 'Emily Davis', status: 'active' },
-  { id: 'ST-003', name: 'Airport Terminal', address: 'Terminal 3, Airport Road', phone: '+1 555-0103', manager: 'Michael Lee', status: 'active' },
-  { id: 'ST-004', name: 'University Campus', address: '789 College Avenue', phone: '+1 555-0104', manager: 'Lisa Wong', status: 'active' },
-  { id: 'ST-005', name: 'Business District', address: '321 Corporate Plaza', phone: '+1 555-0105', manager: 'Robert Brown', status: 'inactive' },
+  { id: 'CH-001', name: 'Chi nhánh Quận 1', address: '123 Nguyễn Huệ, Quận 1, TP.HCM', phone: '028-3821-0001', manager: 'Nguyễn Văn An', status: 'active' },
+  { id: 'CH-002', name: 'Chi nhánh Quận 3', address: '456 Võ Văn Tần, Quận 3, TP.HCM', phone: '028-3821-0002', manager: 'Trần Thị Hoa', status: 'active' },
+  { id: 'CH-003', name: 'Chi nhánh Quận 7', address: '789 Nguyễn Thị Thập, Quận 7, TP.HCM', phone: '028-3821-0003', manager: 'Lê Minh Tuấn', status: 'active' },
+  { id: 'CH-004', name: 'Chi nhánh Thủ Đức', address: '321 Võ Văn Ngân, TP. Thủ Đức', phone: '028-3821-0004', manager: 'Phạm Thị Lan', status: 'active' },
+  { id: 'CH-005', name: 'Chi nhánh Bình Thạnh', address: '654 Phan Văn Trị, Bình Thạnh', phone: '028-3821-0005', manager: 'Hoàng Văn Nam', status: 'inactive' },
 ];
 
-// Mock Delivery Schedules
+// Mock Lịch giao hàng
 export const mockDeliveries: DeliverySchedule[] = [
-  { id: 'DEL-001', orderId: 'ORD-001', storeName: 'Downtown Branch', scheduledDate: '2024-01-16', scheduledTime: '06:00', status: 'scheduled', driver: 'Tom Wilson', vehicle: 'Truck A' },
-  { id: 'DEL-002', orderId: 'ORD-002', storeName: 'Mall Outlet', scheduledDate: '2024-01-16', scheduledTime: '07:30', status: 'scheduled', driver: 'Tom Wilson', vehicle: 'Truck A' },
-  { id: 'DEL-003', orderId: 'ORD-003', storeName: 'Airport Terminal', scheduledDate: '2024-01-15', scheduledTime: '05:00', status: 'delivered', driver: 'James Taylor', vehicle: 'Truck B' },
-  { id: 'DEL-004', orderId: 'ORD-005', storeName: 'University Campus', scheduledDate: '2024-01-17', scheduledTime: '08:00', status: 'scheduled', driver: 'James Taylor', vehicle: 'Truck B' },
+  { id: 'GH-001', orderId: 'DH-001', storeName: 'Chi nhánh Quận 1', scheduledDate: '2024-01-16', scheduledTime: '06:00', status: 'scheduled', driver: 'Nguyễn Văn Tài', vehicle: 'Xe tải 59C-12345' },
+  { id: 'GH-002', orderId: 'DH-002', storeName: 'Chi nhánh Quận 3', scheduledDate: '2024-01-16', scheduledTime: '07:30', status: 'scheduled', driver: 'Nguyễn Văn Tài', vehicle: 'Xe tải 59C-12345' },
+  { id: 'GH-003', orderId: 'DH-003', storeName: 'Chi nhánh Quận 7', scheduledDate: '2024-01-15', scheduledTime: '05:00', status: 'delivered', driver: 'Trần Văn Bình', vehicle: 'Xe tải 59C-67890' },
+  { id: 'GH-004', orderId: 'DH-005', storeName: 'Chi nhánh Thủ Đức', scheduledDate: '2024-01-17', scheduledTime: '08:00', status: 'scheduled', driver: 'Trần Văn Bình', vehicle: 'Xe tải 59C-67890' },
 ];
 
-// Mock Production Plans
+// Mock Kế hoạch sản xuất
 export const mockProductionPlans: ProductionPlan[] = [
-  { id: 'PP-001', productId: 'P-001', productName: 'Bread Dough', quantity: 100, unit: 'kg', scheduledDate: '2024-01-16', status: 'planned', assignedTo: 'Team Alpha' },
-  { id: 'PP-002', productId: 'P-002', productName: 'Pizza Base', quantity: 300, unit: 'pcs', scheduledDate: '2024-01-16', status: 'in_progress', assignedTo: 'Team Beta' },
-  { id: 'PP-003', productId: 'P-003', productName: 'Tomato Sauce', quantity: 50, unit: 'L', scheduledDate: '2024-01-16', status: 'completed', assignedTo: 'Team Alpha' },
-  { id: 'PP-004', productId: 'P-004', productName: 'Cheese Blend', quantity: 30, unit: 'kg', scheduledDate: '2024-01-17', status: 'planned', assignedTo: 'Team Beta' },
+  { id: 'SX-001', productId: 'SP-001', productName: 'Trân châu đen', quantity: 30, unit: 'kg', scheduledDate: '2024-01-16', status: 'planned', assignedTo: 'Tổ sản xuất 1' },
+  { id: 'SX-002', productId: 'SP-004', productName: 'Kem cheese', quantity: 50, unit: 'L', scheduledDate: '2024-01-16', status: 'in_progress', assignedTo: 'Tổ sản xuất 2' },
+  { id: 'SX-003', productId: 'SP-007', productName: 'Thạch dừa', quantity: 20, unit: 'kg', scheduledDate: '2024-01-16', status: 'completed', assignedTo: 'Tổ sản xuất 1' },
+  { id: 'SX-004', productId: 'SP-008', productName: 'Pudding trứng', quantity: 25, unit: 'kg', scheduledDate: '2024-01-17', status: 'planned', assignedTo: 'Tổ sản xuất 2' },
 ];
 
-// Mock Inventory
+// Mock Tồn kho
 export const mockInventory: InventoryItem[] = [
-  { id: 'INV-001', productId: 'RM-001', productName: 'All-Purpose Flour', category: 'Raw Material', quantity: 500, unit: 'kg', batchNumber: 'B-2024-001', expiryDate: '2024-06-15', location: 'Warehouse A' },
-  { id: 'INV-002', productId: 'RM-005', productName: 'Crushed Tomatoes', category: 'Raw Material', quantity: 200, unit: 'kg', batchNumber: 'B-2024-002', expiryDate: '2024-03-20', location: 'Cold Storage' },
-  { id: 'INV-003', productId: 'P-001', productName: 'Bread Dough', category: 'Semi-finished', quantity: 80, unit: 'kg', batchNumber: 'B-2024-003', expiryDate: '2024-01-18', location: 'Production Floor' },
-  { id: 'INV-004', productId: 'RM-004', productName: 'Cheese Mozzarella', category: 'Dairy', quantity: 100, unit: 'kg', batchNumber: 'B-2024-004', expiryDate: '2024-02-10', location: 'Cold Storage' },
-  { id: 'INV-005', productId: 'RM-002', productName: 'Yeast', category: 'Raw Material', quantity: 50, unit: 'kg', batchNumber: 'B-2024-005', expiryDate: '2024-04-30', location: 'Warehouse A' },
+  { id: 'TK-001', productId: 'NL-001', productName: 'Đường đen Okinawa', category: 'Nguyên liệu', quantity: 100, unit: 'kg', batchNumber: 'LO-2024-001', expiryDate: '2024-06-15', location: 'Kho A' },
+  { id: 'TK-002', productId: 'NL-002', productName: 'Trà đen Ceylon', category: 'Nguyên liệu', quantity: 50, unit: 'kg', batchNumber: 'LO-2024-002', expiryDate: '2024-03-20', location: 'Kho B' },
+  { id: 'TK-003', productId: 'SP-001', productName: 'Trân châu đen', category: 'Bán thành phẩm', quantity: 40, unit: 'kg', batchNumber: 'LO-2024-003', expiryDate: '2024-01-18', location: 'Kho lạnh' },
+  { id: 'TK-004', productId: 'SP-004', productName: 'Kem cheese', category: 'Bán thành phẩm', quantity: 25, unit: 'L', batchNumber: 'LO-2024-004', expiryDate: '2024-02-10', location: 'Kho lạnh' },
+  { id: 'TK-005', productId: 'NL-003', productName: 'Bột sữa Đài Loan', category: 'Nguyên liệu', quantity: 80, unit: 'kg', batchNumber: 'LO-2024-005', expiryDate: '2024-04-30', location: 'Kho A' },
 ];
 
-// Mock Users
+// Mock Người dùng
 export const mockUsers: UserAccount[] = [
-  { id: 'U-001', username: 'store1', displayName: 'John Smith', email: 'john.smith@example.com', role: 'Franchise Store Staff', status: 'active', lastLogin: '2024-01-15 09:00' },
-  { id: 'U-002', username: 'kitchen1', displayName: 'Maria Garcia', email: 'maria.garcia@example.com', role: 'Central Kitchen Staff', status: 'active', lastLogin: '2024-01-15 06:00' },
-  { id: 'U-003', username: 'supply1', displayName: 'David Chen', email: 'david.chen@example.com', role: 'Supply Coordinator', status: 'active', lastLogin: '2024-01-15 07:30' },
-  { id: 'U-004', username: 'manager1', displayName: 'Sarah Johnson', email: 'sarah.johnson@example.com', role: 'Manager', status: 'active', lastLogin: '2024-01-15 08:00' },
-  { id: 'U-005', username: 'admin1', displayName: 'Admin User', email: 'admin@example.com', role: 'Admin', status: 'active', lastLogin: '2024-01-15 08:30' },
+  { id: 'U-001', username: 'store1', displayName: 'Nguyễn Văn An', email: 'an.nguyen@example.com', role: 'Nhân viên Cửa hàng', status: 'active', lastLogin: '2024-01-15 09:00' },
+  { id: 'U-002', username: 'kitchen1', displayName: 'Trần Thị Bình', email: 'binh.tran@example.com', role: 'Nhân viên Bếp Trung tâm', status: 'active', lastLogin: '2024-01-15 06:00' },
+  { id: 'U-003', username: 'supply1', displayName: 'Lê Văn Cường', email: 'cuong.le@example.com', role: 'Điều phối Cung ứng', status: 'active', lastLogin: '2024-01-15 07:30' },
+  { id: 'U-004', username: 'manager1', displayName: 'Phạm Thị Dung', email: 'dung.pham@example.com', role: 'Quản lý Vận hành', status: 'active', lastLogin: '2024-01-15 08:00' },
+  { id: 'U-005', username: 'admin1', displayName: 'Quản Trị Viên', email: 'admin@example.com', role: 'Quản trị Hệ thống', status: 'active', lastLogin: '2024-01-15 08:30' },
 ];
 
 // Dashboard KPIs
@@ -264,34 +263,34 @@ export const dashboardKPIs = {
   processingOrders: 18,
   deliveredOrders: 112,
   cancelledOrders: 3,
-  totalRevenue: 45680,
+  totalRevenue: 456800000,
   productionEfficiency: 94.5,
-  inventoryValue: 125000,
+  inventoryValue: 125000000,
   activeStores: 4,
   lowStockItems: 5,
 };
 
-// Chart data for manager dashboard
+// Dữ liệu biểu đồ
 export const productionChartData = [
-  { name: 'Mon', produced: 120, target: 150 },
-  { name: 'Tue', produced: 145, target: 150 },
-  { name: 'Wed', produced: 160, target: 150 },
-  { name: 'Thu', produced: 138, target: 150 },
-  { name: 'Fri', produced: 155, target: 150 },
-  { name: 'Sat', produced: 90, target: 100 },
-  { name: 'Sun', produced: 0, target: 0 },
+  { name: 'T2', produced: 120, target: 150 },
+  { name: 'T3', produced: 145, target: 150 },
+  { name: 'T4', produced: 160, target: 150 },
+  { name: 'T5', produced: 138, target: 150 },
+  { name: 'T6', produced: 155, target: 150 },
+  { name: 'T7', produced: 90, target: 100 },
+  { name: 'CN', produced: 0, target: 0 },
 ];
 
 export const orderTrendData = [
-  { name: 'Week 1', orders: 32, value: 8500 },
-  { name: 'Week 2', orders: 45, value: 12300 },
-  { name: 'Week 3', orders: 38, value: 9800 },
-  { name: 'Week 4', orders: 41, value: 11200 },
+  { name: 'Tuần 1', orders: 32, value: 85000000 },
+  { name: 'Tuần 2', orders: 45, value: 123000000 },
+  { name: 'Tuần 3', orders: 38, value: 98000000 },
+  { name: 'Tuần 4', orders: 41, value: 112000000 },
 ];
 
 export const storePerformanceData = [
-  { name: 'Downtown', orders: 45, revenue: 12500 },
-  { name: 'Mall', orders: 38, revenue: 9800 },
-  { name: 'Airport', orders: 52, revenue: 15200 },
-  { name: 'University', orders: 21, revenue: 5400 },
+  { name: 'Q.1', orders: 45, revenue: 125000000 },
+  { name: 'Q.3', orders: 38, revenue: 98000000 },
+  { name: 'Q.7', orders: 52, revenue: 152000000 },
+  { name: 'Thủ Đức', orders: 21, revenue: 54000000 },
 ];

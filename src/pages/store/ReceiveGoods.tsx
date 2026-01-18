@@ -16,11 +16,15 @@ const ReceiveGoods: React.FC = () => {
   
   // Orders that are delivered and awaiting confirmation
   const deliveredOrders = mockOrders.filter(o => 
-    o.storeName === 'Downtown Branch' && o.status === 'delivered'
+    o.storeName === 'Chi nhánh Quận 1' && o.status === 'delivered'
   );
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  };
+
   const handleConfirmReceipt = () => {
-    toast.success('Goods received and feedback submitted!');
+    toast.success('Đã xác nhận nhận hàng và gửi đánh giá!');
     setSelectedOrder(null);
     setFeedback('');
     setRating(5);
@@ -29,8 +33,8 @@ const ReceiveGoods: React.FC = () => {
   return (
     <div className="animate-fade-in">
       <PageHeader 
-        title="Receive Goods" 
-        subtitle="Confirm receipt and submit quality feedback for delivered orders"
+        title="Nhận hàng" 
+        subtitle="Xác nhận nhận hàng và đánh giá chất lượng"
       />
 
       {deliveredOrders.length === 0 ? (
@@ -38,8 +42,8 @@ const ReceiveGoods: React.FC = () => {
           <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
             <Check size={32} className="text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">No Pending Deliveries</h3>
-          <p className="text-muted-foreground">All delivered orders have been confirmed.</p>
+          <h3 className="text-lg font-semibold mb-2">Không có đơn hàng chờ nhận</h3>
+          <p className="text-muted-foreground">Tất cả đơn hàng đã được xác nhận.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -52,16 +56,16 @@ const ReceiveGoods: React.FC = () => {
               
               <div className="space-y-2 text-sm mb-4">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Delivery Date</span>
+                  <span className="text-muted-foreground">Ngày giao</span>
                   <span>{order.deliveryDate}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Items</span>
-                  <span>{order.items.length} items</span>
+                  <span className="text-muted-foreground">Số sản phẩm</span>
+                  <span>{order.items.length} sản phẩm</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Total</span>
-                  <span className="font-medium">${order.totalAmount.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Tổng tiền</span>
+                  <span className="font-medium">{formatCurrency(order.totalAmount)}</span>
                 </div>
               </div>
 
@@ -73,7 +77,7 @@ const ReceiveGoods: React.FC = () => {
                 ))}
                 {order.items.length > 2 && (
                   <p className="text-sm text-muted-foreground">
-                    +{order.items.length - 2} more items
+                    +{order.items.length - 2} sản phẩm khác
                   </p>
                 )}
               </div>
@@ -83,7 +87,7 @@ const ReceiveGoods: React.FC = () => {
                 onClick={() => setSelectedOrder(order)}
               >
                 <Check size={16} className="mr-2" />
-                Confirm Receipt
+                Xác nhận nhận hàng
               </Button>
             </div>
           ))}
@@ -94,12 +98,12 @@ const ReceiveGoods: React.FC = () => {
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Confirm Receipt - {selectedOrder?.id}</DialogTitle>
+            <DialogTitle>Xác nhận nhận hàng - {selectedOrder?.id}</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
             <div>
-              <Label className="mb-2 block">Quality Rating</Label>
+              <Label className="mb-2 block">Đánh giá chất lượng</Label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -114,10 +118,10 @@ const ReceiveGoods: React.FC = () => {
             </div>
 
             <div>
-              <Label htmlFor="feedback">Quality Feedback (Optional)</Label>
+              <Label htmlFor="feedback">Nhận xét chất lượng (Tùy chọn)</Label>
               <Textarea
                 id="feedback"
-                placeholder="Any comments about the quality, packaging, or condition of items..."
+                placeholder="Nhận xét về chất lượng, đóng gói, tình trạng sản phẩm..."
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 rows={4}
@@ -127,11 +131,11 @@ const ReceiveGoods: React.FC = () => {
 
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1" onClick={() => setSelectedOrder(null)}>
-                Cancel
+                Huỷ
               </Button>
               <Button className="flex-1" onClick={handleConfirmReceipt}>
                 <Check size={16} className="mr-2" />
-                Confirm Receipt
+                Xác nhận
               </Button>
             </div>
           </div>

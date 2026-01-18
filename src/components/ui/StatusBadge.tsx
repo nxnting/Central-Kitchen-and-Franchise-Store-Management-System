@@ -8,18 +8,18 @@ interface StatusBadgeProps {
 }
 
 const statusConfig: Record<Status, { label: string; className: string }> = {
-  pending: { label: 'Pending', className: 'status-badge status-pending' },
-  processing: { label: 'Processing', className: 'status-badge status-processing' },
-  delivered: { label: 'Delivered', className: 'status-badge status-delivered' },
-  cancelled: { label: 'Cancelled', className: 'status-badge status-cancelled' },
-  scheduled: { label: 'Scheduled', className: 'status-badge status-processing' },
-  in_transit: { label: 'In Transit', className: 'status-badge status-processing' },
-  delayed: { label: 'Delayed', className: 'status-badge status-pending' },
-  planned: { label: 'Planned', className: 'status-badge status-pending' },
-  in_progress: { label: 'In Progress', className: 'status-badge status-processing' },
-  completed: { label: 'Completed', className: 'status-badge status-delivered' },
-  active: { label: 'Active', className: 'status-badge status-delivered' },
-  inactive: { label: 'Inactive', className: 'status-badge status-cancelled' },
+  pending: { label: 'Chờ xử lý', className: 'status-badge status-pending' },
+  processing: { label: 'Đang xử lý', className: 'status-badge status-processing' },
+  delivered: { label: 'Đã giao', className: 'status-badge status-delivered' },
+  cancelled: { label: 'Đã huỷ', className: 'status-badge status-cancelled' },
+  scheduled: { label: 'Đã lên lịch', className: 'status-badge status-processing' },
+  in_transit: { label: 'Đang giao', className: 'status-badge status-processing' },
+  delayed: { label: 'Trễ hạn', className: 'status-badge status-pending' },
+  planned: { label: 'Đã lên kế hoạch', className: 'status-badge status-pending' },
+  in_progress: { label: 'Đang thực hiện', className: 'status-badge status-processing' },
+  completed: { label: 'Hoàn thành', className: 'status-badge status-delivered' },
+  active: { label: 'Hoạt động', className: 'status-badge status-delivered' },
+  inactive: { label: 'Ngừng hoạt động', className: 'status-badge status-cancelled' },
 };
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, className = '' }) => {

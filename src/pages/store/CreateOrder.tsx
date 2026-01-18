@@ -58,31 +58,35 @@ const CreateOrder: React.FC = () => {
 
   const total = items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  };
+
   const handleSubmit = () => {
     if (items.length === 0) {
-      toast.error('Please add at least one item to your order');
+      toast.error('Vui lòng thêm ít nhất một sản phẩm');
       return;
     }
     if (!deliveryDate) {
-      toast.error('Please select a delivery date');
+      toast.error('Vui lòng chọn ngày giao hàng');
       return;
     }
-    toast.success('Order submitted successfully!');
+    toast.success('Đã gửi đơn hàng thành công!');
     navigate('/store/orders');
   };
 
   return (
     <div className="animate-fade-in">
       <PageHeader 
-        title="Create New Order" 
-        subtitle="Order ingredients and semi-finished products from Central Kitchen"
+        title="Tạo đơn hàng mới" 
+        subtitle="Đặt nguyên liệu và bán thành phẩm từ Bếp Trung tâm"
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Product Selection */}
         <div className="lg:col-span-2">
           <div className="bg-card rounded-xl border p-6">
-            <h2 className="text-lg font-semibold mb-4">Available Products</h2>
+            <h2 className="text-lg font-semibold mb-4">Danh sách sản phẩm</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {mockProducts.map((product) => (
                 <div
@@ -95,8 +99,8 @@ const CreateOrder: React.FC = () => {
                     <p className="text-sm text-muted-foreground">{product.category}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold">${product.price.toFixed(2)}</p>
-                    <p className="text-xs text-muted-foreground">per {product.unit}</p>
+                    <p className="font-semibold">{formatCurrency(product.price)}</p>
+                    <p className="text-xs text-muted-foreground">/ {product.unit}</p>
                   </div>
                 </div>
               ))}
@@ -109,12 +113,12 @@ const CreateOrder: React.FC = () => {
           <div className="bg-card rounded-xl border p-6 sticky top-8">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <ShoppingCart size={20} />
-              Order Summary
+              Đơn hàng
             </h2>
 
             {items.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">
-                Click on products to add them to your order
+                Nhấp vào sản phẩm để thêm vào đơn hàng
               </p>
             ) : (
               <div className="space-y-3 mb-6">
@@ -123,7 +127,7 @@ const CreateOrder: React.FC = () => {
                     <div className="flex-1">
                       <p className="font-medium text-sm">{item.productName}</p>
                       <p className="text-xs text-muted-foreground">
-                        ${item.unitPrice.toFixed(2)} × {item.quantity} {item.unit}
+                        {formatCurrency(item.unitPrice)} × {item.quantity} {item.unit}
                       </p>
                     </div>
                     <div className="flex items-center gap-1">
@@ -154,7 +158,7 @@ const CreateOrder: React.FC = () => {
 
             <div className="border-t pt-4 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="deliveryDate">Delivery Date</Label>
+                <Label htmlFor="deliveryDate">Ngày giao hàng</Label>
                 <Input
                   id="deliveryDate"
                   type="date"
@@ -165,10 +169,10 @@ const CreateOrder: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Label htmlFor="notes">Ghi chú (Tùy chọn)</Label>
                 <Textarea
                   id="notes"
-                  placeholder="Any special instructions..."
+                  placeholder="Yêu cầu đặc biệt..."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
@@ -176,12 +180,12 @@ const CreateOrder: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between text-lg font-semibold pt-2">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>Tổng cộng</span>
+                <span>{formatCurrency(total)}</span>
               </div>
 
               <Button onClick={handleSubmit} className="w-full" size="lg">
-                Submit Order
+                Gửi đơn hàng
               </Button>
             </div>
           </div>
