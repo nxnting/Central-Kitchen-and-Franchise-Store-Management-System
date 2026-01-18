@@ -19,7 +19,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Hardcoded demo accounts
+// Tài khoản demo
 const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
   store1: {
     password: '123456',
@@ -27,8 +27,8 @@ const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
       id: '1',
       username: 'store1',
       role: 'franchise_store',
-      displayName: 'John Smith',
-      storeName: 'Downtown Branch',
+      displayName: 'Nguyễn Văn An',
+      storeName: 'Chi nhánh Quận 1',
     },
   },
   kitchen1: {
@@ -37,7 +37,7 @@ const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
       id: '2',
       username: 'kitchen1',
       role: 'central_kitchen',
-      displayName: 'Maria Garcia',
+      displayName: 'Trần Thị Bình',
     },
   },
   supply1: {
@@ -46,7 +46,7 @@ const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
       id: '3',
       username: 'supply1',
       role: 'supply_coordinator',
-      displayName: 'David Chen',
+      displayName: 'Lê Văn Cường',
     },
   },
   manager1: {
@@ -55,7 +55,7 @@ const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
       id: '4',
       username: 'manager1',
       role: 'manager',
-      displayName: 'Sarah Johnson',
+      displayName: 'Phạm Thị Dung',
     },
   },
   admin1: {
@@ -64,7 +64,7 @@ const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
       id: '5',
       username: 'admin1',
       role: 'admin',
-      displayName: 'Admin User',
+      displayName: 'Quản Trị Viên',
     },
   },
 };
@@ -113,11 +113,11 @@ export const getRoleDashboardPath = (role: UserRole): string => {
 
 export const getRoleDisplayName = (role: UserRole): string => {
   const names: Record<UserRole, string> = {
-    franchise_store: 'Franchise Store Staff',
-    central_kitchen: 'Central Kitchen Staff',
-    supply_coordinator: 'Supply Coordinator',
-    manager: 'Manager',
-    admin: 'Admin',
+    franchise_store: 'Nhân viên Cửa hàng',
+    central_kitchen: 'Nhân viên Bếp Trung tâm',
+    supply_coordinator: 'Điều phối Cung ứng',
+    manager: 'Quản lý Vận hành',
+    admin: 'Quản trị Hệ thống',
   };
   return names[role];
 };

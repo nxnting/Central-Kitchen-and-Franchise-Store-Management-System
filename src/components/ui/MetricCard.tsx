@@ -42,7 +42,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             <div className={`flex items-center gap-1 mt-2 text-sm ${trend.isPositive ? 'text-success' : 'text-destructive'}`}>
               <span>{trend.isPositive ? '↑' : '↓'}</span>
               <span>{trend.value}%</span>
-              <span className="text-muted-foreground">vs last week</span>
+              <span className="text-muted-foreground">so với tuần trước</span>
             </div>
           )}
         </div>

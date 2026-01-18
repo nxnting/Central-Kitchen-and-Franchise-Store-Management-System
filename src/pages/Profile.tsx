@@ -10,7 +10,7 @@ const Profile: React.FC = () => {
 
   return (
     <div className="max-w-2xl">
-      <PageHeader title="Profile" subtitle="View your account information" />
+      <PageHeader title="Thông tin cá nhân" subtitle="Xem thông tin tài khoản của bạn" />
 
       <div className="bg-card rounded-xl border p-6 space-y-6">
         <div className="flex items-center gap-4">
@@ -29,7 +29,7 @@ const Profile: React.FC = () => {
               <User size={20} className="text-muted-foreground" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Username</p>
+              <p className="text-sm text-muted-foreground">Tài khoản</p>
               <p className="font-medium">{user.username}</p>
             </div>
           </div>
@@ -49,7 +49,7 @@ const Profile: React.FC = () => {
               <Shield size={20} className="text-muted-foreground" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Role</p>
+              <p className="text-sm text-muted-foreground">Vai trò</p>
               <p className="font-medium">{getRoleDisplayName(user.role)}</p>
             </div>
           </div>
@@ -60,7 +60,7 @@ const Profile: React.FC = () => {
                 <Store size={20} className="text-muted-foreground" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Store</p>
+                <p className="text-sm text-muted-foreground">Cửa hàng</p>
                 <p className="font-medium">{user.storeName}</p>
               </div>
             </div>
@@ -71,8 +71,8 @@ const Profile: React.FC = () => {
               <Clock size={20} className="text-muted-foreground" />
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Last Login</p>
-              <p className="font-medium">Today at 9:00 AM</p>
+              <p className="text-sm text-muted-foreground">Đăng nhập lần cuối</p>
+              <p className="font-medium">Hôm nay lúc 9:00</p>
             </div>
           </div>
         </div>

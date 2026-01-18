@@ -4,7 +4,7 @@ import { useAuth, getRoleDashboardPath } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ChefHat, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Coffee, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
     setError('');
 
     if (!username || !password) {
-      setError('Please enter both username and password');
+      setError('Vui lòng nhập tài khoản và mật khẩu');
       return;
     }
 
@@ -28,16 +28,16 @@ const Login: React.FC = () => {
       const user = { role: username === 'store1' ? 'franchise_store' : username === 'kitchen1' ? 'central_kitchen' : username === 'supply1' ? 'supply_coordinator' : username === 'manager1' ? 'manager' : 'admin' } as const;
       navigate(getRoleDashboardPath(user.role));
     } else {
-      setError('Invalid username or password');
+      setError('Tài khoản hoặc mật khẩu không đúng');
     }
   };
 
   const demoAccounts = [
-    { username: 'store1', role: 'Franchise Store Staff' },
-    { username: 'kitchen1', role: 'Central Kitchen Staff' },
-    { username: 'supply1', role: 'Supply Coordinator' },
-    { username: 'manager1', role: 'Manager' },
-    { username: 'admin1', role: 'Admin' },
+    { username: 'store1', role: 'Nhân viên Cửa hàng' },
+    { username: 'kitchen1', role: 'Nhân viên Bếp Trung tâm' },
+    { username: 'supply1', role: 'Điều phối Cung ứng' },
+    { username: 'manager1', role: 'Quản lý Vận hành' },
+    { username: 'admin1', role: 'Quản trị Hệ thống' },
   ];
 
   const handleDemoLogin = (demoUsername: string) => {
@@ -53,28 +53,28 @@ const Login: React.FC = () => {
         <div className="relative z-10 flex flex-col justify-center p-12 text-primary-foreground">
           <div className="flex items-center gap-4 mb-8">
             <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur flex items-center justify-center">
-              <ChefHat className="w-10 h-10" />
+              <Coffee className="w-10 h-10" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">CK Manager</h1>
-              <p className="text-primary-foreground/70">Central Kitchen Management</p>
+              <h1 className="text-3xl font-bold">Trà Sữa Pro</h1>
+              <p className="text-primary-foreground/70">Hệ thống Quản lý Bếp Trung tâm</p>
             </div>
           </div>
           <h2 className="text-4xl font-semibold leading-tight mb-4">
-            Streamline Your<br />Kitchen Operations
+            Quản lý Vận hành<br />Chuỗi Trà Sữa
           </h2>
           <p className="text-lg text-primary-foreground/80 max-w-md">
-            Manage ordering, production, inventory, and distribution between Central Kitchen and Franchise Stores seamlessly.
+            Quản lý đơn hàng, sản xuất, tồn kho và phân phối giữa Bếp Trung tâm và các Cửa hàng Franchise một cách hiệu quả.
           </p>
 
           <div className="mt-12 grid grid-cols-2 gap-4">
             <div className="bg-white/10 backdrop-blur rounded-xl p-4">
               <p className="text-3xl font-bold">156</p>
-              <p className="text-sm text-primary-foreground/70">Orders Today</p>
+              <p className="text-sm text-primary-foreground/70">Đơn hàng hôm nay</p>
             </div>
             <div className="bg-white/10 backdrop-blur rounded-xl p-4">
               <p className="text-3xl font-bold">94%</p>
-              <p className="text-sm text-primary-foreground/70">Delivery Rate</p>
+              <p className="text-sm text-primary-foreground/70">Tỷ lệ giao hàng</p>
             </div>
           </div>
         </div>
@@ -89,17 +89,17 @@ const Login: React.FC = () => {
         <div className="w-full max-w-md">
           <div className="lg:hidden flex items-center gap-3 mb-8">
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-              <ChefHat className="w-7 h-7 text-primary-foreground" />
+              <Coffee className="w-7 h-7 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-foreground">CK Manager</h1>
-              <p className="text-sm text-muted-foreground">Central Kitchen</p>
+              <h1 className="text-xl font-bold text-foreground">Trà Sữa Pro</h1>
+              <p className="text-sm text-muted-foreground">Bếp Trung Tâm</p>
             </div>
           </div>
 
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold text-foreground">Welcome back</h2>
-            <p className="text-muted-foreground mt-1">Sign in to your account to continue</p>
+            <h2 className="text-2xl font-semibold text-foreground">Chào mừng trở lại</h2>
+            <p className="text-muted-foreground mt-1">Đăng nhập để tiếp tục</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -111,11 +111,11 @@ const Login: React.FC = () => {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Tài khoản</Label>
               <Input
                 id="username"
                 type="text"
-                placeholder="Enter your username"
+                placeholder="Nhập tài khoản của bạn"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="h-11"
@@ -123,12 +123,12 @@ const Login: React.FC = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">Mật khẩu</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
+                  placeholder="Nhập mật khẩu"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-11 pr-10"
@@ -144,7 +144,7 @@ const Login: React.FC = () => {
             </div>
 
             <Button type="submit" className="w-full h-11 text-base">
-              Sign In
+              Đăng nhập
             </Button>
           </form>
 
@@ -155,7 +155,7 @@ const Login: React.FC = () => {
                 <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Demo Accounts</span>
+                <span className="bg-background px-2 text-muted-foreground">Tài khoản Demo</span>
               </div>
             </div>
 
@@ -171,7 +171,7 @@ const Login: React.FC = () => {
                     <p className="text-sm font-medium text-foreground">{account.role}</p>
                     <p className="text-xs text-muted-foreground">{account.username} / 123456</p>
                   </div>
-                  <span className="text-xs text-primary">Use →</span>
+                  <span className="text-xs text-primary">Dùng →</span>
                 </button>
               ))}
             </div>
