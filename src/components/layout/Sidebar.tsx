@@ -21,6 +21,8 @@ import {
   Warehouse,
   User,
   Coffee,
+  Layers,
+  PackageCheck,
 } from 'lucide-react';
 
 interface NavItem {
@@ -41,7 +43,9 @@ const getNavItems = (role: UserRole): NavItem[] => {
     central_kitchen: [
       { label: 'Trang chủ', path: '/kitchen', icon: <LayoutDashboard size={20} /> },
       { label: 'Đơn hàng đến', path: '/kitchen/orders', icon: <ClipboardList size={20} /> },
+      { label: 'Tổng hợp đơn SX', path: '/kitchen/production-summary', icon: <Layers size={20} /> },
       { label: 'Kế hoạch sản xuất', path: '/kitchen/production', icon: <Factory size={20} /> },
+      { label: 'Đóng gói cửa hàng', path: '/kitchen/packaging', icon: <PackageCheck size={20} /> },
       { label: 'Tồn kho', path: '/kitchen/inventory', icon: <Warehouse size={20} /> },
       { label: 'Xuất kho', path: '/kitchen/issue', icon: <Package size={20} /> },
     ],

@@ -294,3 +294,236 @@ export const storePerformanceData = [
   { name: 'Q.7', orders: 52, revenue: 152000000 },
   { name: 'Thủ Đức', orders: 21, revenue: 54000000 },
 ];
+
+// ========== Dữ liệu Tổng hợp Đơn Sản xuất ==========
+
+export interface ProductionSummaryItem {
+  id: string;
+  productId: string;
+  productName: string;
+  category: string;
+  unit: string;
+  totalRequired: number;
+  totalProduced: number;
+  remaining: number;
+  status: 'pending' | 'in_progress' | 'completed';
+  storeAllocations: StoreAllocation[];
+  batches: ProductionBatch[];
+}
+
+export interface StoreAllocation {
+  storeId: string;
+  storeName: string;
+  required: number;
+  allocated: number;
+  status: 'fulfilled' | 'partial' | 'pending';
+}
+
+export interface ProductionBatch {
+  id: string;
+  batchNumber: string;
+  quantity: number;
+  producedAt: string;
+  assignedTo: string;
+  status: 'pending' | 'in_progress' | 'completed';
+}
+
+export const mockProductionSummary: ProductionSummaryItem[] = [
+  {
+    id: 'THSX-001',
+    productId: 'SP-001',
+    productName: 'Trân châu đen',
+    category: 'Topping',
+    unit: 'kg',
+    totalRequired: 45,
+    totalProduced: 30,
+    remaining: 15,
+    status: 'in_progress',
+    storeAllocations: [
+      { storeId: 'CH-001', storeName: 'Chi nhánh Quận 1', required: 15, allocated: 10, status: 'partial' },
+      { storeId: 'CH-002', storeName: 'Chi nhánh Quận 3', required: 12, allocated: 12, status: 'fulfilled' },
+      { storeId: 'CH-003', storeName: 'Chi nhánh Quận 7', required: 10, allocated: 8, status: 'partial' },
+      { storeId: 'CH-004', storeName: 'Chi nhánh Thủ Đức', required: 8, allocated: 0, status: 'pending' },
+    ],
+    batches: [
+      { id: 'ME-001', batchNumber: 'TC-240116-01', quantity: 15, producedAt: '2024-01-16 06:00', assignedTo: 'Tổ sản xuất 1', status: 'completed' },
+      { id: 'ME-002', batchNumber: 'TC-240116-02', quantity: 15, producedAt: '2024-01-16 08:00', assignedTo: 'Tổ sản xuất 1', status: 'completed' },
+      { id: 'ME-003', batchNumber: 'TC-240116-03', quantity: 15, producedAt: '', assignedTo: 'Tổ sản xuất 2', status: 'in_progress' },
+    ],
+  },
+  {
+    id: 'THSX-002',
+    productId: 'SP-002',
+    productName: 'Sữa tươi không đường',
+    category: 'Nguyên liệu chính',
+    unit: 'L',
+    totalRequired: 200,
+    totalProduced: 200,
+    remaining: 0,
+    status: 'completed',
+    storeAllocations: [
+      { storeId: 'CH-001', storeName: 'Chi nhánh Quận 1', required: 60, allocated: 60, status: 'fulfilled' },
+      { storeId: 'CH-002', storeName: 'Chi nhánh Quận 3', required: 50, allocated: 50, status: 'fulfilled' },
+      { storeId: 'CH-003', storeName: 'Chi nhánh Quận 7', required: 40, allocated: 40, status: 'fulfilled' },
+      { storeId: 'CH-004', storeName: 'Chi nhánh Thủ Đức', required: 50, allocated: 50, status: 'fulfilled' },
+    ],
+    batches: [
+      { id: 'ME-004', batchNumber: 'ST-240116-01', quantity: 100, producedAt: '2024-01-16 05:00', assignedTo: 'Tổ sản xuất 2', status: 'completed' },
+      { id: 'ME-005', batchNumber: 'ST-240116-02', quantity: 100, producedAt: '2024-01-16 07:00', assignedTo: 'Tổ sản xuất 2', status: 'completed' },
+    ],
+  },
+  {
+    id: 'THSX-003',
+    productId: 'SP-004',
+    productName: 'Kem cheese',
+    category: 'Topping',
+    unit: 'L',
+    totalRequired: 80,
+    totalProduced: 50,
+    remaining: 30,
+    status: 'in_progress',
+    storeAllocations: [
+      { storeId: 'CH-001', storeName: 'Chi nhánh Quận 1', required: 25, allocated: 20, status: 'partial' },
+      { storeId: 'CH-002', storeName: 'Chi nhánh Quận 3', required: 20, allocated: 15, status: 'partial' },
+      { storeId: 'CH-003', storeName: 'Chi nhánh Quận 7', required: 20, allocated: 15, status: 'partial' },
+      { storeId: 'CH-004', storeName: 'Chi nhánh Thủ Đức', required: 15, allocated: 0, status: 'pending' },
+    ],
+    batches: [
+      { id: 'ME-006', batchNumber: 'KC-240116-01', quantity: 25, producedAt: '2024-01-16 06:30', assignedTo: 'Tổ sản xuất 3', status: 'completed' },
+      { id: 'ME-007', batchNumber: 'KC-240116-02', quantity: 25, producedAt: '2024-01-16 09:00', assignedTo: 'Tổ sản xuất 3', status: 'completed' },
+      { id: 'ME-008', batchNumber: 'KC-240116-03', quantity: 30, producedAt: '', assignedTo: 'Tổ sản xuất 3', status: 'pending' },
+    ],
+  },
+  {
+    id: 'THSX-004',
+    productId: 'SP-003',
+    productName: 'Bột trà xanh Nhật Bản',
+    category: 'Bột trà',
+    unit: 'kg',
+    totalRequired: 15,
+    totalProduced: 0,
+    remaining: 15,
+    status: 'pending',
+    storeAllocations: [
+      { storeId: 'CH-001', storeName: 'Chi nhánh Quận 1', required: 5, allocated: 0, status: 'pending' },
+      { storeId: 'CH-002', storeName: 'Chi nhánh Quận 3', required: 4, allocated: 0, status: 'pending' },
+      { storeId: 'CH-003', storeName: 'Chi nhánh Quận 7', required: 3, allocated: 0, status: 'pending' },
+      { storeId: 'CH-004', storeName: 'Chi nhánh Thủ Đức', required: 3, allocated: 0, status: 'pending' },
+    ],
+    batches: [],
+  },
+  {
+    id: 'THSX-005',
+    productId: 'SP-007',
+    productName: 'Thạch dừa',
+    category: 'Topping',
+    unit: 'kg',
+    totalRequired: 35,
+    totalProduced: 35,
+    remaining: 0,
+    status: 'completed',
+    storeAllocations: [
+      { storeId: 'CH-001', storeName: 'Chi nhánh Quận 1', required: 10, allocated: 10, status: 'fulfilled' },
+      { storeId: 'CH-002', storeName: 'Chi nhánh Quận 3', required: 10, allocated: 10, status: 'fulfilled' },
+      { storeId: 'CH-003', storeName: 'Chi nhánh Quận 7', required: 8, allocated: 8, status: 'fulfilled' },
+      { storeId: 'CH-004', storeName: 'Chi nhánh Thủ Đức', required: 7, allocated: 7, status: 'fulfilled' },
+    ],
+    batches: [
+      { id: 'ME-009', batchNumber: 'TD-240116-01', quantity: 35, producedAt: '2024-01-16 05:30', assignedTo: 'Tổ sản xuất 1', status: 'completed' },
+    ],
+  },
+  {
+    id: 'THSX-006',
+    productId: 'SP-008',
+    productName: 'Pudding trứng',
+    category: 'Topping',
+    unit: 'kg',
+    totalRequired: 25,
+    totalProduced: 10,
+    remaining: 15,
+    status: 'in_progress',
+    storeAllocations: [
+      { storeId: 'CH-001', storeName: 'Chi nhánh Quận 1', required: 8, allocated: 4, status: 'partial' },
+      { storeId: 'CH-002', storeName: 'Chi nhánh Quận 3', required: 6, allocated: 3, status: 'partial' },
+      { storeId: 'CH-003', storeName: 'Chi nhánh Quận 7', required: 6, allocated: 3, status: 'partial' },
+      { storeId: 'CH-004', storeName: 'Chi nhánh Thủ Đức', required: 5, allocated: 0, status: 'pending' },
+    ],
+    batches: [
+      { id: 'ME-010', batchNumber: 'PT-240116-01', quantity: 10, producedAt: '2024-01-16 07:30', assignedTo: 'Tổ sản xuất 2', status: 'completed' },
+      { id: 'ME-011', batchNumber: 'PT-240116-02', quantity: 15, producedAt: '', assignedTo: 'Tổ sản xuất 2', status: 'in_progress' },
+    ],
+  },
+];
+
+// Tổng hợp theo cửa hàng để đóng gói
+export interface StorePackaging {
+  storeId: string;
+  storeName: string;
+  address: string;
+  items: PackagingItem[];
+  totalItems: number;
+  status: 'pending' | 'packing' | 'ready' | 'dispatched';
+}
+
+export interface PackagingItem {
+  productId: string;
+  productName: string;
+  quantity: number;
+  unit: string;
+  packed: boolean;
+}
+
+export const mockStorePackaging: StorePackaging[] = [
+  {
+    storeId: 'CH-001',
+    storeName: 'Chi nhánh Quận 1',
+    address: '123 Nguyễn Huệ, Quận 1',
+    items: [
+      { productId: 'SP-001', productName: 'Trân châu đen', quantity: 10, unit: 'kg', packed: true },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 60, unit: 'L', packed: true },
+      { productId: 'SP-004', productName: 'Kem cheese', quantity: 20, unit: 'L', packed: false },
+      { productId: 'SP-007', productName: 'Thạch dừa', quantity: 10, unit: 'kg', packed: true },
+    ],
+    totalItems: 4,
+    status: 'packing',
+  },
+  {
+    storeId: 'CH-002',
+    storeName: 'Chi nhánh Quận 3',
+    address: '456 Võ Văn Tần, Quận 3',
+    items: [
+      { productId: 'SP-001', productName: 'Trân châu đen', quantity: 12, unit: 'kg', packed: true },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 50, unit: 'L', packed: true },
+      { productId: 'SP-004', productName: 'Kem cheese', quantity: 15, unit: 'L', packed: true },
+      { productId: 'SP-007', productName: 'Thạch dừa', quantity: 10, unit: 'kg', packed: true },
+    ],
+    totalItems: 4,
+    status: 'ready',
+  },
+  {
+    storeId: 'CH-003',
+    storeName: 'Chi nhánh Quận 7',
+    address: '789 Nguyễn Thị Thập, Quận 7',
+    items: [
+      { productId: 'SP-001', productName: 'Trân châu đen', quantity: 8, unit: 'kg', packed: false },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 40, unit: 'L', packed: true },
+      { productId: 'SP-004', productName: 'Kem cheese', quantity: 15, unit: 'L', packed: false },
+      { productId: 'SP-007', productName: 'Thạch dừa', quantity: 8, unit: 'kg', packed: true },
+    ],
+    totalItems: 4,
+    status: 'packing',
+  },
+  {
+    storeId: 'CH-004',
+    storeName: 'Chi nhánh Thủ Đức',
+    address: '321 Võ Văn Ngân, Thủ Đức',
+    items: [
+      { productId: 'SP-001', productName: 'Trân châu đen', quantity: 0, unit: 'kg', packed: false },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 50, unit: 'L', packed: true },
+      { productId: 'SP-004', productName: 'Kem cheese', quantity: 0, unit: 'L', packed: false },
+      { productId: 'SP-007', productName: 'Thạch dừa', quantity: 7, unit: 'kg', packed: true },
+    ],
+    totalItems: 4,
+    status: 'pending',
+  },
+];

@@ -14,9 +14,9 @@ const ProductionPlanning: React.FC = () => {
       p.id === planId ? { ...p, status: newStatus } : p
     ));
     const statusMessages = {
-      'in_progress': 'Production started',
-      'completed': 'Production completed',
-      'planned': 'Production paused',
+      'in_progress': 'Đã bắt đầu sản xuất',
+      'completed': 'Đã hoàn thành sản xuất',
+      'planned': 'Đã tạm dừng sản xuất',
     };
     toast.success(statusMessages[newStatus]);
   };
@@ -30,12 +30,12 @@ const ProductionPlanning: React.FC = () => {
   return (
     <div className="animate-fade-in">
       <PageHeader 
-        title="Production Planning" 
-        subtitle="Plan and manage production based on demand"
+        title="Kế hoạch Sản xuất" 
+        subtitle="Lập kế hoạch và quản lý tiến độ sản xuất"
         action={{
-          label: 'New Plan',
+          label: 'Tạo kế hoạch mới',
           icon: Plus,
-          onClick: () => toast.info('Create new production plan')
+          onClick: () => toast.info('Tạo kế hoạch sản xuất mới')
         }}
       />
 
@@ -43,10 +43,10 @@ const ProductionPlanning: React.FC = () => {
       <div className="flex items-center gap-4 mb-6">
         <div className="flex items-center gap-2 bg-card border rounded-lg px-4 py-2">
           <Calendar size={18} className="text-muted-foreground" />
-          <span className="font-medium">January 16, 2024</span>
+          <span className="font-medium">16 tháng 1, 2024</span>
         </div>
-        <Button variant="outline" size="sm">Previous Day</Button>
-        <Button variant="outline" size="sm">Next Day</Button>
+        <Button variant="outline" size="sm">Ngày trước</Button>
+        <Button variant="outline" size="sm">Ngày sau</Button>
       </div>
 
       {/* Kanban-style Board */}
@@ -55,7 +55,7 @@ const ProductionPlanning: React.FC = () => {
         <div className="bg-muted/30 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-3 h-3 rounded-full bg-muted-foreground" />
-            <h3 className="font-semibold">Planned</h3>
+            <h3 className="font-semibold">Đã lên kế hoạch</h3>
             <span className="text-sm text-muted-foreground">({groupedPlans.planned.length})</span>
           </div>
           <div className="space-y-3">
@@ -74,7 +74,7 @@ const ProductionPlanning: React.FC = () => {
                   onClick={() => handleStatusChange(plan.id, 'in_progress')}
                 >
                   <Play size={14} className="mr-1" />
-                  Start Production
+                  Bắt đầu sản xuất
                 </Button>
               </div>
             ))}
@@ -85,7 +85,7 @@ const ProductionPlanning: React.FC = () => {
         <div className="bg-info/5 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-3 h-3 rounded-full bg-info" />
-            <h3 className="font-semibold">In Progress</h3>
+            <h3 className="font-semibold">Đang sản xuất</h3>
             <span className="text-sm text-muted-foreground">({groupedPlans.in_progress.length})</span>
           </div>
           <div className="space-y-3">
@@ -106,7 +106,7 @@ const ProductionPlanning: React.FC = () => {
                     onClick={() => handleStatusChange(plan.id, 'planned')}
                   >
                     <Pause size={14} className="mr-1" />
-                    Pause
+                    Tạm dừng
                   </Button>
                   <Button 
                     size="sm" 
@@ -114,7 +114,7 @@ const ProductionPlanning: React.FC = () => {
                     onClick={() => handleStatusChange(plan.id, 'completed')}
                   >
                     <Check size={14} className="mr-1" />
-                    Complete
+                    Hoàn thành
                   </Button>
                 </div>
               </div>
@@ -126,7 +126,7 @@ const ProductionPlanning: React.FC = () => {
         <div className="bg-success/5 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-3 h-3 rounded-full bg-success" />
-            <h3 className="font-semibold">Completed</h3>
+            <h3 className="font-semibold">Hoàn thành</h3>
             <span className="text-sm text-muted-foreground">({groupedPlans.completed.length})</span>
           </div>
           <div className="space-y-3">

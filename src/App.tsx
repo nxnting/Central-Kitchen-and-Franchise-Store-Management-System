@@ -18,6 +18,8 @@ import StoreInventory from "@/pages/store/StoreInventory";
 import KitchenDashboard from "@/pages/kitchen/KitchenDashboard";
 import IncomingOrders from "@/pages/kitchen/IncomingOrders";
 import ProductionPlanning from "@/pages/kitchen/ProductionPlanning";
+import ProductionSummary from "@/pages/kitchen/ProductionSummary";
+import StorePackaging from "@/pages/kitchen/StorePackaging";
 import KitchenInventory from "@/pages/kitchen/KitchenInventory";
 import IssueGoods from "@/pages/kitchen/IssueGoods";
 // Coordinator Pages
@@ -54,7 +56,9 @@ const App = () => (
               {/* Kitchen Routes */}
               <Route path="/kitchen" element={<KitchenDashboard />} />
               <Route path="/kitchen/orders" element={<IncomingOrders />} />
+              <Route path="/kitchen/production-summary" element={<ProductionSummary />} />
               <Route path="/kitchen/production" element={<ProductionPlanning />} />
+              <Route path="/kitchen/packaging" element={<StorePackaging />} />
               <Route path="/kitchen/inventory" element={<KitchenInventory />} />
               <Route path="/kitchen/issue" element={<IssueGoods />} />
               {/* Coordinator Routes */}
