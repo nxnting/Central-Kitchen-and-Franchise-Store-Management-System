@@ -21,16 +21,26 @@ import ProductionPlanning from "@/pages/kitchen/ProductionPlanning";
 import ProductionSummary from "@/pages/kitchen/ProductionSummary";
 import StorePackaging from "@/pages/kitchen/StorePackaging";
 import KitchenInventory from "@/pages/kitchen/KitchenInventory";
-import IssueGoods from "@/pages/kitchen/IssueGoods";
 // Coordinator Pages
 import CoordinatorDashboard from "@/pages/coordinator/CoordinatorDashboard";
 import AggregatedOrders from "@/pages/coordinator/AggregatedOrders";
+import ProductionCoordination from "@/pages/coordinator/ProductionCoordination";
 import DeliverySchedule from "@/pages/coordinator/DeliverySchedule";
 import DeliveryTracking from "@/pages/coordinator/DeliveryTracking";
 import ExceptionHandling from "@/pages/coordinator/ExceptionHandling";
-// Manager & Admin Pages
+// Manager Pages
 import ManagerDashboard from "@/pages/manager/ManagerDashboard";
+import ProductManagement from "@/pages/manager/ProductManagement";
+import RecipeManagement from "@/pages/manager/RecipeManagement";
+import InventoryOverview from "@/pages/manager/InventoryOverview";
+import Reports from "@/pages/manager/Reports";
+// Admin Pages
 import AdminDashboard from "@/pages/admin/AdminDashboard";
+import UserManagement from "@/pages/admin/UserManagement";
+import RoleManagement from "@/pages/admin/RoleManagement";
+import SystemConfig from "@/pages/admin/SystemConfig";
+import LocationManagement from "@/pages/admin/LocationManagement";
+import SystemReports from "@/pages/admin/SystemReports";
 
 const queryClient = new QueryClient();
 
@@ -60,27 +70,26 @@ const App = () => (
               <Route path="/kitchen/production" element={<ProductionPlanning />} />
               <Route path="/kitchen/packaging" element={<StorePackaging />} />
               <Route path="/kitchen/inventory" element={<KitchenInventory />} />
-              <Route path="/kitchen/issue" element={<IssueGoods />} />
               {/* Coordinator Routes */}
               <Route path="/coordinator" element={<CoordinatorDashboard />} />
               <Route path="/coordinator/orders" element={<AggregatedOrders />} />
-              <Route path="/coordinator/coordination" element={<CoordinatorDashboard />} />
+              <Route path="/coordinator/coordination" element={<ProductionCoordination />} />
               <Route path="/coordinator/schedule" element={<DeliverySchedule />} />
               <Route path="/coordinator/tracking" element={<DeliveryTracking />} />
               <Route path="/coordinator/exceptions" element={<ExceptionHandling />} />
               {/* Manager Routes */}
               <Route path="/manager" element={<ManagerDashboard />} />
-              <Route path="/manager/products" element={<ManagerDashboard />} />
-              <Route path="/manager/recipes" element={<ManagerDashboard />} />
-              <Route path="/manager/inventory" element={<ManagerDashboard />} />
-              <Route path="/manager/reports" element={<ManagerDashboard />} />
+              <Route path="/manager/products" element={<ProductManagement />} />
+              <Route path="/manager/recipes" element={<RecipeManagement />} />
+              <Route path="/manager/inventory" element={<InventoryOverview />} />
+              <Route path="/manager/reports" element={<Reports />} />
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<AdminDashboard />} />
-              <Route path="/admin/roles" element={<AdminDashboard />} />
-              <Route path="/admin/config" element={<AdminDashboard />} />
-              <Route path="/admin/locations" element={<AdminDashboard />} />
-              <Route path="/admin/reports" element={<AdminDashboard />} />
+              <Route path="/admin/users" element={<UserManagement />} />
+              <Route path="/admin/roles" element={<RoleManagement />} />
+              <Route path="/admin/config" element={<SystemConfig />} />
+              <Route path="/admin/locations" element={<LocationManagement />} />
+              <Route path="/admin/reports" element={<SystemReports />} />
             </Route>
             
             <Route path="*" element={<NotFound />} />
