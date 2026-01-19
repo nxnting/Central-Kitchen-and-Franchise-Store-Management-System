@@ -32,11 +32,12 @@ const ProductionPlanning: React.FC = () => {
       <PageHeader 
         title="Kế hoạch Sản xuất" 
         subtitle="Lập kế hoạch và quản lý tiến độ sản xuất"
-        action={{
-          label: 'Tạo kế hoạch mới',
-          icon: Plus,
-          onClick: () => toast.info('Tạo kế hoạch sản xuất mới')
-        }}
+        action={
+          <Button onClick={() => toast.info('Tạo kế hoạch sản xuất mới')}>
+            <Plus size={16} className="mr-2" />
+            Tạo kế hoạch mới
+          </Button>
+        }
       />
 
       {/* Date Selection */}
