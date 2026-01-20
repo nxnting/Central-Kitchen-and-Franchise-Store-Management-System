@@ -54,12 +54,6 @@ const Reports: React.FC = () => {
       <PageHeader 
         title="Báo cáo & Phân tích" 
         subtitle="Báo cáo hao hụt, chi phí và hiệu suất vận hành"
-        action={
-          <Button variant="outline">
-            <Download size={16} className="mr-2" />
-            Xuất báo cáo
-          </Button>
-        }
       />
 
       {/* Summary Cards */}

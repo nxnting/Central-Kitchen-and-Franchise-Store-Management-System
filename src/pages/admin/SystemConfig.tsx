@@ -53,12 +53,11 @@ const SystemConfig: React.FC = () => {
       <PageHeader 
         title="Cấu hình Hệ thống" 
         subtitle="Thiết lập các thông số và quy trình hệ thống"
-        action={
-          <Button onClick={handleSave}>
-            <Save size={16} className="mr-2" />
-            Lưu cấu hình
-          </Button>
-        }
+        action={{
+          label: 'Lưu cấu hình',
+          icon: Save,
+          onClick: handleSave
+        }}
       />
 
       <Tabs defaultValue="units" className="space-y-6">

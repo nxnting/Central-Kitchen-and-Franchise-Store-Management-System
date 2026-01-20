@@ -30,6 +30,7 @@ export interface Product {
   minStock: number;
   expiryDate?: string;
   batchNumber?: string;
+  description?: string;
 }
 
 export interface Recipe {
@@ -39,14 +40,17 @@ export interface Recipe {
   ingredients: RecipeIngredient[];
   yield: number;
   unit: string;
+  yieldUnit?: string;
   instructions: string;
 }
 
 export interface RecipeIngredient {
   productId: string;
   productName: string;
+  name?: string;
   quantity: number;
   unit: string;
+  cost?: number;
 }
 
 export interface Store {
@@ -90,14 +94,19 @@ export interface InventoryItem {
   batchNumber: string;
   expiryDate: string;
   location: string;
+  type?: string;
+  minStock?: number;
 }
 
 export interface UserAccount {
   id: string;
   username: string;
   displayName: string;
+  name?: string;
   email: string;
+  phone?: string;
   role: string;
+  location?: string;
   status: 'active' | 'inactive';
   lastLogin: string;
 }

@@ -47,7 +47,6 @@ const getNavItems = (role: UserRole): NavItem[] => {
       { label: 'Kế hoạch sản xuất', path: '/kitchen/production', icon: <Factory size={20} /> },
       { label: 'Đóng gói cửa hàng', path: '/kitchen/packaging', icon: <PackageCheck size={20} /> },
       { label: 'Tồn kho', path: '/kitchen/inventory', icon: <Warehouse size={20} /> },
-      { label: 'Xuất kho', path: '/kitchen/issue', icon: <Package size={20} /> },
     ],
     supply_coordinator: [
       { label: 'Trang chủ', path: '/coordinator', icon: <LayoutDashboard size={20} /> },

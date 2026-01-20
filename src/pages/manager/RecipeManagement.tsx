@@ -51,12 +51,11 @@ const RecipeManagement: React.FC = () => {
       <PageHeader 
         title="Công thức & BOM" 
         subtitle="Quản lý công thức pha chế và định mức nguyên liệu"
-        action={
-          <Button onClick={() => { setSelectedRecipe(null); setIsDialogOpen(true); }}>
-            <Plus size={16} className="mr-2" />
-            Thêm công thức
-          </Button>
-        }
+        action={{
+          label: 'Thêm công thức',
+          icon: Plus,
+          onClick: () => { setSelectedRecipe(null); setIsDialogOpen(true); }
+        }}
       />
 
       {/* Search */}
@@ -91,7 +90,7 @@ const RecipeManagement: React.FC = () => {
                         <div>
                           <h3 className="font-semibold">{recipe.productName}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {recipe.ingredients.length} nguyên liệu • Sản lượng: {recipe.yield} {recipe.yieldUnit}
+                            {recipe.ingredients.length} nguyên liệu • Sản lượng: {recipe.yield} {recipe.unit}
                           </p>
                         </div>
                       </div>
@@ -134,7 +133,7 @@ const RecipeManagement: React.FC = () => {
                         <tbody>
                           {recipe.ingredients.map((ing, idx) => (
                             <tr key={idx} className="border-b border-border last:border-0">
-                              <td className="p-3 font-medium">{ing.name}</td>
+                              <td className="p-3 font-medium">{ing.productName}</td>
                               <td className="p-3 text-right">{ing.quantity}</td>
                               <td className="p-3 text-right text-muted-foreground">{ing.unit}</td>
                               <td className="p-3 text-right">{(ing.cost || 0).toLocaleString('vi-VN')}đ</td>
@@ -186,7 +185,7 @@ const RecipeManagement: React.FC = () => {
               <div>
                 <Label>Đơn vị</Label>
                 <Input 
-                  defaultValue={selectedRecipe?.yieldUnit || ''} 
+                  defaultValue={selectedRecipe?.unit || ''} 
                   placeholder="VD: ly"
                 />
               </div>
@@ -203,7 +202,7 @@ const RecipeManagement: React.FC = () => {
               <div className="mt-2 space-y-2">
                 {(selectedRecipe?.ingredients || []).map((ing, idx) => (
                   <div key={idx} className="flex gap-2 items-center p-2 bg-muted/30 rounded-lg">
-                    <span className="flex-1 text-sm">{ing.name}</span>
+                    <span className="flex-1 text-sm">{ing.productName}</span>
                     <span className="text-sm">{ing.quantity} {ing.unit}</span>
                   </div>
                 ))}
