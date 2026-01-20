@@ -19,7 +19,7 @@ const InventoryOverview: React.FC = () => {
     item.productName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const lowStockItems = mockInventory.filter(item => item.quantity <= item.minStock);
+  const lowStockItems = mockInventory.filter(item => item.quantity <= (item.minStock || 10));
   const expiringItems = mockInventory.filter(item => {
     if (!item.expiryDate) return false;
     const expiry = new Date(item.expiryDate);
@@ -130,8 +130,9 @@ const InventoryOverview: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredInventory.map(item => {
-                  const isLowStock = item.quantity <= item.minStock;
+              {filteredInventory.map(item => {
+                  const minStock = item.minStock || 10;
+                  const isLowStock = item.quantity <= minStock;
                   const isExpiringSoon = item.expiryDate && (() => {
                     const expiry = new Date(item.expiryDate);
                     const today = new Date();
@@ -142,9 +143,9 @@ const InventoryOverview: React.FC = () => {
                   return (
                     <tr key={item.id} className="border-b last:border-0 hover:bg-muted/20">
                       <td className="p-4 font-medium">{item.productName}</td>
-                      <td className="p-4 text-muted-foreground">{item.type}</td>
+                      <td className="p-4 text-muted-foreground">{item.category}</td>
                       <td className="p-4 text-right">{item.quantity} {item.unit}</td>
-                      <td className="p-4 text-right text-muted-foreground">{item.minStock} {item.unit}</td>
+                      <td className="p-4 text-right text-muted-foreground">{minStock} {item.unit}</td>
                       <td className="p-4">
                         <div className="text-sm">
                           <p>{item.batchNumber || '-'}</p>

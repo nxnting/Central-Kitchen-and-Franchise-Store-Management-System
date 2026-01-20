@@ -26,7 +26,7 @@ const UserManagement: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const filteredUsers = users.filter(u => 
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.displayName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     u.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -76,12 +76,11 @@ const UserManagement: React.FC = () => {
       <PageHeader 
         title="Quản lý Người dùng" 
         subtitle="Quản lý tài khoản và quyền truy cập hệ thống"
-        action={
-          <Button onClick={() => { setSelectedUser(null); setIsDialogOpen(true); }}>
-            <Plus size={16} className="mr-2" />
-            Thêm người dùng
-          </Button>
-        }
+        action={{
+          label: 'Thêm người dùng',
+          icon: Plus,
+          onClick: () => { setSelectedUser(null); setIsDialogOpen(true); }
+        }}
       />
 
       {/* Stats */}
@@ -137,11 +136,11 @@ const UserManagement: React.FC = () => {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                       <span className="text-primary font-semibold">
-                        {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                        {user.displayName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium">{user.name}</p>
+                      <p className="font-medium">{user.displayName}</p>
                       <p className="text-sm text-muted-foreground">@{user.username}</p>
                     </div>
                   </div>
@@ -158,15 +157,9 @@ const UserManagement: React.FC = () => {
                       <Mail size={12} className="text-muted-foreground" />
                       {user.email}
                     </p>
-                    {user.phone && (
-                      <p className="flex items-center gap-1 text-muted-foreground">
-                        <Phone size={12} />
-                        {user.phone}
-                      </p>
-                    )}
                   </div>
                 </td>
-                <td className="p-4 text-sm text-muted-foreground">{user.location || '-'}</td>
+                <td className="p-4 text-sm text-muted-foreground">-</td>
                 <td className="p-4 text-center">
                   {user.status === 'active' ? (
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
@@ -215,7 +208,7 @@ const UserManagement: React.FC = () => {
           <div className="space-y-4">
             <div>
               <Label>Họ và tên</Label>
-              <Input defaultValue={selectedUser?.name || ''} placeholder="Nguyễn Văn A" />
+              <Input defaultValue={selectedUser?.displayName || ''} placeholder="Nguyễn Văn A" />
             </div>
             <div>
               <Label>Tên đăng nhập</Label>
@@ -224,10 +217,6 @@ const UserManagement: React.FC = () => {
             <div>
               <Label>Email</Label>
               <Input type="email" defaultValue={selectedUser?.email || ''} placeholder="email@example.com" />
-            </div>
-            <div>
-              <Label>Số điện thoại</Label>
-              <Input defaultValue={selectedUser?.phone || ''} placeholder="0901234567" />
             </div>
             <div>
               <Label>Vai trò</Label>
@@ -243,10 +232,6 @@ const UserManagement: React.FC = () => {
                   <SelectItem value="admin">Quản trị viên</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Label>Đơn vị làm việc</Label>
-              <Input defaultValue={selectedUser?.location || ''} placeholder="Cửa hàng Q1" />
             </div>
 
             <div className="flex gap-3 pt-2">

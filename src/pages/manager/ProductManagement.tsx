@@ -59,12 +59,11 @@ const ProductManagement: React.FC = () => {
       <PageHeader 
         title="Quản lý Menu Trà Sữa" 
         subtitle="Quản lý danh sách sản phẩm và nguyên liệu"
-        action={
-          <Button onClick={() => { setSelectedProduct(null); setIsViewMode(false); setIsDialogOpen(true); }}>
-            <Plus size={16} className="mr-2" />
-            Thêm sản phẩm
-          </Button>
-        }
+        action={{
+          label: 'Thêm sản phẩm',
+          icon: Plus,
+          onClick: () => { setSelectedProduct(null); setIsViewMode(false); setIsDialogOpen(true); }
+        }}
       />
 
       {/* Search & Filters */}

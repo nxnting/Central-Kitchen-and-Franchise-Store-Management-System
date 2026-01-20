@@ -55,12 +55,6 @@ const SystemReports: React.FC = () => {
       <PageHeader 
         title="Báo cáo Tổng hợp" 
         subtitle="Xem báo cáo và thống kê toàn hệ thống"
-        action={
-          <Button variant="outline">
-            <Download size={16} className="mr-2" />
-            Xuất tất cả
-          </Button>
-        }
       />
 
       {/* Summary Stats */}

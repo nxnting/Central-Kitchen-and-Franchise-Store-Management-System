@@ -31,7 +31,7 @@ interface Kitchen {
 }
 
 const LocationManagement: React.FC = () => {
-  const [stores, setStores] = useState(mockStores.map(s => ({ ...s, status: 'active' as const, phone: '028 1234 5678' })));
+  const [stores, setStores] = useState(mockStores.map(s => ({ ...s, phone: s.phone || '028 1234 5678' })));
   const [kitchens, setKitchens] = useState<Kitchen[]>([
     { id: 'K1', name: 'Bếp Trung Tâm Q1', address: '123 Lê Lợi, Q1, HCM', phone: '028 1234 5678', manager: 'Nguyễn Văn A', status: 'active', capacity: 500 },
     { id: 'K2', name: 'Bếp Dự Phòng Q7', address: '456 Nguyễn Hữu Thọ, Q7, HCM', phone: '028 9876 5432', manager: 'Trần Thị B', status: 'active', capacity: 300 },
