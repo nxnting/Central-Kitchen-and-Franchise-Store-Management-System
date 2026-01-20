@@ -27,14 +27,13 @@ const DeliveryScheduleView: React.FC = () => {
   return (
     <div className="animate-fade-in">
       <PageHeader 
-        title="Lịch Giao hàng" 
-        subtitle="Lập kế hoạch và quản lý lịch giao hàng"
-        action={
-          <Button onClick={() => toast.info('Tạo lịch giao hàng mới')}>
-            <Plus size={16} className="mr-2" />
-            Tạo lịch mới
-          </Button>
-        }
+        title="Delivery Schedule" 
+        subtitle="Plan and manage delivery schedules"
+        action={{
+          label: 'New Schedule',
+          icon: Plus,
+          onClick: () => toast.info('Create new delivery schedule')
+        }}
       />
 
       {/* Timeline View */}

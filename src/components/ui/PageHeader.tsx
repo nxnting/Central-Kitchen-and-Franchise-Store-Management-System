@@ -1,9 +1,15 @@
 import React from 'react';
+import { Button } from './button';
+import { LucideIcon } from 'lucide-react';
 
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
-  action?: React.ReactNode;
+  action?: {
+    label: string;
+    icon?: LucideIcon;
+    onClick: () => void;
+  };
 }
 
 export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, action }) => {
@@ -15,7 +21,12 @@ export const PageHeader: React.FC<PageHeaderProps> = ({ title, subtitle, action 
           <p className="text-muted-foreground mt-1">{subtitle}</p>
         )}
       </div>
-      {action}
+      {action && (
+        <Button onClick={action.onClick} className="gap-2">
+          {action.icon && <action.icon size={18} />}
+          {action.label}
+        </Button>
+      )}
     </div>
   );
 };

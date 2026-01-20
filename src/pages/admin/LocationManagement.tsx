@@ -127,7 +127,7 @@ const LocationManagement: React.FC = () => {
               <XCircle className="w-5 h-5 text-muted-foreground" />
             </div>
             <div>
-              <p className="text-2xl font-bold">{stores.filter(s => s.status !== 'active').length + kitchens.filter(k => k.status !== 'active').length}</p>
+              <p className="text-2xl font-bold">{stores.filter(s => s.status === 'inactive').length + kitchens.filter(k => k.status === 'inactive').length}</p>
               <p className="text-sm text-muted-foreground">Tạm ngưng</p>
             </div>
           </div>

@@ -30,7 +30,6 @@ export interface Product {
   minStock: number;
   expiryDate?: string;
   batchNumber?: string;
-  description?: string;
 }
 
 export interface Recipe {
@@ -40,17 +39,14 @@ export interface Recipe {
   ingredients: RecipeIngredient[];
   yield: number;
   unit: string;
-  yieldUnit?: string;
   instructions: string;
 }
 
 export interface RecipeIngredient {
   productId: string;
   productName: string;
-  name?: string;
   quantity: number;
   unit: string;
-  cost?: number;
 }
 
 export interface Store {
@@ -94,19 +90,14 @@ export interface InventoryItem {
   batchNumber: string;
   expiryDate: string;
   location: string;
-  minStock?: number;
-  type?: string;
 }
 
 export interface UserAccount {
   id: string;
   username: string;
   displayName: string;
-  name?: string;
   email: string;
-  phone?: string;
   role: string;
-  location?: string;
   status: 'active' | 'inactive';
   lastLogin: string;
 }
@@ -198,14 +189,13 @@ export const mockRecipes: Recipe[] = [
     productId: 'TP-001',
     productName: 'Trà sữa trân châu đường đen',
     ingredients: [
-      { productId: 'SP-001', productName: 'Trân châu đen', name: 'Trân châu đen', quantity: 0.05, unit: 'kg', cost: 4250 },
-      { productId: 'SP-002', productName: 'Sữa tươi không đường', name: 'Sữa tươi không đường', quantity: 0.15, unit: 'L', cost: 4200 },
-      { productId: 'NL-001', productName: 'Đường đen', name: 'Đường đen', quantity: 0.03, unit: 'kg', cost: 1500 },
-      { productId: 'NL-002', productName: 'Trà đen Ceylon', name: 'Trà đen Ceylon', quantity: 0.01, unit: 'kg', cost: 2000 },
+      { productId: 'SP-001', productName: 'Trân châu đen', quantity: 0.05, unit: 'kg' },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 0.15, unit: 'L' },
+      { productId: 'NL-001', productName: 'Đường đen', quantity: 0.03, unit: 'kg' },
+      { productId: 'NL-002', productName: 'Trà đen Ceylon', quantity: 0.01, unit: 'kg' },
     ],
     yield: 1,
     unit: 'ly',
-    yieldUnit: 'ly',
     instructions: 'Pha trà đen, thêm sữa tươi, thêm đường đen, thêm trân châu đã nấu chín.',
   },
   {
@@ -213,13 +203,12 @@ export const mockRecipes: Recipe[] = [
     productId: 'TP-002',
     productName: 'Trà xanh matcha kem cheese',
     ingredients: [
-      { productId: 'SP-003', productName: 'Bột trà xanh Nhật Bản', name: 'Bột trà xanh Nhật Bản', quantity: 0.008, unit: 'kg', cost: 3600 },
-      { productId: 'SP-004', productName: 'Kem cheese', name: 'Kem cheese', quantity: 0.05, unit: 'L', cost: 4750 },
-      { productId: 'SP-002', productName: 'Sữa tươi không đường', name: 'Sữa tươi không đường', quantity: 0.12, unit: 'L', cost: 3360 },
+      { productId: 'SP-003', productName: 'Bột trà xanh Nhật Bản', quantity: 0.008, unit: 'kg' },
+      { productId: 'SP-004', productName: 'Kem cheese', quantity: 0.05, unit: 'L' },
+      { productId: 'SP-002', productName: 'Sữa tươi không đường', quantity: 0.12, unit: 'L' },
     ],
     yield: 1,
     unit: 'ly',
-    yieldUnit: 'ly',
     instructions: 'Pha bột matcha với nước nóng, thêm sữa, đổ kem cheese lên trên.',
   },
 ];
@@ -251,20 +240,20 @@ export const mockProductionPlans: ProductionPlan[] = [
 
 // Mock Tồn kho
 export const mockInventory: InventoryItem[] = [
-  { id: 'TK-001', productId: 'NL-001', productName: 'Đường đen Okinawa', category: 'Nguyên liệu', quantity: 100, unit: 'kg', batchNumber: 'LO-2024-001', expiryDate: '2024-06-15', location: 'Kho A', minStock: 20, type: 'Nguyên liệu' },
-  { id: 'TK-002', productId: 'NL-002', productName: 'Trà đen Ceylon', category: 'Nguyên liệu', quantity: 50, unit: 'kg', batchNumber: 'LO-2024-002', expiryDate: '2024-03-20', location: 'Kho B', minStock: 10, type: 'Nguyên liệu' },
-  { id: 'TK-003', productId: 'SP-001', productName: 'Trân châu đen', category: 'Bán thành phẩm', quantity: 40, unit: 'kg', batchNumber: 'LO-2024-003', expiryDate: '2024-01-18', location: 'Kho lạnh', minStock: 15, type: 'Bán thành phẩm' },
-  { id: 'TK-004', productId: 'SP-004', productName: 'Kem cheese', category: 'Bán thành phẩm', quantity: 25, unit: 'L', batchNumber: 'LO-2024-004', expiryDate: '2024-02-10', location: 'Kho lạnh', minStock: 10, type: 'Bán thành phẩm' },
-  { id: 'TK-005', productId: 'NL-003', productName: 'Bột sữa Đài Loan', category: 'Nguyên liệu', quantity: 80, unit: 'kg', batchNumber: 'LO-2024-005', expiryDate: '2024-04-30', location: 'Kho A', minStock: 15, type: 'Nguyên liệu' },
+  { id: 'TK-001', productId: 'NL-001', productName: 'Đường đen Okinawa', category: 'Nguyên liệu', quantity: 100, unit: 'kg', batchNumber: 'LO-2024-001', expiryDate: '2024-06-15', location: 'Kho A' },
+  { id: 'TK-002', productId: 'NL-002', productName: 'Trà đen Ceylon', category: 'Nguyên liệu', quantity: 50, unit: 'kg', batchNumber: 'LO-2024-002', expiryDate: '2024-03-20', location: 'Kho B' },
+  { id: 'TK-003', productId: 'SP-001', productName: 'Trân châu đen', category: 'Bán thành phẩm', quantity: 40, unit: 'kg', batchNumber: 'LO-2024-003', expiryDate: '2024-01-18', location: 'Kho lạnh' },
+  { id: 'TK-004', productId: 'SP-004', productName: 'Kem cheese', category: 'Bán thành phẩm', quantity: 25, unit: 'L', batchNumber: 'LO-2024-004', expiryDate: '2024-02-10', location: 'Kho lạnh' },
+  { id: 'TK-005', productId: 'NL-003', productName: 'Bột sữa Đài Loan', category: 'Nguyên liệu', quantity: 80, unit: 'kg', batchNumber: 'LO-2024-005', expiryDate: '2024-04-30', location: 'Kho A' },
 ];
 
 // Mock Người dùng
 export const mockUsers: UserAccount[] = [
-  { id: 'U-001', username: 'store1', displayName: 'Nguyễn Văn An', name: 'Nguyễn Văn An', email: 'an.nguyen@example.com', phone: '0901234567', role: 'franchise_store', location: 'Chi nhánh Quận 1', status: 'active', lastLogin: '2024-01-15 09:00' },
-  { id: 'U-002', username: 'kitchen1', displayName: 'Trần Thị Bình', name: 'Trần Thị Bình', email: 'binh.tran@example.com', phone: '0901234568', role: 'central_kitchen', location: 'Bếp Trung Tâm Q1', status: 'active', lastLogin: '2024-01-15 06:00' },
-  { id: 'U-003', username: 'supply1', displayName: 'Lê Văn Cường', name: 'Lê Văn Cường', email: 'cuong.le@example.com', phone: '0901234569', role: 'supply_coordinator', location: 'Văn phòng', status: 'active', lastLogin: '2024-01-15 07:30' },
-  { id: 'U-004', username: 'manager1', displayName: 'Phạm Thị Dung', name: 'Phạm Thị Dung', email: 'dung.pham@example.com', phone: '0901234570', role: 'manager', location: 'Văn phòng', status: 'active', lastLogin: '2024-01-15 08:00' },
-  { id: 'U-005', username: 'admin1', displayName: 'Quản Trị Viên', name: 'Quản Trị Viên', email: 'admin@example.com', phone: '0901234571', role: 'admin', location: 'Văn phòng', status: 'active', lastLogin: '2024-01-15 08:30' },
+  { id: 'U-001', username: 'store1', displayName: 'Nguyễn Văn An', email: 'an.nguyen@example.com', role: 'Nhân viên Cửa hàng', status: 'active', lastLogin: '2024-01-15 09:00' },
+  { id: 'U-002', username: 'kitchen1', displayName: 'Trần Thị Bình', email: 'binh.tran@example.com', role: 'Nhân viên Bếp Trung tâm', status: 'active', lastLogin: '2024-01-15 06:00' },
+  { id: 'U-003', username: 'supply1', displayName: 'Lê Văn Cường', email: 'cuong.le@example.com', role: 'Điều phối Cung ứng', status: 'active', lastLogin: '2024-01-15 07:30' },
+  { id: 'U-004', username: 'manager1', displayName: 'Phạm Thị Dung', email: 'dung.pham@example.com', role: 'Quản lý Vận hành', status: 'active', lastLogin: '2024-01-15 08:00' },
+  { id: 'U-005', username: 'admin1', displayName: 'Quản Trị Viên', email: 'admin@example.com', role: 'Quản trị Hệ thống', status: 'active', lastLogin: '2024-01-15 08:30' },
 ];
 
 // Dashboard KPIs

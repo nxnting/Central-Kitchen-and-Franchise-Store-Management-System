@@ -50,12 +50,11 @@ const OrderList: React.FC = () => {
       <PageHeader 
         title="Đơn hàng của tôi" 
         subtitle="Xem và theo dõi đơn hàng từ Bếp Trung tâm"
-        action={
-          <Button onClick={() => window.location.href = '/store/orders/new'}>
-            <ShoppingCart size={16} className="mr-2" />
-            Tạo đơn mới
-          </Button>
-        }
+        action={{
+          label: 'Tạo đơn mới',
+          icon: ShoppingCart,
+          onClick: () => window.location.href = '/store/orders/new'
+        }}
       />
 
       <DataTable columns={columns} data={storeOrders} />

@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { Button } from '@/components/ui/button';
 import { mockOrders, mockProducts } from '@/data/mockData';
 import { ShoppingCart, Package, ClipboardList, AlertTriangle, ArrowRight } from 'lucide-react';
 
@@ -22,14 +21,11 @@ const StoreDashboard: React.FC = () => {
       <PageHeader 
         title="Trang chủ Cửa hàng" 
         subtitle="Chi nhánh Quận 1 - Tổng quan hoạt động"
-        action={
-          <Link to="/store/orders/new">
-            <Button>
-              <ShoppingCart size={16} className="mr-2" />
-              Tạo đơn hàng
-            </Button>
-          </Link>
-        }
+        action={{
+          label: 'Tạo đơn hàng',
+          icon: ShoppingCart,
+          onClick: () => window.location.href = '/store/orders/new'
+        }}
       />
 
       {/* Metrics */}
