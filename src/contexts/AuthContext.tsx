@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type UserRole = 'franchise_store' | 'central_kitchen' | 'supply_coordinator' | 'manager' | 'admin';
 
@@ -19,7 +19,19 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Tài khoản demo
+// Map role từ API sang UserRole
+const mapApiRoleToUserRole = (role: string): UserRole => {
+  const roleMap: Record<string, UserRole> = {
+    'Admin': 'admin',
+    'FranchiseStore': 'franchise_store',
+    'CentralKitchen': 'central_kitchen',
+    'SupplyCoordinator': 'supply_coordinator',
+    'Manager': 'manager',
+  };
+  return roleMap[role] || 'admin';
+};
+
+// Tài khoản demo (fallback)
 const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
   store1: {
     password: '123456',
@@ -72,7 +84,55 @@ const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
+  // Check localStorage khi mount để restore session từ API login
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    const username = localStorage.getItem('username');
+    const role = localStorage.getItem('userRole');
+    const userId = localStorage.getItem('userId');
+
+    if (token && username && role) {
+      setUser({
+        id: userId || '0',
+        username: username,
+        role: mapApiRoleToUserRole(role),
+        displayName: username,
+      });
+    }
+  }, []);
+
+  // Listen for storage changes (khi login từ API)
+  useEffect(() => {
+    const handleAuthChange = () => {
+      const token = localStorage.getItem('accessToken');
+      const username = localStorage.getItem('username');
+      const role = localStorage.getItem('userRole');
+      const userId = localStorage.getItem('userId');
+
+      if (token && username && role) {
+        setUser({
+          id: userId || '0',
+          username: username,
+          role: mapApiRoleToUserRole(role),
+          displayName: username,
+        });
+      } else {
+        setUser(null);
+      }
+    };
+
+    // Listen cho cả storage event (cross-tab) và custom event (same-tab)
+    window.addEventListener('storage', handleAuthChange);
+    window.addEventListener('auth-login', handleAuthChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleAuthChange);
+      window.removeEventListener('auth-login', handleAuthChange);
+    };
+  }, []);
+
   const login = (username: string, password: string): boolean => {
+    // Demo login (fallback khi không dùng API)
     const account = DEMO_ACCOUNTS[username];
     if (account && account.password === password) {
       setUser(account.user);
@@ -83,6 +143,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userRole');
   };
 
   return (

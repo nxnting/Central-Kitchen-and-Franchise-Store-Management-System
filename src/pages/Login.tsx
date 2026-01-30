@@ -1,43 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, getRoleDashboardPath } from '@/contexts/AuthContext';
+import { useLogin } from '@/hooks/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Coffee, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Coffee, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+
+// Map role từ API sang dashboard path
+const getRoleDashboardPath = (role: string): string => {
+  const paths: Record<string, string> = {
+    'Admin': '/admin',
+    'FranchiseStore': '/store',
+    'CentralKitchen': '/kitchen',
+    'SupplyCoordinator': '/coordinator',
+    'Manager': '/manager',
+  };
+  return paths[role] || '/admin';
+};
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
   const navigate = useNavigate();
+  
+  const { login, isLoading, data, reset } = useLogin({
+    redirectOnSuccess: false, // Tắt redirect trong hook, xử lý ở đây
+    onError: () => {
+      setError('Không thể kết nối đến máy chủ');
+    },
+  });
+
+  // Redirect khi login thành công
+  useEffect(() => {
+    if (data?.success && data?.data) {
+      console.log('Navigating from Login component...');
+      const dashboardPath = getRoleDashboardPath(data.data.role);
+      navigate(dashboardPath, { replace: true });
+    } else if (data && !data.success) {
+      setError(data.message || 'Tài khoản hoặc mật khẩu không đúng');
+    }
+  }, [data, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    reset();
 
     if (!username || !password) {
       setError('Vui lòng nhập tài khoản và mật khẩu');
       return;
     }
 
-    const success = login(username, password);
-    if (success) {
-      const user = { role: username === 'store1' ? 'franchise_store' : username === 'kitchen1' ? 'central_kitchen' : username === 'supply1' ? 'supply_coordinator' : username === 'manager1' ? 'manager' : 'admin' } as const;
-      navigate(getRoleDashboardPath(user.role));
-    } else {
-      setError('Tài khoản hoặc mật khẩu không đúng');
-    }
+    login(username, password);
   };
 
   const demoAccounts = [
+    { username: 'admin', role: 'Quản trị Hệ thống' },
     { username: 'store1', role: 'Nhân viên Cửa hàng' },
     { username: 'kitchen1', role: 'Nhân viên Bếp Trung tâm' },
     { username: 'supply1', role: 'Điều phối Cung ứng' },
     { username: 'manager1', role: 'Quản lý Vận hành' },
-    { username: 'admin1', role: 'Quản trị Hệ thống' },
   ];
 
   const handleDemoLogin = (demoUsername: string) => {
@@ -143,8 +167,15 @@ const Login: React.FC = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full h-11 text-base">
-              Đăng nhập
+            <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang đăng nhập...
+                </>
+              ) : (
+                'Đăng nhập'
+              )}
             </Button>
           </form>
 
