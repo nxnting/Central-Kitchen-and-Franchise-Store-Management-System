@@ -38,6 +38,7 @@ import Reports from "@/pages/manager/Reports";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import UserManagement from "@/pages/admin/UserManagement";
 import RoleManagement from "@/pages/admin/RoleManagement";
+
 import SystemConfig from "@/pages/admin/SystemConfig";
 import LocationManagement from "@/pages/admin/LocationManagement";
 import SystemReports from "@/pages/admin/SystemReports";
@@ -54,7 +55,7 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Navigate to="/login" replace />} />
-            
+
             <Route element={<MainLayout />}>
               <Route path="/profile" element={<Profile />} />
               {/* Store Routes */}
@@ -66,22 +67,46 @@ const App = () => (
               {/* Kitchen Routes */}
               <Route path="/kitchen" element={<KitchenDashboard />} />
               <Route path="/kitchen/orders" element={<IncomingOrders />} />
-              <Route path="/kitchen/production-summary" element={<ProductionSummary />} />
-              <Route path="/kitchen/production" element={<ProductionPlanning />} />
+              <Route
+                path="/kitchen/production-summary"
+                element={<ProductionSummary />}
+              />
+              <Route
+                path="/kitchen/production"
+                element={<ProductionPlanning />}
+              />
               <Route path="/kitchen/packaging" element={<StorePackaging />} />
               <Route path="/kitchen/inventory" element={<KitchenInventory />} />
               {/* Coordinator Routes */}
               <Route path="/coordinator" element={<CoordinatorDashboard />} />
-              <Route path="/coordinator/orders" element={<AggregatedOrders />} />
-              <Route path="/coordinator/coordination" element={<ProductionCoordination />} />
-              <Route path="/coordinator/schedule" element={<DeliverySchedule />} />
-              <Route path="/coordinator/tracking" element={<DeliveryTracking />} />
-              <Route path="/coordinator/exceptions" element={<ExceptionHandling />} />
+              <Route
+                path="/coordinator/orders"
+                element={<AggregatedOrders />}
+              />
+              <Route
+                path="/coordinator/coordination"
+                element={<ProductionCoordination />}
+              />
+              <Route
+                path="/coordinator/schedule"
+                element={<DeliverySchedule />}
+              />
+              <Route
+                path="/coordinator/tracking"
+                element={<DeliveryTracking />}
+              />
+              <Route
+                path="/coordinator/exceptions"
+                element={<ExceptionHandling />}
+              />
               {/* Manager Routes */}
               <Route path="/manager" element={<ManagerDashboard />} />
               <Route path="/manager/products" element={<ProductManagement />} />
               <Route path="/manager/recipes" element={<RecipeManagement />} />
-              <Route path="/manager/inventory" element={<InventoryOverview />} />
+              <Route
+                path="/manager/inventory"
+                element={<InventoryOverview />}
+              />
               <Route path="/manager/reports" element={<Reports />} />
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
@@ -91,7 +116,7 @@ const App = () => (
               <Route path="/admin/locations" element={<LocationManagement />} />
               <Route path="/admin/reports" element={<SystemReports />} />
             </Route>
-            
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
