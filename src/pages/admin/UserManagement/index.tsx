@@ -91,7 +91,7 @@ const UserManagement: React.FC = () => {
   const handleToggleStatus = async (user: AdminUser) => {
     const nextStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
 
-    // Swagger PUT chỉ nhận roleId + status
+    
     await handleUpdate(user.userId, {
       roleId: user.roleId,
       status: nextStatus,
