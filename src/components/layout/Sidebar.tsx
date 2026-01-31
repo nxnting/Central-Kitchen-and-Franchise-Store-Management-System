@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth, getRoleDisplayName, UserRole } from '@/contexts/AuthContext';
+import { useLogout } from '@/hooks/auth';
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -77,7 +78,8 @@ const getNavItems = (role: UserRole): NavItem[] => {
 };
 
 export const Sidebar: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { logout } = useLogout();
   const location = useLocation();
 
   if (!user) return null;
