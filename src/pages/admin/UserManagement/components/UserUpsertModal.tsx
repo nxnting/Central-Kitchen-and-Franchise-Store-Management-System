@@ -36,14 +36,14 @@ export const UserUpsertModal: React.FC<Props> = ({ open, onOpenChange, selectedU
     if (!open) return;
 
     if (selectedUser) {
-      // Edit mode: swagger PUT chỉ roleId + status
+      
       setUsername(selectedUser.username);
       setEmail(selectedUser.email);
       setPassword('');
       setRoleId(selectedUser.roleId);
       setStatus(selectedUser.status);
     } else {
-      // Create mode
+      
       setUsername('');
       setEmail('');
       setPassword('');
