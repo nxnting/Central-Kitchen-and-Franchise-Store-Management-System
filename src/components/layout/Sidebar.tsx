@@ -24,6 +24,7 @@ import {
   Coffee,
   Layers,
   PackageCheck,
+  Leaf,
 } from 'lucide-react';
 
 interface NavItem {
@@ -60,6 +61,8 @@ const getNavItems = (role: UserRole): NavItem[] => {
     manager: [
       { label: 'Trang chủ', path: '/manager', icon: <LayoutDashboard size={20} /> },
       { label: 'Menu trà sữa', path: '/manager/products', icon: <Coffee size={20} /> },
+      { label: 'Nguyên vật liệu', path: '/manager/ingredients', icon: <Leaf size={20} /> },
+      { label: 'Danh mục cửa hàng', path: '/manager/store-catalog', icon: <Store size={20} /> },
       { label: 'Công thức & BOM', path: '/manager/recipes', icon: <BookOpen size={20} /> },
       { label: 'Tồn kho tổng', path: '/manager/inventory', icon: <Warehouse size={20} /> },
       { label: 'Báo cáo', path: '/manager/reports', icon: <BarChart3 size={20} /> },
