@@ -1,20 +1,28 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { PageHeader } from '@/components/ui/PageHeader';
-import { Plus } from 'lucide-react';
-import { toast } from 'sonner';
+import React, { useEffect, useMemo, useState } from "react";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Plus } from "lucide-react";
+import { toast } from "sonner";
 
-import { UsersToolbar, UsersTable, UserUpsertModal } from './components';
+import { UsersToolbar, UsersTable, UserUpsertModal } from "./components";
+import UserFranchiseAssignModal from './components/UserFranchiseAssignModal';
 
-import { adminUsersApi } from '@/api/admin/users.api';
-import type { AdminUser, CreateUserPayload, UpdateUserPayload } from '@/types/admin/user.types';
+import { adminUsersApi } from "@/api/admin/users.api";
+import type {
+  AdminUser,
+  CreateUserPayload,
+  UpdateUserPayload,
+} from "@/types/admin/user.types";
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const [assignUser, setAssignUser] = useState<AdminUser | null>(null);
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
 
   const loadUsers = async () => {
     try {
@@ -23,7 +31,7 @@ const UserManagement: React.FC = () => {
       setUsers(data);
     } catch (e) {
       console.error(e);
-      toast.error('Không tải được danh sách người dùng');
+      toast.error("Không tải được danh sách người dùng");
     } finally {
       setLoading(false);
     }
@@ -37,18 +45,21 @@ const UserManagement: React.FC = () => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return users;
 
-    return users.filter((u) =>
-      u.username.toLowerCase().includes(term) ||
-      u.email.toLowerCase().includes(term) ||
-      u.roleName.toLowerCase().includes(term)
+    return users.filter(
+      (u) =>
+        u.username.toLowerCase().includes(term) ||
+        u.email.toLowerCase().includes(term) ||
+        u.roleName.toLowerCase().includes(term),
     );
   }, [users, searchTerm]);
 
   const stats = useMemo(() => {
     const total = users.length;
-    const active = users.filter((u) => u.status === 'ACTIVE').length;
-    const inactive = users.filter((u) => u.status === 'INACTIVE').length;
-    const admins = users.filter((u) => u.roleName?.toLowerCase() === 'admin').length;
+    const active = users.filter((u) => u.status === "ACTIVE").length;
+    const inactive = users.filter((u) => u.status === "INACTIVE").length;
+    const admins = users.filter(
+      (u) => u.roleName?.toLowerCase() === "admin",
+    ).length;
     return { total, active, inactive, admins };
   }, [users]);
 
@@ -56,7 +67,10 @@ const UserManagement: React.FC = () => {
     setSelectedUser(null);
     setIsDialogOpen(true);
   };
-
+  const handleOpenAssign = (user: AdminUser) => {
+    setAssignUser(user);
+    setIsAssignOpen(true);
+  };
   const handleOpenEdit = (user: AdminUser) => {
     setSelectedUser(user);
     setIsDialogOpen(true);
@@ -65,33 +79,32 @@ const UserManagement: React.FC = () => {
   const handleCreate = async (payload: CreateUserPayload) => {
     try {
       await adminUsersApi.create(payload);
-      toast.success('Đã thêm người dùng mới');
+      toast.success("Đã thêm người dùng mới");
       setIsDialogOpen(false);
       setSelectedUser(null);
       await loadUsers();
     } catch (e) {
       console.error(e);
-      toast.error('Tạo người dùng thất bại');
+      toast.error("Tạo người dùng thất bại");
     }
   };
 
   const handleUpdate = async (id: number, payload: UpdateUserPayload) => {
     try {
       await adminUsersApi.update(id, payload);
-      toast.success('Đã cập nhật người dùng');
+      toast.success("Đã cập nhật người dùng");
       setIsDialogOpen(false);
       setSelectedUser(null);
       await loadUsers();
     } catch (e) {
       console.error(e);
-      toast.error('Cập nhật thất bại');
+      toast.error("Cập nhật thất bại");
     }
   };
 
   const handleToggleStatus = async (user: AdminUser) => {
-    const nextStatus = user.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    const nextStatus = user.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
 
-    
     await handleUpdate(user.userId, {
       roleId: user.roleId,
       status: nextStatus,
@@ -101,11 +114,11 @@ const UserManagement: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await adminUsersApi.remove(id);
-      toast.success('Đã xóa người dùng');
+      toast.success("Đã xóa người dùng");
       await loadUsers();
     } catch (e) {
       console.error(e);
-      toast.error('Xóa thất bại');
+      toast.error("Xóa thất bại");
     }
   };
 
@@ -115,7 +128,7 @@ const UserManagement: React.FC = () => {
         title="Quản lý Người dùng"
         subtitle="Quản lý tài khoản và quyền truy cập hệ thống"
         action={{
-          label: 'Thêm người dùng',
+          label: "Thêm người dùng",
           icon: Plus,
           onClick: handleOpenCreate,
         }}
@@ -132,7 +145,9 @@ const UserManagement: React.FC = () => {
           <p className="text-sm text-muted-foreground">Đang hoạt động</p>
         </div>
         <div className="bg-card border rounded-xl p-4">
-          <p className="text-2xl font-bold text-muted-foreground">{stats.inactive}</p>
+          <p className="text-2xl font-bold text-muted-foreground">
+            {stats.inactive}
+          </p>
           <p className="text-sm text-muted-foreground">Đã khóa</p>
         </div>
         <div className="bg-card border rounded-xl p-4">
@@ -156,6 +171,7 @@ const UserManagement: React.FC = () => {
         onEdit={handleOpenEdit}
         onToggleStatus={handleToggleStatus}
         onDelete={handleDelete}
+        onAssignFranchises={handleOpenAssign}
       />
 
       {/* Modal */}
@@ -165,6 +181,14 @@ const UserManagement: React.FC = () => {
         selectedUser={selectedUser}
         onCreate={handleCreate}
         onUpdate={handleUpdate}
+      />
+      <UserFranchiseAssignModal
+        open={isAssignOpen}
+        onOpenChange={(v) => {
+          setIsAssignOpen(v);
+          if (!v) setAssignUser(null);
+        }}
+        user={assignUser}
       />
     </div>
   );
