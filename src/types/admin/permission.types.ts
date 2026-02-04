@@ -1,7 +1,7 @@
 export interface AdminPermission {
   permissionId: number;
   code: string;
-  name?: string; // swagger có field name
+  name?: string; 
   groupName?: string;
   description: string;
 }

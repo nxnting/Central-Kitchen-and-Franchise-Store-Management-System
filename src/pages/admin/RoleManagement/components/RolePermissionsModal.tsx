@@ -28,7 +28,6 @@ export const RolePermissionsModal: React.FC<Props> = ({ open, onOpenChange, role
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
 
-  // mỗi lần mở modal / đổi role: sync selectedIds từ assignedIds
   useEffect(() => {
     if (!open) return;
     setSearchTerm('');
@@ -53,7 +52,7 @@ export const RolePermissionsModal: React.FC<Props> = ({ open, onOpenChange, role
     });
   }, [permissions, searchTerm]);
 
-  // group theo groupName (nếu không có thì "Khác")
+  
   const grouped = useMemo(() => {
     const map = new Map<string, typeof filteredPermissions>();
     for (const p of filteredPermissions) {
@@ -62,7 +61,7 @@ export const RolePermissionsModal: React.FC<Props> = ({ open, onOpenChange, role
       map.get(g)!.push(p);
     }
 
-    // sort permissions trong group theo code cho dễ nhìn
+    
     for (const [k, arr] of map) {
       map.set(
         k,
@@ -70,7 +69,7 @@ export const RolePermissionsModal: React.FC<Props> = ({ open, onOpenChange, role
       );
     }
 
-    // sort group name
+  
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [filteredPermissions]);
 
