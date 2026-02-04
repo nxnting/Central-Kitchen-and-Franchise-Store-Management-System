@@ -9,10 +9,10 @@ import type { AdminFranchise, FranchiseType } from '@/types/admin/franchise.type
 const normalizeAssignedIds = (data: unknown): number[] => {
   if (!data) return [];
   if (Array.isArray(data)) {
-    // case 1: number[]
+    
     if (data.every((x) => typeof x === 'number')) return data as number[];
 
-    // case 2: object[]
+   
     const ids: number[] = [];
     for (const item of data as any[]) {
       const v =
@@ -61,14 +61,14 @@ export const useUserFranchises = (user: AdminUser | null, open: boolean) => {
 
   const allowedTypes = useMemo(() => roleAllowedTypes(user?.roleName), [user?.roleName]);
 
-  // 1) Fetch franchises list
+
   const franchisesQuery = useQuery({
     queryKey: ['admin-franchises'],
     queryFn: () => adminFranchisesApi.list(),
     enabled: open,
   });
 
-  // 2) Fetch assigned by user
+
   const assignedQuery = useQuery({
     queryKey: ['admin-user-franchises', userId],
     queryFn: async () => {
@@ -79,7 +79,7 @@ export const useUserFranchises = (user: AdminUser | null, open: boolean) => {
     enabled: open && !!userId,
   });
 
-  // 3) Sync selected when modal opens
+  
   useEffect(() => {
     if (!open) return;
     if (!assignedQuery.isSuccess) return;
@@ -89,22 +89,22 @@ export const useUserFranchises = (user: AdminUser | null, open: boolean) => {
     setSelectedIds(ids);
   }, [open, assignedQuery.isSuccess, assignedQuery.data]);
 
-  // 4) filtered list for UI (optional)
+  
   const filteredFranchises = useMemo(() => {
     const list = (franchisesQuery.data || []) as AdminFranchise[];
-    if (allowedTypes.length === 0) return list; // admin -> vẫn show (UI disable)
+    if (allowedTypes.length === 0) return list; 
     return list.filter((f) => allowedTypes.includes(f.type));
   }, [franchisesQuery.data, allowedTypes]);
 
-  // helper
+  
   const getFranchiseId = (f: AdminFranchise) => f.franchiseId;
 
   const isAllowedFranchise = (f: AdminFranchise) => {
-    if (allowedTypes.length === 0) return false; // admin -> disable hết
+    if (allowedTypes.length === 0) return false; 
     return allowedTypes.includes(f.type);
   };
 
-  // 5) Submit diff
+  
   const submitMutation = useMutation({
     mutationFn: async () => {
       if (!userId) throw new Error('Missing userId');

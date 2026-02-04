@@ -8,7 +8,7 @@ import { adminPermissionsApi } from "@/api/admin/permissions.api";
 
 type Options = {
   roleId?: number | null;
-  enabled?: boolean; // khi mở modal mới load
+  enabled?: boolean;
 };
 
 export const useRolePermissions = ({ roleId, enabled = true }: Options) => {
