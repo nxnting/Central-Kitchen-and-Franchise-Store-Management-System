@@ -536,3 +536,32 @@ export const mockStorePackaging: StorePackaging[] = [
     status: 'pending',
   },
 ];
+
+// Mock Nguyên vật liệu (Ingredient Master)
+export interface MockIngredient {
+  id: string;
+  name: string;
+  unit: string;
+  safetyStock: number;
+  wasteThreshold: number;
+  status: 'ACTIVE' | 'INACTIVE';
+  updatedAt: string;
+}
+
+export const mockIngredients: MockIngredient[] = [
+  { id: 'NVL-001', name: 'Đường đen Okinawa', unit: 'kg', safetyStock: 50, wasteThreshold: 5, status: 'ACTIVE', updatedAt: '2024-01-15 10:30' },
+  { id: 'NVL-002', name: 'Trà đen Ceylon', unit: 'kg', safetyStock: 30, wasteThreshold: 3, status: 'ACTIVE', updatedAt: '2024-01-15 09:00' },
+  { id: 'NVL-003', name: 'Sữa tươi không đường', unit: 'L', safetyStock: 100, wasteThreshold: 10, status: 'ACTIVE', updatedAt: '2024-01-14 14:20' },
+  { id: 'NVL-004', name: 'Bột trà xanh Nhật Bản', unit: 'kg', safetyStock: 20, wasteThreshold: 2, status: 'ACTIVE', updatedAt: '2024-01-14 11:45' },
+  { id: 'NVL-005', name: 'Kem cheese tươi', unit: 'L', safetyStock: 40, wasteThreshold: 4, status: 'ACTIVE', updatedAt: '2024-01-13 16:00' },
+  { id: 'NVL-006', name: 'Trân châu đen', unit: 'kg', safetyStock: 60, wasteThreshold: 6, status: 'ACTIVE', updatedAt: '2024-01-13 08:30' },
+  { id: 'NVL-007', name: 'Thạch dừa', unit: 'kg', safetyStock: 45, wasteThreshold: 5, status: 'ACTIVE', updatedAt: '2024-01-12 15:15' },
+  { id: 'NVL-008', name: 'Pudding trứng', unit: 'kg', safetyStock: 35, wasteThreshold: 4, status: 'ACTIVE', updatedAt: '2024-01-12 10:00' },
+  { id: 'NVL-009', name: 'Sirô đào', unit: 'L', safetyStock: 25, wasteThreshold: 3, status: 'INACTIVE', updatedAt: '2024-01-11 14:30' },
+  { id: 'NVL-010', name: 'Bột oolong Đài Loan', unit: 'kg', safetyStock: 25, wasteThreshold: 3, status: 'ACTIVE', updatedAt: '2024-01-11 09:45' },
+  { id: 'NVL-011', name: 'Đường trắng tinh luyện', unit: 'kg', safetyStock: 80, wasteThreshold: 8, status: 'ACTIVE', updatedAt: '2024-01-10 16:20' },
+  { id: 'NVL-012', name: 'Sữa đặc có đường', unit: 'lon', safetyStock: 100, wasteThreshold: 10, status: 'INACTIVE', updatedAt: '2024-01-10 11:00' },
+  { id: 'NVL-013', name: 'Bột sữa Đài Loan', unit: 'kg', safetyStock: 40, wasteThreshold: 4, status: 'ACTIVE', updatedAt: '2024-01-09 13:50' },
+  { id: 'NVL-014', name: 'Hạt chia', unit: 'kg', safetyStock: 15, wasteThreshold: 2, status: 'ACTIVE', updatedAt: '2024-01-09 08:15' },
+  { id: 'NVL-015', name: 'Rau câu dừa', unit: 'kg', safetyStock: 30, wasteThreshold: 3, status: 'ACTIVE', updatedAt: '2024-01-08 14:40' },
+];

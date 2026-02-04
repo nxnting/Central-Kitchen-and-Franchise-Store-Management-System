@@ -34,6 +34,8 @@ import ProductManagement from "@/pages/manager/ProductManagement";
 import RecipeManagement from "@/pages/manager/RecipeManagement";
 import InventoryOverview from "@/pages/manager/InventoryOverview";
 import Reports from "@/pages/manager/Reports";
+import IngredientManagement from "@/pages/manager/IngredientManagement";
+import StoreCatalogManagement from "@/pages/manager/StoreCatalogManagement";
 // Admin Pages
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import UserManagement from "@/pages/admin/UserManagement";
@@ -109,6 +111,8 @@ const App = () => (
                 element={<InventoryOverview />}
               />
               <Route path="/manager/reports" element={<Reports />} />
+              <Route path="/manager/ingredients" element={<IngredientManagement />} />
+              <Route path="/manager/store-catalog" element={<StoreCatalogManagement />} />
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<UserManagement />} />

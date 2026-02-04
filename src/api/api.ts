@@ -1,11 +1,8 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-// Base URL cho API - sử dụng relative path để Vite proxy forward đến backend
-// Development: Vite proxy sẽ forward /api -> https://centralkitchenandfranchisestoremanagemen.onrender.com/api
-// Production: Cần cấu hình lại hoặc backend cho phép CORS
+
 const BASE_URL = 'https://centralkitchenandfranchisestoremanagemen.onrender.com/api';
 
-// Tạo axios instance với cấu hình mặc định
 const api: AxiosInstance = axios.create({
     baseURL: BASE_URL,
     timeout: 30000,
@@ -14,7 +11,6 @@ const api: AxiosInstance = axios.create({
     },
 });
 
-// Request interceptor - thêm token vào header
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('accessToken');
@@ -28,7 +24,6 @@ api.interceptors.request.use(
     }
 );
 
-// Response interceptor - xử lý lỗi chung
 api.interceptors.response.use(
     (response: AxiosResponse) => {
         return response;
@@ -39,13 +34,11 @@ api.interceptors.response.use(
 
             switch (status) {
                 case 401:
-                    // Unauthorized - có thể redirect đến trang login
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
                     window.location.href = '/login';
                     break;
                 case 403:
-                    // Forbidden
                     console.error('Bạn không có quyền truy cập tài nguyên này');
                     break;
                 case 404:
@@ -65,44 +58,43 @@ api.interceptors.response.use(
     }
 );
 
-// Types cho API response
 export interface ApiResponse<T = unknown> {
     data: T;
     message?: string;
     success: boolean;
 }
 
-// Generic GET request
+/** GET request */
 export const get = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
     const response = await api.get<T>(url, config);
     return response.data;
 };
 
-// Generic POST request
+/** POST request */
 export const post = async <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
     const response = await api.post<T>(url, data, config);
     return response.data;
 };
 
-// Generic PUT request
+/** PUT request */
 export const put = async <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
     const response = await api.put<T>(url, data, config);
     return response.data;
 };
 
-// Generic PATCH request
+/** PATCH request */
 export const patch = async <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
     const response = await api.patch<T>(url, data, config);
     return response.data;
 };
 
-// Generic DELETE request
+/** DELETE request */
 export const del = async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
     const response = await api.delete<T>(url, config);
     return response.data;
 };
 
-// Upload file request
+/** Upload file request */
 export const uploadFile = async <T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> => {
     const response = await api.post<T>(url, formData, {
         ...config,

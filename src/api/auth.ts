@@ -1,6 +1,5 @@
 import { post } from './api';
 
-// Types cho Auth API
 export interface LoginRequest {
     usernameOrEmail: string;
     password: string;
@@ -22,7 +21,6 @@ export interface AuthResponse<T = unknown> {
     errors: string[] | null;
 }
 
-// Auth API functions
 export const authApi = {
     /**
      * Đăng nhập
@@ -32,30 +30,18 @@ export const authApi = {
     login: async (credentials: LoginRequest): Promise<AuthResponse<LoginData>> => {
         const response = await post<AuthResponse<LoginData>>('/auth/login', credentials);
 
-        // Lưu token vào localStorage nếu đăng nhập thành công
         if (response.success && response.data?.accessToken) {
             localStorage.setItem('accessToken', response.data.accessToken);
             localStorage.setItem('userId', String(response.data.userId));
             localStorage.setItem('username', response.data.username);
             localStorage.setItem('userRole', response.data.role);
 
-            // Dispatch custom event để AuthContext cập nhật state
             window.dispatchEvent(new Event('auth-login'));
         }
 
         return response;
     },
 
-    /**
-     * Đăng xuất
-     */
-    logout: () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('username');
-        localStorage.removeItem('userRole');
-        window.location.href = '/login';
-    },
 
     /**
      * Kiểm tra đã đăng nhập chưa

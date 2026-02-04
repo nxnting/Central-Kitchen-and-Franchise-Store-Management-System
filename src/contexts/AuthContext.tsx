@@ -19,19 +19,17 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Map role từ API sang UserRole
 const mapApiRoleToUserRole = (role: string): UserRole => {
   const roleMap: Record<string, UserRole> = {
     'Admin': 'admin',
-    'FranchiseStore': 'franchise_store',
-    'CentralKitchen': 'central_kitchen',
+    'StoreStaff': 'franchise_store',
+    'KitchenStaff': 'central_kitchen',
     'SupplyCoordinator': 'supply_coordinator',
     'Manager': 'manager',
   };
   return roleMap[role] || 'admin';
 };
 
-// Tài khoản demo (fallback)
 const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
   store1: {
     password: '123456',
@@ -84,7 +82,6 @@ const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // Check localStorage khi mount để restore session từ API login
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     const username = localStorage.getItem('username');
@@ -101,7 +98,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   }, []);
 
-  // Listen for storage changes (khi login từ API)
   useEffect(() => {
     const handleAuthChange = () => {
       const token = localStorage.getItem('accessToken');
@@ -121,18 +117,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
 
-    // Listen cho cả storage event (cross-tab) và custom event (same-tab)
     window.addEventListener('storage', handleAuthChange);
     window.addEventListener('auth-login', handleAuthChange);
+    window.addEventListener('auth-logout', handleAuthChange);
     
     return () => {
       window.removeEventListener('storage', handleAuthChange);
       window.removeEventListener('auth-login', handleAuthChange);
+      window.removeEventListener('auth-logout', handleAuthChange);
     };
   }, []);
 
   const login = (username: string, password: string): boolean => {
-    // Demo login (fallback khi không dùng API)
     const account = DEMO_ACCOUNTS[username];
     if (account && account.password === password) {
       setUser(account.user);

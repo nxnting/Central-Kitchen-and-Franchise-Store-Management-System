@@ -1,6 +1,7 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { useAuth, getRoleDisplayName, UserRole } from "@/contexts/AuthContext";
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth, getRoleDisplayName, UserRole } from '@/contexts/AuthContext';
+import { useLogout } from '@/hooks/auth';
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -22,9 +23,9 @@ import {
   User,
   Coffee,
   Layers,
-  KeyRound,
   PackageCheck,
-} from "lucide-react";
+  Leaf,
+} from 'lucide-react';
 
 interface NavItem {
   label: string;
@@ -35,156 +36,44 @@ interface NavItem {
 const getNavItems = (role: UserRole): NavItem[] => {
   const items: Record<UserRole, NavItem[]> = {
     franchise_store: [
-      {
-        label: "Trang chủ",
-        path: "/store",
-        icon: <LayoutDashboard size={20} />,
-      },
-      {
-        label: "Tạo đơn hàng",
-        path: "/store/orders/new",
-        icon: <ShoppingCart size={20} />,
-      },
-      {
-        label: "Đơn hàng của tôi",
-        path: "/store/orders",
-        icon: <ClipboardList size={20} />,
-      },
-      {
-        label: "Nhận hàng",
-        path: "/store/receive",
-        icon: <Package size={20} />,
-      },
-      {
-        label: "Tồn kho cửa hàng",
-        path: "/store/inventory",
-        icon: <Warehouse size={20} />,
-      },
+      { label: 'Trang chủ', path: '/store', icon: <LayoutDashboard size={20} /> },
+      { label: 'Tạo đơn hàng', path: '/store/orders/new', icon: <ShoppingCart size={20} /> },
+      { label: 'Đơn hàng của tôi', path: '/store/orders', icon: <ClipboardList size={20} /> },
+      { label: 'Nhận hàng', path: '/store/receive', icon: <Package size={20} /> },
+      { label: 'Tồn kho cửa hàng', path: '/store/inventory', icon: <Warehouse size={20} /> },
     ],
     central_kitchen: [
-      {
-        label: "Trang chủ",
-        path: "/kitchen",
-        icon: <LayoutDashboard size={20} />,
-      },
-      {
-        label: "Đơn hàng đến",
-        path: "/kitchen/orders",
-        icon: <ClipboardList size={20} />,
-      },
-      {
-        label: "Tổng hợp đơn SX",
-        path: "/kitchen/production-summary",
-        icon: <Layers size={20} />,
-      },
-      {
-        label: "Kế hoạch sản xuất",
-        path: "/kitchen/production",
-        icon: <Factory size={20} />,
-      },
-      {
-        label: "Đóng gói cửa hàng",
-        path: "/kitchen/packaging",
-        icon: <PackageCheck size={20} />,
-      },
-      {
-        label: "Tồn kho",
-        path: "/kitchen/inventory",
-        icon: <Warehouse size={20} />,
-      },
+      { label: 'Trang chủ', path: '/kitchen', icon: <LayoutDashboard size={20} /> },
+      { label: 'Đơn hàng đến', path: '/kitchen/orders', icon: <ClipboardList size={20} /> },
+      { label: 'Tổng hợp đơn SX', path: '/kitchen/production-summary', icon: <Layers size={20} /> },
+      { label: 'Kế hoạch sản xuất', path: '/kitchen/production', icon: <Factory size={20} /> },
+      { label: 'Đóng gói cửa hàng', path: '/kitchen/packaging', icon: <PackageCheck size={20} /> },
+      { label: 'Tồn kho', path: '/kitchen/inventory', icon: <Warehouse size={20} /> },
     ],
     supply_coordinator: [
-      {
-        label: "Trang chủ",
-        path: "/coordinator",
-        icon: <LayoutDashboard size={20} />,
-      },
-      {
-        label: "Tổng hợp đơn hàng",
-        path: "/coordinator/orders",
-        icon: <ClipboardList size={20} />,
-      },
-      {
-        label: "Điều phối",
-        path: "/coordinator/coordination",
-        icon: <Factory size={20} />,
-      },
-      {
-        label: "Lịch giao hàng",
-        path: "/coordinator/schedule",
-        icon: <Calendar size={20} />,
-      },
-      {
-        label: "Theo dõi giao hàng",
-        path: "/coordinator/tracking",
-        icon: <Truck size={20} />,
-      },
-      {
-        label: "Xử lý sự cố",
-        path: "/coordinator/exceptions",
-        icon: <AlertTriangle size={20} />,
-      },
+      { label: 'Trang chủ', path: '/coordinator', icon: <LayoutDashboard size={20} /> },
+      { label: 'Tổng hợp đơn hàng', path: '/coordinator/orders', icon: <ClipboardList size={20} /> },
+      { label: 'Điều phối', path: '/coordinator/coordination', icon: <Factory size={20} /> },
+      { label: 'Lịch giao hàng', path: '/coordinator/schedule', icon: <Calendar size={20} /> },
+      { label: 'Theo dõi giao hàng', path: '/coordinator/tracking', icon: <Truck size={20} /> },
+      { label: 'Xử lý sự cố', path: '/coordinator/exceptions', icon: <AlertTriangle size={20} /> },
     ],
     manager: [
-      {
-        label: "Trang chủ",
-        path: "/manager",
-        icon: <LayoutDashboard size={20} />,
-      },
-      {
-        label: "Menu trà sữa",
-        path: "/manager/products",
-        icon: <Coffee size={20} />,
-      },
-      {
-        label: "Công thức & BOM",
-        path: "/manager/recipes",
-        icon: <BookOpen size={20} />,
-      },
-      {
-        label: "Tồn kho tổng",
-        path: "/manager/inventory",
-        icon: <Warehouse size={20} />,
-      },
-      {
-        label: "Báo cáo",
-        path: "/manager/reports",
-        icon: <BarChart3 size={20} />,
-      },
+      { label: 'Trang chủ', path: '/manager', icon: <LayoutDashboard size={20} /> },
+      { label: 'Menu trà sữa', path: '/manager/products', icon: <Coffee size={20} /> },
+      { label: 'Nguyên vật liệu', path: '/manager/ingredients', icon: <Leaf size={20} /> },
+      { label: 'Danh mục cửa hàng', path: '/manager/store-catalog', icon: <Store size={20} /> },
+      { label: 'Công thức & BOM', path: '/manager/recipes', icon: <BookOpen size={20} /> },
+      { label: 'Tồn kho tổng', path: '/manager/inventory', icon: <Warehouse size={20} /> },
+      { label: 'Báo cáo', path: '/manager/reports', icon: <BarChart3 size={20} /> },
     ],
     admin: [
-      {
-        label: "Trang chủ",
-        path: "/admin",
-        icon: <LayoutDashboard size={20} />,
-      },
-      {
-        label: "Quản lý người dùng",
-        path: "/admin/users",
-        icon: <Users size={20} />,
-      },
-      { label: "Phân quyền", path: "/admin/roles", icon: <Shield size={20} /> },
-      {
-        label: "Quản lý quyền",
-        path: "/admin/permissions",
-        icon: <KeyRound size={20} />,
-      },
-
-      {
-        label: "Cấu hình hệ thống",
-        path: "/admin/config",
-        icon: <Settings size={20} />,
-      },
-      {
-        label: "Cửa hàng & Bếp",
-        path: "/admin/locations",
-        icon: <Store size={20} />,
-      },
-      {
-        label: "Báo cáo tổng hợp",
-        path: "/admin/reports",
-        icon: <FileText size={20} />,
-      },
+      { label: 'Trang chủ', path: '/admin', icon: <LayoutDashboard size={20} /> },
+      { label: 'Quản lý người dùng', path: '/admin/users', icon: <Users size={20} /> },
+      { label: 'Phân quyền', path: '/admin/roles', icon: <Shield size={20} /> },
+      { label: 'Cấu hình hệ thống', path: '/admin/config', icon: <Settings size={20} /> },
+      { label: 'Cửa hàng & Bếp', path: '/admin/locations', icon: <Store size={20} /> },
+      { label: 'Báo cáo tổng hợp', path: '/admin/reports', icon: <FileText size={20} /> },
     ],
   };
 
@@ -192,7 +81,8 @@ const getNavItems = (role: UserRole): NavItem[] => {
 };
 
 export const Sidebar: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { logout } = useLogout();
   const location = useLocation();
 
   if (!user) return null;
@@ -208,9 +98,7 @@ export const Sidebar: React.FC = () => {
             <Coffee className="w-6 h-6 text-sidebar-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-sidebar-accent-foreground">
-              Trà Sữa Pro
-            </h1>
+            <h1 className="text-lg font-semibold text-sidebar-accent-foreground">Trà Sữa Pro</h1>
             <p className="text-xs text-sidebar-foreground">Bếp Trung Tâm</p>
           </div>
         </div>
@@ -224,7 +112,7 @@ export const Sidebar: React.FC = () => {
             <Link
               key={item.path}
               to={item.path}
-              className={`nav-item ${isActive ? "nav-item-active" : ""}`}
+              className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
             >
               {item.icon}
               <span>{item.label}</span>

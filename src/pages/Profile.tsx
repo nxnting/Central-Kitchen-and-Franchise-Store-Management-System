@@ -1,10 +1,13 @@
 import React from 'react';
 import { useAuth, getRoleDisplayName } from '@/contexts/AuthContext';
+import { useLogout } from '@/hooks/auth';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { User, Mail, Shield, Store, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { User, Mail, Shield, Store, Clock, LogOut } from 'lucide-react';
 
 const Profile: React.FC = () => {
   const { user } = useAuth();
+  const { logout } = useLogout();
 
   if (!user) return null;
 
@@ -75,6 +78,18 @@ const Profile: React.FC = () => {
               <p className="font-medium">Hôm nay lúc 9:00</p>
             </div>
           </div>
+        </div>
+
+        {/* Logout Button */}
+        <div className="border-t pt-6">
+          <Button
+            variant="destructive"
+            className="w-full"
+            onClick={logout}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Đăng xuất
+          </Button>
         </div>
       </div>
     </div>
