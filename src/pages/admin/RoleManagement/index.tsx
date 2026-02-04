@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { RolesTable, RolesToolbar, RoleUpsertModal } from './components';
+import { RolesTable, RolesToolbar, RoleUpsertModal, RolePermissionsModal } from './components';
 import { adminRolesApi } from '@/api/admin/roles.api';
 import type { AdminRole, CreateRolePayload, UpdateRolePayload } from '@/types/admin/role.types';
 
@@ -14,6 +14,10 @@ const RoleManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<AdminRole | null>(null);
   const [open, setOpen] = useState(false);
+
+  // Assign permissions modal
+  const [assignRole, setAssignRole] = useState<AdminRole | null>(null);
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
 
   const loadRoles = async () => {
     try {
@@ -46,6 +50,11 @@ const RoleManagement: React.FC = () => {
   const handleOpenEdit = (role: AdminRole) => {
     setSelectedRole(role);
     setOpen(true);
+  };
+
+  const handleOpenAssignPermissions = (role: AdminRole) => {
+    setAssignRole(role);
+    setIsAssignOpen(true);
   };
 
   const handleCreate = async (payload: CreateRolePayload) => {
@@ -93,18 +102,14 @@ const RoleManagement: React.FC = () => {
         action={{ label: 'Thêm vai trò', icon: Plus, onClick: handleOpenCreate }}
       />
 
-      <RolesToolbar
-        searchTerm={searchTerm}
-        onSearchTermChange={setSearchTerm}
-        onRefresh={loadRoles}
-        loading={loading}
-      />
+      <RolesToolbar searchTerm={searchTerm} onSearchTermChange={setSearchTerm} onRefresh={loadRoles} loading={loading} />
 
       <RolesTable
         roles={filteredRoles}
         loading={loading}
         onEdit={handleOpenEdit}
         onDelete={handleDelete}
+        onAssignPermissions={handleOpenAssignPermissions}
       />
 
       <RoleUpsertModal
@@ -113,6 +118,15 @@ const RoleManagement: React.FC = () => {
         selectedRole={selectedRole}
         onCreate={handleCreate}
         onUpdate={handleUpdate}
+      />
+
+      <RolePermissionsModal
+        open={isAssignOpen}
+        onOpenChange={(v) => {
+          setIsAssignOpen(v);
+          if (!v) setAssignRole(null);
+        }}
+        role={assignRole}
       />
     </div>
   );

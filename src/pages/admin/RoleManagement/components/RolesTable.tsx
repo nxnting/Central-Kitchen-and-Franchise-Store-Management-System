@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Edit, Shield, Trash2 } from 'lucide-react';
+import { Edit, Shield, Trash2, ShieldCheck } from 'lucide-react';
 import type { AdminRole } from '@/types/admin/role.types';
 
 type Props = {
@@ -8,9 +8,10 @@ type Props = {
   loading?: boolean;
   onEdit: (role: AdminRole) => void;
   onDelete: (id: number) => void | Promise<void>;
+  onAssignPermissions: (role: AdminRole) => void;
 };
 
-export const RolesTable: React.FC<Props> = ({ roles, loading, onEdit, onDelete }) => {
+export const RolesTable: React.FC<Props> = ({ roles, loading, onEdit, onDelete, onAssignPermissions }) => {
   return (
     <div className="bg-card border rounded-xl overflow-hidden">
       <table className="w-full">
@@ -49,14 +50,25 @@ export const RolesTable: React.FC<Props> = ({ roles, loading, onEdit, onDelete }
 
                 <td className="p-4">
                   <div className="flex items-center justify-center gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => onEdit(role)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onAssignPermissions(role)}
+                      title="Gán quyền"
+                    >
+                      <ShieldCheck size={16} />
+                    </Button>
+
+                    <Button variant="ghost" size="icon" onClick={() => onEdit(role)} title="Sửa">
                       <Edit size={16} />
                     </Button>
+
                     <Button
                       variant="ghost"
                       size="icon"
                       className="text-destructive"
                       onClick={() => onDelete(role.roleId)}
+                      title="Xóa"
                     >
                       <Trash2 size={16} />
                     </Button>
@@ -70,3 +82,5 @@ export const RolesTable: React.FC<Props> = ({ roles, loading, onEdit, onDelete }
     </div>
   );
 };
+
+export default RolesTable;
