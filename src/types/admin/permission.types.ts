@@ -14,7 +14,7 @@ export interface CreatePermissionPayload {
 }
 
 export interface UpdatePermissionPayload {
-  code: string;
+  // code: string;
   name?: string;
   groupName?: string;
   description: string;
