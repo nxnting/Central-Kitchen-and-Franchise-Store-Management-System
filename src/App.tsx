@@ -41,6 +41,7 @@ import AdminDashboard from "@/pages/admin/AdminDashboard";
 import UserManagement from "@/pages/admin/UserManagement";
 import RoleManagement from "@/pages/admin/RoleManagement";
 import PermissionManagement from "@/pages/admin/PermissionManagement";
+import FranchiseDetail from "@/pages/admin/FranchiseManagement/FranchiseDetail";
 
 import SystemConfig from "@/pages/admin/SystemConfig";
 import LocationManagement from "@/pages/admin/LocationManagement";
@@ -117,6 +118,7 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<UserManagement />} />
               <Route path="/admin/roles" element={<RoleManagement />} />
+              <Route path="/admin/franchises/:franchiseId" element={<FranchiseDetail />} />
               <Route
                 path="/admin/permissions"
                 element={<PermissionManagement />}

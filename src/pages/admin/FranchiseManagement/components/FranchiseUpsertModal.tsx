@@ -1,9 +1,20 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import React, { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import type {
   AdminFranchise,
@@ -11,18 +22,32 @@ import type {
   FranchiseStatus,
   FranchiseType,
   UpdateFranchisePayload,
-} from '@/types/admin/franchise.types';
+} from "@/types/admin/franchise.types";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selected: AdminFranchise | null;
   onCreate: (payload: CreateFranchisePayload) => void | Promise<void>;
-  onUpdate: (id: number, payload: UpdateFranchisePayload) => void | Promise<void>;
+  onUpdate: (
+    id: number,
+    payload: UpdateFranchisePayload,
+  ) => void | Promise<void>;
 };
 
-const TYPE_OPTIONS: FranchiseType[] = ['STORE', 'CENTRAL_KITCHEN'];
-const STATUS_OPTIONS: FranchiseStatus[] = ['ACTIVE', 'INACTIVE'];
+const TYPE_OPTIONS: FranchiseType[] = ["STORE", "CENTRAL_KITCHEN"];
+const STATUS_OPTIONS: FranchiseStatus[] = ["ACTIVE", "INACTIVE"];
+const buildOsmEmbed = (lat: number, lng: number) => {
+  const d = 0.01;
+  const left = lng - d,
+    right = lng + d,
+    top = lat + d,
+    bottom = lat - d;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${lat}%2C${lng}`;
+};
+
+const buildGoogleLink = (lat: number, lng: number) =>
+  `https://www.google.com/maps?q=${lat},${lng}`;
 
 export const FranchiseUpsertModal: React.FC<Props> = ({
   open,
@@ -33,11 +58,13 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
 }) => {
   const isEdit = !!selected;
 
-  const [name, setName] = useState('');
-  const [type, setType] = useState<FranchiseType>('STORE');
-  const [status, setStatus] = useState<FranchiseStatus>('ACTIVE');
-  const [address, setAddress] = useState('');
-  const [location, setLocation] = useState('');
+  const [name, setName] = useState("");
+  const [type, setType] = useState<FranchiseType>("STORE");
+  const [status, setStatus] = useState<FranchiseStatus>("ACTIVE");
+  const [address, setAddress] = useState("");
+  const [location, setLocation] = useState("");
+  const [latitude, setLatitude] = useState<number>(0);
+  const [longitude, setLongitude] = useState<number>(0);
 
   useEffect(() => {
     if (!open) return;
@@ -48,28 +75,42 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
       setStatus(selected.status);
       setAddress(selected.address);
       setLocation(selected.location);
+      setLatitude(selected.latitude);
+      setLongitude(selected.longitude);
     } else {
-      setName('');
-      setType('STORE');
-      setStatus('ACTIVE');
-      setAddress('');
-      setLocation('');
+      setName("");
+      setType("STORE");
+      setStatus("ACTIVE");
+      setAddress("");
+      setLocation("");
+      setLatitude(0);
+      setLongitude(0);
     }
   }, [open, selected]);
 
   const canSubmit = useMemo(() => {
-    return name.trim().length > 0 && address.trim().length > 0 && location.trim().length > 0;
-  }, [name, address, location]);
+    return (
+      name.trim().length > 0 &&
+      address.trim().length > 0 &&
+      location.trim().length > 0 &&
+      Number.isFinite(latitude) &&
+      Number.isFinite(longitude) &&
+      latitude !== 0 &&
+      longitude !== 0
+    );
+  }, [name, address, location, latitude, longitude]);
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
 
-    const payload = {
+    const payload: CreateFranchisePayload | UpdateFranchisePayload = {
       name: name.trim(),
       type,
       status,
       address: address.trim(),
       location: location.trim(),
+      latitude,
+      longitude,
     };
 
     if (selected) {
@@ -81,21 +122,30 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="w-[92vw] max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Chỉnh sửa Franchise' : 'Thêm Franchise'}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Chỉnh sửa Franchise" : "Thêm Franchise"}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
             <Label>Tên</Label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="VD: Chi nhánh Quận 1" />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="VD: Chi nhánh Quận 1"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Loại</Label>
-              <Select value={type} onValueChange={(v) => setType(v as FranchiseType)}>
+              <Select
+                value={type}
+                onValueChange={(v) => setType(v as FranchiseType)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn loại" />
                 </SelectTrigger>
@@ -111,7 +161,10 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
 
             <div>
               <Label>Trạng thái</Label>
-              <Select value={status} onValueChange={(v) => setStatus(v as FranchiseStatus)}>
+              <Select
+                value={status}
+                onValueChange={(v) => setStatus(v as FranchiseStatus)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn trạng thái" />
                 </SelectTrigger>
@@ -128,20 +181,88 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
 
           <div>
             <Label>Địa chỉ</Label>
-            <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 Nguyễn Huệ, Q1, TP.HCM" />
+            <Input
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="123 Nguyễn Huệ, Q1, TP.HCM"
+            />
           </div>
 
           <div>
             <Label>Khu vực</Label>
-            <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="TP.HCM" />
+            <Input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="TP.HCM"
+            />
           </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Vĩ độ (latitude)</Label>
+              <Input
+                type="number"
+                value={latitude}
+                onChange={(e) =>
+                  setLatitude(
+                    e.target.value === "" ? 0 : Number(e.target.value),
+                  )
+                }
+              />
+            </div>
+
+            <div>
+              <Label>Kinh độ (longitude)</Label>
+              <Input
+                type="number"
+                value={longitude}
+                onChange={(e) =>
+                  setLongitude(
+                    e.target.value === "" ? 0 : Number(e.target.value),
+                  )
+                }
+              />
+            </div>
+          </div>
+          
+          {latitude !== 0 && longitude !== 0 ? (
+            <div className="border rounded-xl overflow-hidden bg-muted/20">
+              <iframe
+                title="map"
+                src={buildOsmEmbed(latitude, longitude)}
+                className="w-full h-[280px]"
+              />
+              <div className="p-2 flex justify-end border-t bg-background">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    window.open(buildGoogleLink(latitude, longitude), "_blank")
+                  }
+                >
+                  Mở Google Maps
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-muted-foreground">
+              Nhập latitude/longitude để xem vị trí trên bản đồ.
+            </div>
+          )}
 
           <div className="flex gap-3 pt-2">
-            <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => onOpenChange(false)}
+            >
               Hủy
             </Button>
-            <Button className="flex-1" onClick={handleSubmit} disabled={!canSubmit}>
-              {isEdit ? 'Cập nhật' : 'Thêm mới'}
+            <Button
+              className="flex-1"
+              onClick={handleSubmit}
+              disabled={!canSubmit}
+            >
+              {isEdit ? "Cập nhật" : "Thêm mới"}
             </Button>
           </div>
         </div>

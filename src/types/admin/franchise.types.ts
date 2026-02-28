@@ -8,6 +8,9 @@ export interface AdminFranchise {
   status: FranchiseStatus;
   address: string;
   location: string;
+
+  latitude: number;
+  longitude: number;
 }
 
 export interface CreateFranchisePayload {
@@ -16,6 +19,9 @@ export interface CreateFranchisePayload {
   status: FranchiseStatus;
   address: string;
   location: string;
+
+  latitude: number;
+  longitude: number;
 }
 
 export interface UpdateFranchisePayload {
@@ -24,4 +30,7 @@ export interface UpdateFranchisePayload {
   status: FranchiseStatus;
   address: string;
   location: string;
+
+  latitude: number;
+  longitude: number;
 }
