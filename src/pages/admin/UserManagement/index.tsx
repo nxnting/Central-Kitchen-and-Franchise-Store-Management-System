@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { UsersToolbar, UsersTable, UserUpsertModal } from "./components";
-import UserFranchiseAssignModal from './components/UserFranchiseAssignModal';
+import UserFranchiseAssignModal from "./components/UserFranchiseAssignModal";
 
 import { adminUsersApi } from "@/api/admin/users.api";
 import type {
@@ -12,6 +12,14 @@ import type {
   CreateUserPayload,
   UpdateUserPayload,
 } from "@/types/admin/user.types";
+
+const ROLE_LABEL: Record<number, string> = {
+  1: "Admin",
+  9: "Manager",
+  3: "SupplyCoordinator",
+  4: "KitchenStaff",
+  5: "StoreStaff",
+};
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -28,7 +36,13 @@ const UserManagement: React.FC = () => {
     try {
       setLoading(true);
       const data = await adminUsersApi.list();
-      setUsers(data);
+
+      const normalized = data.map((u) => ({
+        ...u,
+        roleName: u.roleName ?? ROLE_LABEL[u.roleId] ?? `Role#${u.roleId}`,
+      }));
+
+      setUsers(normalized);
     } catch (e) {
       console.error(e);
       toast.error("Không tải được danh sách người dùng");
@@ -42,16 +56,18 @@ const UserManagement: React.FC = () => {
   }, []);
 
   const filteredUsers = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) return users;
+  const term = searchTerm.trim().toLowerCase();
+  if (!term) return users;
 
-    return users.filter(
-      (u) =>
-        u.username.toLowerCase().includes(term) ||
-        u.email.toLowerCase().includes(term) ||
-        u.roleName.toLowerCase().includes(term),
+  return users.filter((u) => {
+    const roleText = (u.roleName ?? ROLE_LABEL[u.roleId] ?? "").toLowerCase();
+    return (
+      u.username.toLowerCase().includes(term) ||
+      u.email.toLowerCase().includes(term) ||
+      roleText.includes(term)
     );
-  }, [users, searchTerm]);
+  });
+}, [users, searchTerm]);
 
   const stats = useMemo(() => {
     const total = users.length;
