@@ -71,8 +71,7 @@ const getNavItems = (role: UserRole): NavItem[] => {
     admin: [
       { label: 'Trang chủ', path: '/admin', icon: <LayoutDashboard size={20} /> },
       { label: 'Quản lý người dùng', path: '/admin/users', icon: <Users size={20} /> },
-      { label: 'Phân quyền', path: '/admin/roles', icon: <Shield size={20} /> },
-      { label: 'Quản lý quyền', path: '/admin/permissions', icon: <KeyRound size={20} /> },
+      { label: 'Phân quyền', path: "/admin/rbac", icon: <Shield size={20} /> },
       { label: 'Cấu hình hệ thống', path: '/admin/config', icon: <Settings size={20} /> },
       { label: 'Cửa hàng & Bếp', path: '/admin/locations', icon: <Store size={20} /> },
       { label: 'Báo cáo tổng hợp', path: '/admin/reports', icon: <FileText size={20} /> },

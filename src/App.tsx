@@ -39,13 +39,14 @@ import StoreCatalogManagement from "@/pages/manager/StoreCatalogManagement";
 // Admin Pages
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import UserManagement from "@/pages/admin/UserManagement";
-import RoleManagement from "@/pages/admin/RoleManagement";
-import PermissionManagement from "@/pages/admin/PermissionManagement";
+
+
 import FranchiseDetail from "@/pages/admin/FranchiseManagement/FranchiseDetail";
 
 import SystemConfig from "@/pages/admin/SystemConfig";
 import LocationManagement from "@/pages/admin/LocationManagement";
 import SystemReports from "@/pages/admin/SystemReports";
+import RbacManagement from "@/pages/admin/RbacManagement";
 
 const queryClient = new QueryClient();
 
@@ -117,12 +118,10 @@ const App = () => (
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/users" element={<UserManagement />} />
-              <Route path="/admin/roles" element={<RoleManagement />} />
+          
               <Route path="/admin/franchises/:franchiseId" element={<FranchiseDetail />} />
-              <Route
-                path="/admin/permissions"
-                element={<PermissionManagement />}
-              />
+            
+              <Route path="/admin/rbac" element={<RbacManagement />} />
               <Route path="/admin/config" element={<SystemConfig />} />
               <Route path="/admin/locations" element={<LocationManagement />} />
               <Route path="/admin/reports" element={<SystemReports />} />

@@ -1,13 +1,15 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+// src/pages/admin/RbacManagement/components/permissions-master/PermissionUpsertModal.tsx
+// (copy nguyên từ PermissionManagement cũ của bạn)
+import React, { useEffect, useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type {
   AdminPermission,
   CreatePermissionPayload,
   UpdatePermissionPayload,
-} from '@/types/admin/permission.types';
+} from "@/types/admin/permission.types";
 
 type Props = {
   open: boolean;
@@ -17,7 +19,7 @@ type Props = {
   onUpdate: (id: number, payload: UpdatePermissionPayload) => void | Promise<void>;
 };
 
-export const PermissionUpsertModal: React.FC<Props> = ({
+const PermissionUpsertModal: React.FC<Props> = ({
   open,
   onOpenChange,
   selectedPermission,
@@ -26,18 +28,18 @@ export const PermissionUpsertModal: React.FC<Props> = ({
 }) => {
   const isEdit = !!selectedPermission;
 
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
-  const [groupName, setGroupName] = useState('');
-  const [description, setDescription] = useState('');
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
+  const [groupName, setGroupName] = useState("");
+  const [description, setDescription] = useState("");
 
   useEffect(() => {
     if (!open) return;
 
-    setCode(selectedPermission?.code ?? '');
-    setName(selectedPermission?.name ?? '');
-    setGroupName(selectedPermission?.groupName ?? '');
-    setDescription(selectedPermission?.description ?? '');
+    setCode(selectedPermission?.code ?? "");
+    setName(selectedPermission?.name ?? "");
+    setGroupName(selectedPermission?.groupName ?? "");
+    setDescription(selectedPermission?.description ?? "");
   }, [open, selectedPermission]);
 
   const canSubmit = useMemo(() => {
@@ -66,17 +68,13 @@ export const PermissionUpsertModal: React.FC<Props> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Chỉnh sửa quyền' : 'Thêm quyền mới'}</DialogTitle>
+          <DialogTitle>{isEdit ? "Chỉnh sửa quyền" : "Thêm quyền mới"}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
             <Label>Code *</Label>
-            <Input
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="VD: ORDER_CREATE"
-            />
+            <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="VD: ORDER_CREATE" />
             <p className="text-xs text-muted-foreground mt-1">
               Gợi ý: UPPER_CASE + dấu gạch dưới.
             </p>
@@ -89,20 +87,12 @@ export const PermissionUpsertModal: React.FC<Props> = ({
 
           <div>
             <Label>Nhóm (optional)</Label>
-            <Input
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              placeholder="VD: Đơn hàng"
-            />
+            <Input value={groupName} onChange={(e) => setGroupName(e.target.value)} placeholder="VD: Đơn hàng" />
           </div>
 
           <div>
             <Label>Mô tả *</Label>
-            <Input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="VD: Cho phép tạo đơn mới"
-            />
+            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="VD: Cho phép tạo đơn mới" />
           </div>
 
           <div className="flex gap-3 pt-2">
@@ -110,7 +100,7 @@ export const PermissionUpsertModal: React.FC<Props> = ({
               Hủy
             </Button>
             <Button className="flex-1" onClick={handleSubmit} disabled={!canSubmit}>
-              {isEdit ? 'Cập nhật' : 'Thêm mới'}
+              {isEdit ? "Cập nhật" : "Thêm mới"}
             </Button>
           </div>
         </div>
