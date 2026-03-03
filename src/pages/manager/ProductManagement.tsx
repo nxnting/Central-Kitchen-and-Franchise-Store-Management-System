@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useProducts } from '@/hooks/products';
+import { useProducts, useCreateProduct, useUpdateProduct, useToggleProductStatus } from '@/hooks/products';
 import type { Product } from '@/types/product';
 import { 
   Plus, 
@@ -17,6 +17,7 @@ import {
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -54,6 +55,14 @@ const ProductManagement: React.FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
 
+  // Form states
+  const [formData, setFormData] = useState({
+    name: '',
+    sku: '',
+    unit: '',
+    productType: 'FINISHED',
+  });
+
   // React Query hooks
   const { data: productsResponse, isLoading, isError, refetch } = useProducts({
     status: statusFilter === 'all' ? 'ALL' : statusFilter as 'ACTIVE' | 'INACTIVE',
@@ -74,6 +83,10 @@ const ProductManagement: React.FC = () => {
   const totalItems = productsResponse?.data?.totalItems || 0;
   const totalPages = productsResponse?.data?.totalPages || 1;
 
+  const createMutation = useCreateProduct();
+  const updateMutation = useUpdateProduct();
+  const toggleStatusMutation = useToggleProductStatus();
+
   // Handlers
   const handleSort = (field: string) => {
     const typedField = field as SortField;
@@ -87,27 +100,70 @@ const ProductManagement: React.FC = () => {
 
   const handleView = (product: Product) => {
     setSelectedProduct(product);
+    setFormData({
+      name: product.name,
+      sku: product.sku,
+      unit: product.unit,
+      productType: product.productType,
+    });
     setIsViewMode(true);
     setIsDialogOpen(true);
   };
 
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
+    setFormData({
+      name: product.name,
+      sku: product.sku,
+      unit: product.unit,
+      productType: product.productType,
+    });
     setIsViewMode(false);
     setIsDialogOpen(true);
   };
 
   const handleAdd = () => {
     setSelectedProduct(null);
+    setFormData({
+      name: '',
+      sku: '',
+      unit: '',
+      productType: 'FINISHED',
+    });
     setIsViewMode(false);
     setIsDialogOpen(true);
   };
 
-  const handleSave = () => {
-    toast.success('Đã cập nhật sản phẩm');
-    setIsDialogOpen(false);
-    setSelectedProduct(null);
+  const handleToggleStatus = (product: Product) => {
+    toggleStatusMutation.mutate({ 
+      id: product.id, 
+      status: product.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' 
+    });
   };
+
+  const handleSave = () => {
+    if (!formData.name || !formData.sku || !formData.unit) {
+      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+      return;
+    }
+
+    if (selectedProduct) {
+      updateMutation.mutate({ id: selectedProduct.id, data: formData }, {
+        onSuccess: () => {
+          setIsDialogOpen(false);
+          setSelectedProduct(null);
+        }
+      });
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: () => {
+          setIsDialogOpen(false);
+        }
+      });
+    }
+  };
+
+  const isSaving = createMutation.isPending || updateMutation.isPending;
 
   // Loading state
   if (isLoading) {
@@ -258,6 +314,13 @@ const ProductManagement: React.FC = () => {
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(product)} title="Chỉnh sửa">
                         <Edit size={16} />
                       </Button>
+                      <Switch
+                        checked={product.status === 'ACTIVE'}
+                        onCheckedChange={() => handleToggleStatus(product)}
+                        disabled={toggleStatusMutation.isPending}
+                        className="ml-2"
+                        title={product.status === 'ACTIVE' ? 'Ngừng bán' : 'Mở bán'}
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -286,32 +349,39 @@ const ProductManagement: React.FC = () => {
           
           <div className="space-y-4">
             <div>
-              <Label>Tên sản phẩm</Label>
+              <Label>Tên sản phẩm <span className="text-destructive">*</span></Label>
               <Input 
-                defaultValue={selectedProduct?.name || ''} 
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 disabled={isViewMode}
                 placeholder="VD: Trà sữa trân châu đường đen"
               />
             </div>
             <div>
-              <Label>SKU</Label>
+              <Label>SKU <span className="text-destructive">*</span></Label>
               <Input 
-                defaultValue={selectedProduct?.sku || ''} 
+                value={formData.sku}
+                onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
                 disabled={isViewMode}
                 placeholder="VD: TS-001"
               />
             </div>
             <div>
-              <Label>Đơn vị tính</Label>
+              <Label>Đơn vị tính <span className="text-destructive">*</span></Label>
               <Input 
-                defaultValue={selectedProduct?.unit || ''} 
+                value={formData.unit}
+                onChange={(e) => setFormData(prev => ({ ...prev, unit: e.target.value }))}
                 disabled={isViewMode}
-                placeholder="VD: ly, kg, lít"
+                placeholder="VD: ly, cốc"
               />
             </div>
             <div>
-              <Label>Loại sản phẩm</Label>
-              <Select defaultValue={selectedProduct?.productType || 'FINISHED'} disabled={isViewMode}>
+              <Label>Loại sản phẩm <span className="text-destructive">*</span></Label>
+              <Select 
+                value={formData.productType} 
+                onValueChange={(val) => setFormData(prev => ({ ...prev, productType: val }))}
+                disabled={isViewMode}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -334,11 +404,12 @@ const ProductManagement: React.FC = () => {
             )}
 
             {!isViewMode && (
-              <div className="flex gap-3 pt-2">
-                <Button variant="outline" className="flex-1" onClick={() => setIsDialogOpen(false)}>
+              <div className="flex gap-3 pt-4 border-t">
+                <Button variant="outline" className="flex-1" onClick={() => setIsDialogOpen(false)} disabled={isSaving}>
                   Hủy
                 </Button>
-                <Button className="flex-1" onClick={handleSave}>
+                <Button className="flex-1" onClick={handleSave} disabled={isSaving}>
+                  {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                   {selectedProduct ? 'Cập nhật' : 'Thêm mới'}
                 </Button>
               </div>

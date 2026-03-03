@@ -34,13 +34,13 @@ const AggregatedOrders: React.FC = () => {
   // Queries
   const { data: demands = [], isLoading: loadingDemands } = useDemands();
   const { data: demandDetail, isLoading: loadingDetail } = useDemandDetail(selectedDemandId);
-  const { data: productsData } = useProducts({ page: 1, limit: 100 });
+  const { data: productsData } = useProducts({ page: 1, pageSize: 100 });
   
   // Mutations
   const createDemand = useCreateDemand();
   const addItem = useAddDemandItem(selectedDemandId);
 
-  const products = productsData?.data || [];
+  const products = productsData?.data?.items || [];
 
   // Handlers
   const handleCreateDemand = (e: React.FormEvent) => {
@@ -154,7 +154,7 @@ const AggregatedOrders: React.FC = () => {
                       >
                         <option value="" disabled>-- Chọn sản phẩm --</option>
                         {products.map(p => (
-                          <option key={p.productId} value={p.productId}>{p.name} ({p.unit})</option>
+                          <option key={p.id} value={p.id}>{p.name} ({p.unit})</option>
                         ))}
                       </select>
                     </div>

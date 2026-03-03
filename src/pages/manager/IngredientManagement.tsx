@@ -86,7 +86,7 @@ const IngredientManagement: React.FC = () => {
   });
 
   // React Query hooks
-  const { data: ingredientsResponse, isLoading, isError, refetch } = useIngredients();
+  const { data: ingredientsResponse, isLoading, isError, refetch } = useIngredients({ pageSize: 1000 });
   const createMutation = useCreateIngredient();
   const updateMutation = useUpdateIngredient();
   const toggleStatusMutation = useToggleIngredientStatus();
