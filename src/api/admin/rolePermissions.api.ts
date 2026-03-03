@@ -1,19 +1,38 @@
 import adminApi from "../adminApi";
 
+type ApiResponse<T> = {
+  success: boolean;
+  data: T;
+  message?: string | null;
+  errorCode?: string | null;
+};
+
 export interface RolePermissionPayload {
   roleId: number;
   permissionId: number;
 }
 
 export const adminRolePermissionsApi = {
-  listByRole: async (roleId: number) =>
-    (await adminApi.get<number[]>(`/api/admin/role-permissions/${roleId}`)).data,
+  listByRole: async (roleId: number) => {
+    const res = await adminApi.get<ApiResponse<{ items: number[] }>>(
+      `/admin/roles/${roleId}/permissions`,
+    );
+    return res.data.data.items;
+  },
 
-  assign: async (payload: RolePermissionPayload) =>
-    (await adminApi.post("/api/admin/role-permissions", payload)).data,
+  // ✅ giữ payload như hook đang dùng
+  assign: async (payload: RolePermissionPayload) => {
+    const res = await adminApi.post<ApiResponse<boolean>>(
+      `/admin/roles/${payload.roleId}/permissions`,
+      { permissionId: payload.permissionId },
+    );
+    return res.data.data;
+  },
 
-  remove: async (roleId: number, permissionId: number) =>
-    (await adminApi.delete("/api/admin/role-permissions", {
-      params: { roleId, permissionId },
-    })).data,
+  remove: async (roleId: number, permissionId: number) => {
+    const res = await adminApi.delete<ApiResponse<boolean>>(
+      `/admin/roles/${roleId}/permissions/${permissionId}`,
+    );
+    return res.data.data;
+  },
 };

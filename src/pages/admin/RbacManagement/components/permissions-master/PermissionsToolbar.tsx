@@ -1,7 +1,8 @@
-import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Search, RefreshCw, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+// src/pages/admin/RbacManagement/components/permissions-master/PermissionsToolbar.tsx
+import React from "react";
+import { Input } from "@/components/ui/input";
+import { Search, RefreshCw, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   searchTerm: string;
@@ -11,7 +12,7 @@ type Props = {
   loading?: boolean;
 };
 
-export const PermissionsToolbar: React.FC<Props> = ({
+const PermissionsToolbar: React.FC<Props> = ({
   searchTerm,
   onSearchTermChange,
   onRefresh,
