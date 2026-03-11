@@ -6,8 +6,8 @@ import {
     getIngredientById,
     createIngredient,
     updateIngredient,
-    toggleIngredientStatus
-} from '@/api/ingredientApi';
+    deleteIngredient
+} from '@/api/manager/ingredientApi';
 import type { IngredientFormData, IngredientListParams } from '@/types/ingredient';
 import { toast } from 'sonner';
 
@@ -68,11 +68,10 @@ export const useToggleIngredientStatus = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (id: string | number) => toggleIngredientStatus(String(id)),
-        onSuccess: (data) => {
+        mutationFn: (id: string | number) => deleteIngredient(String(id)),
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: [INGREDIENTS_KEY] });
-            const statusText = data.status === 'ACTIVE' ? 'kích hoạt' : 'ngưng hoạt động';
-            toast.success(`Đã ${statusText} nguyên liệu`);
+            toast.success('Đã cập nhật trạng thái nguyên liệu');
         },
         onError: (error: Error & { response?: { status?: number } }) => {
             if (error.response?.status === 409) {

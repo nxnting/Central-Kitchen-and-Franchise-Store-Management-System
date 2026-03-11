@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useStoreCatalog, useAssignProduct, useUpdateCatalogPrice, useUpdateCatalogStatus } from '@/hooks/storeCatalog';
 import { useProducts } from '@/hooks/products';
+import { useQuery } from '@tanstack/react-query';
+import { adminFranchisesApi } from '@/api/admin/franchises.api';
 import type { StoreCatalog } from '@/types/storeCatalog';
 import type { Product } from '@/types/product';
 import { 
@@ -42,13 +44,6 @@ import { formatDateTime, formatCurrency } from '@/utils/formatters';
 type SortField = 'productName' | 'sku' | 'price' | 'status' | 'updatedAt';
 type SortOrder = 'asc' | 'desc';
 
-// Mock franchises - replace with actual API later
-const mockFranchises = [
-  { id: 1, name: 'Chi nhánh Quận 1' },
-  { id: 2, name: 'Chi nhánh Quận 3' },
-  { id: 3, name: 'Chi nhánh Quận 7' },
-  { id: 4, name: 'Chi nhánh Bình Thạnh' },
-];
 
 const StoreCatalogManagement: React.FC = () => {
   // Franchise selection
@@ -76,6 +71,16 @@ const StoreCatalogManagement: React.FC = () => {
   const [assignPrice, setAssignPrice] = useState<number>(0);
 
   // React Query hooks
+  const { data: franchisesData } = useQuery({
+    queryKey: ['admin-franchises'],
+    queryFn: () => adminFranchisesApi.list(),
+  });
+
+  const activeFranchises = useMemo(() => {
+    if (!franchisesData) return [];
+    return franchisesData.filter(f => f.status === 'ACTIVE' && f.type === 'STORE');
+  }, [franchisesData]);
+
   const { data: catalogResponse, isLoading, isError, refetch } = useStoreCatalog({
     franchiseId: selectedFranchiseId,
     status: statusFilter === 'all' ? 'ALL' : statusFilter as 'ACTIVE' | 'INACTIVE',
@@ -212,8 +217,8 @@ const StoreCatalogManagement: React.FC = () => {
               <SelectValue placeholder="Chọn chi nhánh..." />
             </SelectTrigger>
             <SelectContent>
-              {mockFranchises.map(franchise => (
-                <SelectItem key={franchise.id} value={franchise.id.toString()}>
+              {activeFranchises.map(franchise => (
+                <SelectItem key={franchise.franchiseId} value={franchise.franchiseId.toString()}>
                   {franchise.name}
                 </SelectItem>
               ))}
@@ -224,7 +229,7 @@ const StoreCatalogManagement: React.FC = () => {
     );
   }
 
-  const selectedFranchise = mockFranchises.find(f => f.id === selectedFranchiseId);
+  const selectedFranchise = activeFranchises.find(f => f.franchiseId === selectedFranchiseId);
 
   // Loading state
   if (isLoading) {
@@ -280,8 +285,8 @@ const StoreCatalogManagement: React.FC = () => {
             <SelectValue placeholder="Chọn chi nhánh" />
           </SelectTrigger>
           <SelectContent>
-            {mockFranchises.map(franchise => (
-              <SelectItem key={franchise.id} value={franchise.id.toString()}>
+            {activeFranchises.map(franchise => (
+              <SelectItem key={franchise.franchiseId} value={franchise.franchiseId.toString()}>
                 {franchise.name}
               </SelectItem>
             ))}

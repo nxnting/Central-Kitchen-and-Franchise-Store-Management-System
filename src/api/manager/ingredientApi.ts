@@ -1,7 +1,7 @@
 // Ingredient Master API
 // Endpoints: /api/ingredients
 
-import { get, post, put, patch, del } from './api';
+import { get, post, put, patch, del } from '../api';
 import type {
     Ingredient,
     IngredientFormData,
