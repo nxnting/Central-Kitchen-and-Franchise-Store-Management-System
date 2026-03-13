@@ -18,9 +18,9 @@ import {
 
 import type {
   AdminFranchise,
+  CentralKitchenOption,
   CreateFranchisePayload,
   FranchiseStatus,
-  FranchiseType,
   UpdateFranchisePayload,
 } from "@/types/admin/franchise.types";
 
@@ -28,6 +28,7 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selected: AdminFranchise | null;
+  kitchenOptions: CentralKitchenOption[];
   onCreate: (payload: CreateFranchisePayload) => void | Promise<void>;
   onUpdate: (
     id: number,
@@ -35,14 +36,15 @@ type Props = {
   ) => void | Promise<void>;
 };
 
-const TYPE_OPTIONS: FranchiseType[] = ["STORE", "CENTRAL_KITCHEN"];
 const STATUS_OPTIONS: FranchiseStatus[] = ["ACTIVE", "INACTIVE"];
+
 const buildOsmEmbed = (lat: number, lng: number) => {
   const d = 0.01;
-  const left = lng - d,
-    right = lng + d,
-    top = lat + d,
-    bottom = lat - d;
+  const left = lng - d;
+  const right = lng + d;
+  const top = lat + d;
+  const bottom = lat - d;
+
   return `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${lat}%2C${lng}`;
 };
 
@@ -53,13 +55,14 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
   open,
   onOpenChange,
   selected,
+  kitchenOptions,
   onCreate,
   onUpdate,
 }) => {
   const isEdit = !!selected;
 
+  const [centralKitchenId, setCentralKitchenId] = useState<number>(0);
   const [name, setName] = useState("");
-  const [type, setType] = useState<FranchiseType>("STORE");
   const [status, setStatus] = useState<FranchiseStatus>("ACTIVE");
   const [address, setAddress] = useState("");
   const [location, setLocation] = useState("");
@@ -70,26 +73,39 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
     if (!open) return;
 
     if (selected) {
+      setCentralKitchenId(selected.centralKitchenId);
       setName(selected.name);
-      setType(selected.type);
       setStatus(selected.status);
       setAddress(selected.address);
       setLocation(selected.location);
       setLatitude(selected.latitude);
       setLongitude(selected.longitude);
-    } else {
-      setName("");
-      setType("STORE");
-      setStatus("ACTIVE");
-      setAddress("");
-      setLocation("");
-      setLatitude(0);
-      setLongitude(0);
+      return;
     }
-  }, [open, selected]);
+
+    setCentralKitchenId(kitchenOptions[0]?.value ?? 0);
+    setName("");
+    setStatus("ACTIVE");
+    setAddress("");
+    setLocation("");
+    setLatitude(0);
+    setLongitude(0);
+  }, [open, selected, kitchenOptions]);
+
+  useEffect(() => {
+    if (!open || selected) return;
+
+    if (
+      centralKitchenId === 0 &&
+      kitchenOptions.length > 0
+    ) {
+      setCentralKitchenId(kitchenOptions[0].value);
+    }
+  }, [open, selected, kitchenOptions, centralKitchenId]);
 
   const canSubmit = useMemo(() => {
     return (
+      centralKitchenId > 0 &&
       name.trim().length > 0 &&
       address.trim().length > 0 &&
       location.trim().length > 0 &&
@@ -98,14 +114,15 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
       latitude !== 0 &&
       longitude !== 0
     );
-  }, [name, address, location, latitude, longitude]);
+  }, [centralKitchenId, name, address, location, latitude, longitude]);
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
 
     const payload: CreateFranchisePayload | UpdateFranchisePayload = {
+      centralKitchenId,
       name: name.trim(),
-      type,
+      type: "STORE",
       status,
       address: address.trim(),
       location: location.trim(),
@@ -117,66 +134,78 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
       await onUpdate(selected.franchiseId, payload);
       return;
     }
+
     await onCreate(payload);
   };
+
+  const noKitchenOptions = kitchenOptions.length === 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[92vw] max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Chỉnh sửa Franchise" : "Thêm Franchise"}
+            {isEdit ? "Chỉnh sửa Cửa hàng" : "Thêm Cửa hàng"}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label>Tên</Label>
+            <Label>Bếp trung tâm</Label>
+            <Select
+              value={centralKitchenId > 0 ? String(centralKitchenId) : undefined}
+              onValueChange={(v) => setCentralKitchenId(Number(v))}
+              disabled={noKitchenOptions}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn bếp trung tâm" />
+              </SelectTrigger>
+              <SelectContent>
+                {kitchenOptions.map((option) => (
+                  <SelectItem key={option.value} value={String(option.value)}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {noKitchenOptions && (
+              <p className="mt-1 text-xs text-destructive">
+                Chưa có dữ liệu bếp trung tâm để gán cho cửa hàng.
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Label>Loại</Label>
+            <Input value="STORE" disabled />
+          </div>
+
+          <div>
+            <Label>Tên cửa hàng</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="VD: Chi nhánh Quận 1"
+              placeholder="VD: Franchise Store - District 1"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Loại</Label>
-              <Select
-                value={type}
-                onValueChange={(v) => setType(v as FranchiseType)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn loại" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TYPE_OPTIONS.map((t) => (
-                    <SelectItem key={t} value={t}>
-                      {t}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Trạng thái</Label>
-              <Select
-                value={status}
-                onValueChange={(v) => setStatus(v as FranchiseStatus)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn trạng thái" />
-                </SelectTrigger>
-                <SelectContent>
-                  {STATUS_OPTIONS.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label>Trạng thái</Label>
+            <Select
+              value={status}
+              onValueChange={(v) => setStatus(v as FranchiseStatus)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Chọn trạng thái" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
@@ -196,6 +225,7 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
               placeholder="TP.HCM"
             />
           </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Vĩ độ (latitude)</Label>
@@ -223,7 +253,7 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
               />
             </div>
           </div>
-          
+
           {latitude !== 0 && longitude !== 0 ? (
             <div className="border rounded-xl overflow-hidden bg-muted/20">
               <iframe
@@ -260,7 +290,7 @@ export const FranchiseUpsertModal: React.FC<Props> = ({
             <Button
               className="flex-1"
               onClick={handleSubmit}
-              disabled={!canSubmit}
+              disabled={!canSubmit || noKitchenOptions}
             >
               {isEdit ? "Cập nhật" : "Thêm mới"}
             </Button>

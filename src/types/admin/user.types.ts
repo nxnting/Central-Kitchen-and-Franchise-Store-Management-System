@@ -1,3 +1,5 @@
+import { WorkAssignmentType } from "./franchise.types";
+
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 
 export interface AdminUser {

@@ -7,10 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { adminFranchisesApi } from "@/api/admin/franchises.api";
 import type {
   AdminFranchise,
+  CentralKitchenOption,
+  CentralKitchenSummaryItem,
   CreateFranchisePayload,
   UpdateFranchisePayload,
 } from "@/types/admin/franchise.types";
 import {
+  CentralKitchensGrid,
   FranchisesGrid,
   FranchisesToolbar,
   FranchiseUpsertModal,
@@ -42,7 +45,7 @@ const FranchiseManagement: React.FC = () => {
     } catch (e) {
       console.timeEnd("GET /admin/franchises");
       console.error("GET /admin/franchises error:", e);
-      toast.error("Không tải được danh sách franchise");
+      toast.error("Không tải được danh sách cửa hàng");
     } finally {
       setLoading(false);
     }
@@ -52,28 +55,83 @@ const FranchiseManagement: React.FC = () => {
     load();
   }, []);
 
-  const stats = useMemo(() => {
-    const stores = items.filter((x) => x.type === "STORE").length;
-    const kitchens = items.filter((x) => x.type === "CENTRAL_KITCHEN").length;
-    const active = items.filter((x) => x.status === "ACTIVE").length;
-    const inactive = items.filter((x) => x.status === "INACTIVE").length;
-    return { stores, kitchens, active, inactive };
+  const kitchenOptions = useMemo<CentralKitchenOption[]>(() => {
+    const map = new Map<number, string>();
+
+    items.forEach((item) => {
+      if (item.centralKitchenId > 0 && item.centralKitchenName?.trim()) {
+        map.set(item.centralKitchenId, item.centralKitchenName);
+      }
+    });
+
+    return Array.from(map.entries())
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
   }, [items]);
 
-  const filtered = useMemo(() => {
-    const base = items.filter((x) => x.type === tab);
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) return base;
+  const kitchenSummaries = useMemo<CentralKitchenSummaryItem[]>(() => {
+    const map = new Map<number, CentralKitchenSummaryItem>();
 
-    return base.filter(
+    items.forEach((item) => {
+      if (item.centralKitchenId <= 0) return;
+
+      const current = map.get(item.centralKitchenId);
+
+      if (current) {
+        current.storesCount += 1;
+        return;
+      }
+
+      map.set(item.centralKitchenId, {
+        centralKitchenId: item.centralKitchenId,
+        centralKitchenName:
+          item.centralKitchenName || `Central Kitchen #${item.centralKitchenId}`,
+        storesCount: 1,
+      });
+    });
+
+    return Array.from(map.values()).sort((a, b) =>
+      a.centralKitchenName.localeCompare(b.centralKitchenName),
+    );
+  }, [items]);
+
+  const stats = useMemo(() => {
+    const stores = items.length;
+    const kitchens = kitchenSummaries.length;
+    const active = items.filter((x) => x.status === "ACTIVE").length;
+    const inactive = items.filter((x) => x.status === "INACTIVE").length;
+
+    return { stores, kitchens, active, inactive };
+  }, [items, kitchenSummaries]);
+
+  const filteredStores = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return items;
+
+    return items.filter(
       (x) =>
         x.name.toLowerCase().includes(term) ||
         x.address.toLowerCase().includes(term) ||
-        x.location.toLowerCase().includes(term),
+        x.location.toLowerCase().includes(term) ||
+        x.centralKitchenName?.toLowerCase().includes(term),
     );
-  }, [items, tab, searchTerm]);
+  }, [items, searchTerm]);
+
+  const filteredKitchens = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return kitchenSummaries;
+
+    return kitchenSummaries.filter((x) =>
+      x.centralKitchenName.toLowerCase().includes(term),
+    );
+  }, [kitchenSummaries, searchTerm]);
 
   const handleOpenCreate = () => {
+    if (tab === "CENTRAL_KITCHEN") {
+      toast.info("Tab bếp trung tâm hiện chỉ hiển thị dữ liệu tổng hợp.");
+      return;
+    }
+
     setSelected(null);
     setOpen(true);
   };
@@ -86,37 +144,37 @@ const FranchiseManagement: React.FC = () => {
   const handleCreate = async (payload: CreateFranchisePayload) => {
     try {
       await adminFranchisesApi.create(payload);
-      toast.success("Đã thêm franchise");
+      toast.success("Đã thêm cửa hàng");
       setOpen(false);
       setSelected(null);
       await load();
     } catch (e) {
       console.error(e);
-      toast.error("Tạo franchise thất bại");
+      toast.error("Tạo cửa hàng thất bại");
     }
   };
 
   const handleUpdate = async (id: number, payload: UpdateFranchisePayload) => {
     try {
       await adminFranchisesApi.update(id, payload);
-      toast.success("Đã cập nhật franchise");
+      toast.success("Đã cập nhật cửa hàng");
       setOpen(false);
       setSelected(null);
       await load();
     } catch (e) {
       console.error(e);
-      toast.error("Cập nhật franchise thất bại");
+      toast.error("Cập nhật cửa hàng thất bại");
     }
   };
 
   const handleDelete = async (id: number) => {
     try {
       await adminFranchisesApi.remove(id);
-      toast.success("Đã xóa franchise");
+      toast.success("Đã xóa cửa hàng");
       await load();
     } catch (e) {
       console.error(e);
-      toast.error("Xóa franchise thất bại");
+      toast.error("Xóa cửa hàng thất bại");
     }
   };
 
@@ -124,11 +182,10 @@ const FranchiseManagement: React.FC = () => {
     <div className="animate-fade-in">
       <PageHeader
         title="Quản lý Cửa hàng & Bếp"
-        subtitle="Quản lý danh sách cửa hàng franchise và bếp trung tâm"
+        subtitle="Quản lý danh sách cửa hàng và thông tin bếp trung tâm"
         action={{ label: "Thêm", icon: Plus, onClick: handleOpenCreate }}
       />
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-card border rounded-xl p-4">
           <div className="flex items-center gap-3">
@@ -206,7 +263,7 @@ const FranchiseManagement: React.FC = () => {
 
         <TabsContent value="STORE">
           <FranchisesGrid
-            items={filtered}
+            items={filteredStores}
             loading={loading}
             onEdit={handleOpenEdit}
             onDelete={handleDelete}
@@ -214,11 +271,9 @@ const FranchiseManagement: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="CENTRAL_KITCHEN">
-          <FranchisesGrid
-            items={filtered}
+          <CentralKitchensGrid
+            items={filteredKitchens}
             loading={loading}
-            onEdit={handleOpenEdit}
-            onDelete={handleDelete}
           />
         </TabsContent>
       </Tabs>
@@ -227,6 +282,7 @@ const FranchiseManagement: React.FC = () => {
         open={open}
         onOpenChange={setOpen}
         selected={selected}
+        kitchenOptions={kitchenOptions}
         onCreate={handleCreate}
         onUpdate={handleUpdate}
       />
