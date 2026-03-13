@@ -133,7 +133,7 @@ export const UsersTable: React.FC<Props> = ({
 
                   <td className="p-4">
                     <div className="flex items-center justify-center gap-1">
-                      {/* <Button
+                      <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onAssignFranchises(user)}
@@ -141,7 +141,7 @@ export const UsersTable: React.FC<Props> = ({
                         title="Gán cửa hàng / bếp"
                       >
                         <Building2 size={16} />
-                      </Button> */}
+                      </Button>
 
                       <Button
                         variant="ghost"

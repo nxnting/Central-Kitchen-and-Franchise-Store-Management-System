@@ -4,63 +4,52 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { adminUserFranchisesApi } from '@/api/admin/userFranchises.api';
 import { adminFranchisesApi } from '@/api/admin/franchises.api';
 import type { AdminUser } from '@/types/admin/user.types';
-import type { AdminFranchise, FranchiseType } from '@/types/admin/franchise.types';
+import type {
+  AdminFranchise,
+  FranchiseType,
+  WorkAssignmentType,
+} from '@/types/admin/franchise.types';
 
-const normalizeAssignedIds = (data: unknown): number[] => {
-  if (!data) return [];
-  if (Array.isArray(data)) {
-    
-    if (data.every((x) => typeof x === 'number')) return data as number[];
+const mapFranchiseTypeToAssignmentType = (
+  type: FranchiseType,
+): WorkAssignmentType => {
+  return type === 'CENTRAL_KITCHEN' ? 'CENTRAL_KITCHEN' : 'FRANCHISE';
+};
 
-   
-    const ids: number[] = [];
-    for (const item of data as any[]) {
-      const v =
-        item?.franchiseId ??
-        item?.franchise_id ??
-        item?.franchise?.franchiseId ??
-        item?.id;
-      if (typeof v === 'number') ids.push(v);
-    }
-    return ids;
-  }
-  return [];
+const mapAssignmentToSelectedFranchiseId = (
+  data: {
+    assignmentType: WorkAssignmentType;
+    franchiseId: number | null;
+    centralKitchenId: number | null;
+  } | null | undefined,
+): number | null => {
+  if (!data) return null;
+  if (data.assignmentType === 'CENTRAL_KITCHEN') return data.centralKitchenId;
+  return data.franchiseId;
 };
 
 const roleAllowedTypes = (roleName?: string): FranchiseType[] => {
   const r = (roleName || '').toLowerCase();
 
-  if (r === 'storestaff') return ['STORE'];
-  if (r === 'kitchenstaff') return ['CENTRAL_KITCHEN'];
-  if (r === 'manager') return ['STORE', 'CENTRAL_KITCHEN'];
-  if (r === 'supplycoordinator') return ['STORE', 'CENTRAL_KITCHEN'];
-
   if (r === 'admin') return [];
   return ['STORE', 'CENTRAL_KITCHEN'];
-};
-
-const diffIds = (before: number[], after: number[]) => {
-  const beforeSet = new Set(before);
-  const afterSet = new Set(after);
-
-  const toAdd: number[] = [];
-  const toRemove: number[] = [];
-
-  for (const id of afterSet) if (!beforeSet.has(id)) toAdd.push(id);
-  for (const id of beforeSet) if (!afterSet.has(id)) toRemove.push(id);
-
-  return { toAdd, toRemove };
 };
 
 export const useUserFranchises = (user: AdminUser | null, open: boolean) => {
   const queryClient = useQueryClient();
   const userId = user?.userId;
 
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [initialIds, setInitialIds] = useState<number[]>([]);
+  const [selectedFranchiseId, setSelectedFranchiseId] = useState<number | null>(
+    null,
+  );
+  const [initialFranchiseId, setInitialFranchiseId] = useState<number | null>(
+    null,
+  );
 
-  const allowedTypes = useMemo(() => roleAllowedTypes(user?.roleName), [user?.roleName]);
-
+  const allowedTypes = useMemo(
+    () => roleAllowedTypes(user?.roleName),
+    [user?.roleName],
+  );
 
   const franchisesQuery = useQuery({
     queryKey: ['admin-franchises'],
@@ -68,43 +57,50 @@ export const useUserFranchises = (user: AdminUser | null, open: boolean) => {
     enabled: open,
   });
 
-
   const assignedQuery = useQuery({
-    queryKey: ['admin-user-franchises', userId],
+    queryKey: ['admin-user-work-assignment', userId],
     queryFn: async () => {
-      if (!userId) return [];
-      const data = await adminUserFranchisesApi.listByUser(userId);
-      return normalizeAssignedIds(data);
+      if (!userId) return null;
+      return await adminUserFranchisesApi.getByUser(userId);
     },
     enabled: open && !!userId,
+    retry: false,
   });
 
-  
   useEffect(() => {
     if (!open) return;
-    if (!assignedQuery.isSuccess) return;
 
-    const ids = assignedQuery.data || [];
-    setInitialIds(ids);
-    setSelectedIds(ids);
-  }, [open, assignedQuery.isSuccess, assignedQuery.data]);
+    if (assignedQuery.isSuccess) {
+      const selectedId = mapAssignmentToSelectedFranchiseId(assignedQuery.data);
+      setInitialFranchiseId(selectedId);
+      setSelectedFranchiseId(selectedId);
+      return;
+    }
 
-  
+    if (assignedQuery.isError) {
+      setInitialFranchiseId(null);
+      setSelectedFranchiseId(null);
+    }
+  }, [
+    open,
+    assignedQuery.isSuccess,
+    assignedQuery.isError,
+    assignedQuery.data,
+  ]);
+
   const filteredFranchises = useMemo(() => {
     const list = (franchisesQuery.data || []) as AdminFranchise[];
-    if (allowedTypes.length === 0) return list; 
+    if (allowedTypes.length === 0) return [];
     return list.filter((f) => allowedTypes.includes(f.type));
   }, [franchisesQuery.data, allowedTypes]);
 
-  
   const getFranchiseId = (f: AdminFranchise) => f.franchiseId;
 
   const isAllowedFranchise = (f: AdminFranchise) => {
-    if (allowedTypes.length === 0) return false; 
+    if (allowedTypes.length === 0) return false;
     return allowedTypes.includes(f.type);
   };
 
-  
   const submitMutation = useMutation({
     mutationFn: async () => {
       if (!userId) throw new Error('Missing userId');
@@ -113,50 +109,77 @@ export const useUserFranchises = (user: AdminUser | null, open: boolean) => {
         throw new Error('Admin không cần gán cửa hàng / bếp');
       }
 
-      if (selectedIds.length === 0) {
-        throw new Error('Vui lòng chọn ít nhất 1 cửa hàng hoặc bếp');
+      if (!selectedFranchiseId) {
+        throw new Error('Vui lòng chọn 1 cửa hàng hoặc bếp');
       }
 
       const allFranchises = (franchisesQuery.data || []) as AdminFranchise[];
-      const picked = allFranchises.filter((f) => selectedIds.includes(f.franchiseId));
-
-      if (allowedTypes.length > 0) {
-        const invalid = picked.find((f) => !allowedTypes.includes(f.type));
-        if (invalid) throw new Error('Bạn đã chọn franchise không hợp lệ với vai trò của user');
-      }
-
-      const { toAdd, toRemove } = diffIds(initialIds, selectedIds);
-
-      const addPromises = toAdd.map((franchiseId) =>
-        adminUserFranchisesApi.assign({ userId, franchiseId })
-      );
-      const removePromises = toRemove.map((franchiseId) =>
-        adminUserFranchisesApi.remove(userId, franchiseId)
+      const picked = allFranchises.find(
+        (f) => f.franchiseId === selectedFranchiseId,
       );
 
-      const results = await Promise.allSettled([...addPromises, ...removePromises]);
-      const rejected = results.filter((r) => r.status === 'rejected') as PromiseRejectedResult[];
-
-      if (rejected.length > 0) {
-        throw new Error('Có lỗi khi cập nhật gán cửa hàng/bếp. Vui lòng thử lại.');
+      if (!picked) {
+        throw new Error('Không tìm thấy cửa hàng / bếp đã chọn');
       }
 
-      return { toAdd, toRemove };
+      if (!isAllowedFranchise(picked)) {
+        throw new Error(
+          'Bạn đã chọn cửa hàng / bếp không hợp lệ với vai trò của user',
+        );
+      }
+
+      if (initialFranchiseId && initialFranchiseId !== selectedFranchiseId) {
+        await adminUserFranchisesApi.remove(userId);
+      }
+
+      const assignmentType = mapFranchiseTypeToAssignmentType(picked.type);
+
+      await adminUserFranchisesApi.assign({
+        userId,
+        assignmentType,
+        franchiseId: assignmentType === 'FRANCHISE' ? picked.franchiseId : null,
+        centralKitchenId:
+          assignmentType === 'CENTRAL_KITCHEN' ? picked.franchiseId : null,
+      });
+
+      return { selectedFranchiseId };
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['admin-user-franchises', userId] });
+      await queryClient.invalidateQueries({
+        queryKey: ['admin-user-work-assignment', userId],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['admin-franchises'],
+      });
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: async () => {
+      if (!userId) throw new Error('Missing userId');
+      await adminUserFranchisesApi.remove(userId);
+    },
+    onSuccess: async () => {
+      setInitialFranchiseId(null);
+      setSelectedFranchiseId(null);
+
+      await queryClient.invalidateQueries({
+        queryKey: ['admin-user-work-assignment', userId],
+      });
     },
   });
 
   const loading = franchisesQuery.isLoading || assignedQuery.isLoading;
   const submitting = submitMutation.isPending;
+  const removing = removeMutation.isPending;
 
   return {
     franchises: (franchisesQuery.data || []) as AdminFranchise[],
     filteredFranchises,
-    selectedIds,
-    setSelectedIds,
-    initialIds,
+
+    selectedFranchiseId,
+    setSelectedFranchiseId,
+    initialFranchiseId,
 
     allowedTypes,
     getFranchiseId,
@@ -164,13 +187,21 @@ export const useUserFranchises = (user: AdminUser | null, open: boolean) => {
 
     loading,
     submitting,
+    removing,
 
     refetch: async () => {
       await Promise.all([franchisesQuery.refetch(), assignedQuery.refetch()]);
     },
-    submit: async () => submitMutation.mutateAsync(),
 
-    error: (franchisesQuery.error || assignedQuery.error || submitMutation.error) as unknown,
+    submit: async () => submitMutation.mutateAsync(),
+    removeAssignment: async () => removeMutation.mutateAsync(),
+
+    currentAssignment: assignedQuery.data ?? null,
+
+    error: (franchisesQuery.error ||
+      assignedQuery.error ||
+      submitMutation.error ||
+      removeMutation.error) as unknown,
   };
 };
 

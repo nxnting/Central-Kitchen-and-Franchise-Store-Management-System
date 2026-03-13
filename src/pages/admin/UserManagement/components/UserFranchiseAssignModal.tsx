@@ -1,6 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { toast } from 'sonner';
-import { X, Building2, Store, CookingPot, Shield, Search } from 'lucide-react';
+import {
+  X,
+  Building2,
+  Store,
+  CookingPot,
+  Shield,
+  Search,
+  Trash2,
+} from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import type { AdminUser } from '@/types/admin/user.types';
@@ -13,7 +21,8 @@ type Props = {
   user: AdminUser | null;
 };
 
-const isAdminRole = (roleName?: string) => (roleName || '').toLowerCase() === 'admin';
+const isAdminRole = (roleName?: string) =>
+  (roleName || '').toLowerCase() === 'admin';
 
 const typeBadge = (type: AdminFranchise['type']) => {
   if (type === 'STORE') {
@@ -24,6 +33,7 @@ const typeBadge = (type: AdminFranchise['type']) => {
       </span>
     );
   }
+
   return (
     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-warning/10 text-warning">
       <CookingPot size={12} />
@@ -32,25 +42,35 @@ const typeBadge = (type: AdminFranchise['type']) => {
   );
 };
 
-export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, user }) => {
+export const UserFranchiseAssignModal: React.FC<Props> = ({
+  open,
+  onOpenChange,
+  user,
+}) => {
   const [q, setQ] = useState('');
 
   const {
     franchises,
     filteredFranchises,
-    selectedIds,
-    setSelectedIds,
+    selectedFranchiseId,
+    setSelectedFranchiseId,
+    initialFranchiseId,
     getFranchiseId,
     isAllowedFranchise,
     loading,
     submitting,
+    removing,
     submit,
+    removeAssignment,
+    currentAssignment,
   } = useUserFranchises(user, open);
 
   const isAdmin = isAdminRole(user?.roleName);
 
   const list = useMemo(() => {
-    const base = filteredFranchises?.length ? filteredFranchises : (franchises || []);
+    const base = filteredFranchises?.length
+      ? filteredFranchises
+      : franchises || [];
     const term = q.trim().toLowerCase();
     if (!term) return base;
 
@@ -60,14 +80,26 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, 
     });
   }, [filteredFranchises, franchises, q]);
 
-  const toggle = (fid: number) => {
-    setSelectedIds((prev) => {
-      const s = new Set(prev);
-      if (s.has(fid)) s.delete(fid);
-      else s.add(fid);
-      return Array.from(s);
-    });
-  };
+  const selectedFranchise = useMemo(() => {
+    const all = franchises || [];
+    return (
+      all.find((f) => f.franchiseId === selectedFranchiseId) || null
+    );
+  }, [franchises, selectedFranchiseId]);
+
+  const currentAssignedLabel = useMemo(() => {
+    if (!currentAssignment) return 'Chưa có nơi làm việc được gán';
+
+    const id =
+      currentAssignment.assignmentType === 'CENTRAL_KITCHEN'
+        ? currentAssignment.centralKitchenId
+        : currentAssignment.franchiseId;
+
+    const matched = (franchises || []).find((f) => f.franchiseId === id);
+    return matched
+      ? `${matched.name} (${matched.type})`
+      : `ID: ${id ?? '-'}`;
+  }, [currentAssignment, franchises]);
 
   const close = () => onOpenChange(false);
 
@@ -81,16 +113,22 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, 
     }
   };
 
+  const handleRemove = async () => {
+    try {
+      await removeAssignment();
+      toast.success('Đã gỡ gán cửa hàng / bếp');
+    } catch (e: any) {
+      toast.error(e?.message || 'Gỡ gán thất bại');
+    }
+  };
+
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* overlay */}
       <div className="absolute inset-0 bg-black/40" onClick={close} />
 
-      {/* dialog */}
       <div className="absolute left-1/2 top-1/2 w-[95vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 bg-card border rounded-2xl shadow-xl overflow-hidden">
-        {/* header */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -99,7 +137,7 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, 
             <div>
               <p className="font-semibold leading-tight">Gán cửa hàng / bếp</p>
               <p className="text-sm text-muted-foreground">
-                Chọn franchise để gán cho người dùng
+                Mỗi user chỉ có 1 nơi làm việc hiện tại
               </p>
             </div>
           </div>
@@ -109,14 +147,14 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, 
           </Button>
         </div>
 
-        {/* body */}
         <div className="p-4 space-y-4">
-          {/* user info */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="bg-muted/30 border rounded-xl p-3">
               <p className="text-xs text-muted-foreground">Người dùng</p>
               <p className="font-medium">{user?.username || '-'}</p>
-              <p className="text-xs text-muted-foreground">ID: {user?.userId ?? '-'}</p>
+              <p className="text-xs text-muted-foreground">
+                ID: {user?.userId ?? '-'}
+              </p>
             </div>
 
             <div className="bg-muted/30 border rounded-xl p-3">
@@ -138,10 +176,24 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, 
             </div>
           </div>
 
-          {/* search */}
+          <div className="bg-muted/30 border rounded-xl p-3">
+            <p className="text-xs text-muted-foreground mb-1">
+              Nơi làm việc hiện tại
+            </p>
+            <p className="font-medium">{currentAssignedLabel}</p>
+            {!!initialFranchiseId && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Đã gán trước đó.
+              </p>
+            )}
+          </div>
+
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+              />
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
@@ -160,20 +212,24 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, 
             </Button>
           </div>
 
-          {/* list */}
           <div className="border rounded-xl overflow-hidden">
             <div className="px-4 py-2 bg-muted/30 border-b flex items-center justify-between">
-              <p className="text-sm font-medium">Danh sách franchise</p>
+              <p className="text-sm font-medium">Danh sách cửa hàng / bếp</p>
               <p className="text-xs text-muted-foreground">
-                Đã chọn: <span className="font-medium">{selectedIds.length}</span>
+                Đang chọn:{' '}
+                <span className="font-medium">
+                  {selectedFranchise ? selectedFranchise.name : 'Chưa chọn'}
+                </span>
               </p>
             </div>
 
             {loading ? (
-              <div className="p-6 text-center text-sm text-muted-foreground">Đang tải dữ liệu...</div>
+              <div className="p-6 text-center text-sm text-muted-foreground">
+                Đang tải dữ liệu...
+              </div>
             ) : list.length === 0 ? (
               <div className="p-6 text-center text-sm text-muted-foreground">
-                Không có franchise phù hợp.
+                Không có cửa hàng / bếp phù hợp.
               </div>
             ) : (
               <div className="max-h-[380px] overflow-auto">
@@ -189,7 +245,7 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, 
                   <tbody>
                     {list.map((f) => {
                       const fid = getFranchiseId(f);
-                      const checked = selectedIds.includes(fid);
+                      const checked = selectedFranchiseId === fid;
                       const allowed = isAllowedFranchise(f);
 
                       return (
@@ -201,10 +257,11 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, 
                         >
                           <td className="p-3">
                             <input
-                              type="checkbox"
+                              type="radio"
+                              name="user-work-assignment"
                               checked={checked}
                               disabled={!allowed || isAdmin}
-                              onChange={() => toggle(fid)}
+                              onChange={() => setSelectedFranchiseId(fid)}
                               className="h-4 w-4"
                             />
                           </td>
@@ -239,18 +296,41 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({ open, onOpenChange, 
           </div>
         </div>
 
-        {/* footer */}
-        <div className="p-4 border-t flex items-center justify-end gap-2">
-          <Button variant="outline" onClick={close} disabled={submitting}>
-            Hủy
-          </Button>
+        <div className="p-4 border-t flex items-center justify-between gap-2">
+          <div>
+            <Button
+              variant="outline"
+              className="gap-2 text-destructive"
+              onClick={handleRemove}
+              disabled={removing || submitting || loading || isAdmin || !currentAssignment}
+            >
+              <Trash2 size={16} />
+              {removing ? 'Đang gỡ...' : 'Gỡ assignment'}
+            </Button>
+          </div>
 
-          <Button
-            onClick={handleSave}
-            disabled={submitting || loading || isAdmin || selectedIds.length === 0}
-          >
-            {submitting ? 'Đang lưu...' : 'Lưu'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={close}
+              disabled={submitting || removing}
+            >
+              Hủy
+            </Button>
+
+            <Button
+              onClick={handleSave}
+              disabled={
+                submitting ||
+                removing ||
+                loading ||
+                isAdmin ||
+                !selectedFranchiseId
+              }
+            >
+              {submitting ? 'Đang lưu...' : 'Lưu'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

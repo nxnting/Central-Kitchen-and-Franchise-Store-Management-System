@@ -1,22 +1,33 @@
 import adminApi from '../adminApi';
+import type {
+  WorkAssignmentType,
+  UserWorkAssignment,
+  AssignedUserItem,
+} from '@/types/admin/franchise.types';
 
-export interface UserFranchisePayload {
+export interface UserWorkAssignmentPayload {
   userId: number;
-  franchiseId: number;
+  assignmentType: WorkAssignmentType;
+  franchiseId?: number | null;
+  centralKitchenId?: number | null;
+}
+
+export interface ListUsersByAssignmentParams {
+  assignmentType: WorkAssignmentType;
+  franchiseId?: number;
+  centralKitchenId?: number;
 }
 
 export const adminUserFranchisesApi = {
-  listByUser: async (userId: number) =>
-    (await adminApi.get<number[]>(`/admin/user-franchises/${userId}`)).data,
+  getByUser: async (userId: number) =>
+    (await adminApi.get<UserWorkAssignment>(`/admin/user-work-assignments/${userId}`)).data,
 
-  listUsersByFranchise: async (franchiseId: number) =>
-  (await adminApi.get(`/admin/user-franchises/${franchiseId}/users`)).data,
+  listUsersByAssignment: async (params: ListUsersByAssignmentParams) =>
+    (await adminApi.get<AssignedUserItem[]>('/admin/user-work-assignments/users', { params })).data,
 
-  assign: async (payload: UserFranchisePayload) =>
-    (await adminApi.post('/admin/user-franchises', payload)).data,
+  assign: async (payload: UserWorkAssignmentPayload) =>
+    (await adminApi.post<string>('/admin/user-work-assignments', payload)).data,
 
-  remove: async (userId: number, franchiseId: number) =>
-    (await adminApi.delete('/admin/user-franchises', {
-      params: { userId, franchiseId },
-    })).data,
+  remove: async (userId: number) =>
+    (await adminApi.delete<string>(`/admin/user-work-assignments/${userId}`)).data,
 };

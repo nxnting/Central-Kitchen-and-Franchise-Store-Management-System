@@ -1,5 +1,5 @@
-export type FranchiseType = 'STORE' | 'CENTRAL_KITCHEN';
-export type FranchiseStatus = 'ACTIVE' | 'INACTIVE';
+export type FranchiseType = "STORE" | "CENTRAL_KITCHEN";
+export type FranchiseStatus = "ACTIVE" | "INACTIVE";
 
 export interface AdminFranchise {
   franchiseId: number;
@@ -33,4 +33,29 @@ export interface UpdateFranchisePayload {
 
   latitude: number;
   longitude: number;
+}
+
+// ================= WORK ASSIGNMENT =================
+
+export type WorkAssignmentType = 'FRANCHISE' | 'CENTRAL_KITCHEN';
+
+export interface UserWorkAssignment {
+  userId: number;
+  assignmentType: WorkAssignmentType;
+  franchiseId: number | null;
+  centralKitchenId: number | null;
+  assignedAt: string;
+}
+
+export interface AssignedUserItem {
+  userId: number;
+  username: string;
+  email: string;
+  roleName: string;
+
+  assignmentType: WorkAssignmentType;
+  franchiseId: number | null;
+  centralKitchenId: number | null;
+
+  assignedAt: string;
 }
