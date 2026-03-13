@@ -13,7 +13,10 @@ import { Button } from "@/components/ui/button";
 import { adminUsersApi } from "@/api/admin/users.api";
 import { adminUserFranchisesApi } from "@/api/admin/userFranchises.api";
 import type { AdminUser } from "@/types/admin/user.types";
-import type { AdminFranchise } from "@/types/admin/franchise.types";
+import type {
+  AdminFranchise,
+  WorkAssignmentType,
+} from "@/types/admin/franchise.types";
 
 type Props = {
   open: boolean;
@@ -24,27 +27,29 @@ type Props = {
 
 const normalize = (s?: string) => (s || "").trim().toLowerCase();
 
+const mapFranchiseTypeToAssignmentType = (
+  type: AdminFranchise["type"],
+): WorkAssignmentType => {
+  return type === "CENTRAL_KITCHEN" ? "CENTRAL_KITCHEN" : "FRANCHISE";
+};
+
 const isUserAllowedForFranchise = (
   user: AdminUser,
   franchise: AdminFranchise,
 ) => {
   const role = normalize(user.roleName);
 
-  // chỉ staff gán được
   if (role === "admin") return false;
 
-  if (franchise.type === "STORE") return role === "storestaff";
-  if (franchise.type === "CENTRAL_KITCHEN") return role === "kitchenstaff";
+  if (franchise.type === "STORE") {
+    return role === "storestaff" || role === "manager" || role === "supplycoordinator";
+  }
 
-  return false;
-};
+  if (franchise.type === "CENTRAL_KITCHEN") {
+    return role === "kitchenstaff" || role === "manager" || role === "supplycoordinator";
+  }
 
-const extractApiErrorMessage = (err: any) => {
-  const data = err?.response?.data;
-  const errors: string[] | undefined = data?.errors;
-  if (Array.isArray(errors) && errors.length > 0) return errors.join(", ");
-  if (typeof data?.message === "string") return data.message;
-  return "Có lỗi xảy ra. Vui lòng thử lại.";
+  return true;
 };
 
 export const AddUserToFranchiseModal: React.FC<Props> = ({
@@ -70,12 +75,10 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
         setLoading(true);
         const data = await adminUsersApi.list();
 
-        
         const allowed = data.filter((u) =>
           isUserAllowedForFranchise(u, franchise),
         );
 
-        
         const freeUsers: AdminUser[] = [];
         const chunkSize = 8;
 
@@ -83,14 +86,19 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
           const chunk = allowed.slice(i, i + chunkSize);
 
           const results = await Promise.allSettled(
-            chunk.map((u) => adminUserFranchisesApi.listByUser(u.userId)),
+            chunk.map((u) => adminUserFranchisesApi.getByUser(u.userId)),
           );
 
           results.forEach((r, idx) => {
             const u = chunk[idx];
-            if (r.status === "fulfilled") {
-              const assigned = r.value; 
-              if (!assigned || assigned.length === 0) freeUsers.push(u);
+
+            if (r.status === "rejected") {
+              freeUsers.push(u);
+              return;
+            }
+
+            if (!r.value) {
+              freeUsers.push(u);
             }
           });
         }
@@ -105,7 +113,7 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
     };
 
     run();
-  }, [open]);
+  }, [open, franchise]);
 
   const filtered = useMemo(() => {
     const term = normalize(q);
@@ -129,11 +137,19 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
 
     try {
       setSubmitting(true);
+
+      const assignmentType = mapFranchiseTypeToAssignmentType(franchise.type);
+
       await adminUserFranchisesApi.assign({
         userId: selected.userId,
-        franchiseId: franchise.franchiseId,
+        assignmentType,
+        franchiseId:
+          assignmentType === "FRANCHISE" ? franchise.franchiseId : null,
+        centralKitchenId:
+          assignmentType === "CENTRAL_KITCHEN" ? franchise.franchiseId : null,
       });
-      toast.success("Đã gán user vào cửa hàng/bếp");
+
+      toast.success("Đã gán user vào cửa hàng / bếp");
       onOpenChange(false);
       await onAssigned?.();
     } catch (e: any) {
@@ -147,15 +163,14 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
 
       const isAlreadyAssigned =
         raw.includes("already assigned") ||
+        raw.includes("already has") ||
+        raw.includes("duplicate") ||
         raw.includes("saving the entity changes") ||
         raw.includes("inner exception");
 
       if (isAlreadyAssigned) {
-        toast.error(
-          "User đã thuộc cửa hàng/bếp khác (1 user chỉ thuộc 1 nơi).",
-        );
+        toast.error("User đã thuộc cửa hàng / bếp khác (1 user chỉ thuộc 1 nơi).");
 
-        
         if (selected) {
           setUsers((prev) => prev.filter((u) => u.userId !== selected.userId));
           setSelected(null);
@@ -194,7 +209,7 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="p-4 text-sm text-muted-foreground">
-                  Không có user phù hợp (đúng role) để gán.
+                  Không có user phù hợp để gán.
                 </div>
               ) : (
                 <div className="divide-y">
