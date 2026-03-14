@@ -74,7 +74,9 @@ export const UsersTable: React.FC<Props> = ({
             </tr>
           ) : (
             users.map((user) => {
-              const isAdmin = user.roleName?.toLowerCase() === "admin";
+              const normalizedRole = (user.roleName ?? "").toLowerCase();
+              const isGlobalRole =
+                normalizedRole === "admin" || normalizedRole === "manager";
 
               return (
                 <tr
@@ -133,20 +135,22 @@ export const UsersTable: React.FC<Props> = ({
 
                   <td className="p-4">
                     <div className="flex items-center justify-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onAssignFranchises(user)}
-                        disabled={isAdmin}
-                        title="Gán cửa hàng / bếp"
-                      >
-                        <Building2 size={16} />
-                      </Button>
+                      {!isGlobalRole && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onAssignFranchises(user)}
+                          title="Gán cửa hàng / bếp"
+                        >
+                          <Building2 size={16} />
+                        </Button>
+                      )}
 
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => onEdit(user)}
+                        title="Chỉnh sửa"
                       >
                         <Edit size={16} />
                       </Button>
@@ -155,6 +159,11 @@ export const UsersTable: React.FC<Props> = ({
                         variant="ghost"
                         size="icon"
                         onClick={() => onToggleStatus(user)}
+                        title={
+                          user.status === "ACTIVE"
+                            ? "Khóa người dùng"
+                            : "Mở khóa người dùng"
+                        }
                       >
                         {user.status === "ACTIVE" ? (
                           <UserX size={16} />
@@ -168,6 +177,7 @@ export const UsersTable: React.FC<Props> = ({
                         size="icon"
                         className="text-destructive"
                         onClick={() => onDelete(user.userId)}
+                        title="Xóa người dùng"
                       >
                         <Trash2 size={16} />
                       </Button>

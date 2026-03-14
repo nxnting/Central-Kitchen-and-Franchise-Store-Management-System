@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { toast } from 'sonner';
+import React, { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   X,
   Building2,
@@ -8,12 +8,12 @@ import {
   Shield,
   Search,
   Trash2,
-} from 'lucide-react';
+} from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import type { AdminUser } from '@/types/admin/user.types';
-import type { AdminFranchise } from '@/types/admin/franchise.types';
-import { useUserFranchises } from '@/hooks/admin/useUserFranchises';
+import { Button } from "@/components/ui/button";
+import type { AdminUser } from "@/types/admin/user.types";
+import type { AdminFranchise } from "@/types/admin/franchise.types";
+import { useUserFranchises } from "@/hooks/admin/useUserFranchises";
 
 type Props = {
   open: boolean;
@@ -21,11 +21,13 @@ type Props = {
   user: AdminUser | null;
 };
 
-const isAdminRole = (roleName?: string) =>
-  (roleName || '').toLowerCase() === 'admin';
+const isGlobalRole = (roleName?: string) => {
+  const normalized = (roleName || "").toLowerCase();
+  return normalized === "admin" || normalized === "manager";
+};
 
-const typeBadge = (type: AdminFranchise['type']) => {
-  if (type === 'STORE') {
+const typeBadge = (type: AdminFranchise["type"]) => {
+  if (type === "STORE") {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-info/10 text-info">
         <Store size={12} />
@@ -47,7 +49,7 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({
   onOpenChange,
   user,
 }) => {
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState("");
 
   const {
     franchises,
@@ -65,7 +67,7 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({
     currentAssignment,
   } = useUserFranchises(user, open);
 
-  const isAdmin = isAdminRole(user?.roleName);
+  const isGlobal = isGlobalRole(user?.roleName);
 
   const list = useMemo(() => {
     const base = filteredFranchises?.length
@@ -82,43 +84,50 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({
 
   const selectedFranchise = useMemo(() => {
     const all = franchises || [];
-    return (
-      all.find((f) => f.franchiseId === selectedFranchiseId) || null
-    );
+    return all.find((f) => f.franchiseId === selectedFranchiseId) || null;
   }, [franchises, selectedFranchiseId]);
 
   const currentAssignedLabel = useMemo(() => {
-    if (!currentAssignment) return 'Chưa có nơi làm việc được gán';
+    if (isGlobal) return "Không áp dụng cho role global";
+    if (!currentAssignment) return "Chưa có nơi làm việc được gán";
 
     const id =
-      currentAssignment.assignmentType === 'CENTRAL_KITCHEN'
+      currentAssignment.assignmentType === "CENTRAL_KITCHEN"
         ? currentAssignment.centralKitchenId
         : currentAssignment.franchiseId;
 
     const matched = (franchises || []).find((f) => f.franchiseId === id);
-    return matched
-      ? `${matched.name} (${matched.type})`
-      : `ID: ${id ?? '-'}`;
-  }, [currentAssignment, franchises]);
+    return matched ? `${matched.name} (${matched.type})` : `ID: ${id ?? "-"}`;
+  }, [currentAssignment, franchises, isGlobal]);
 
   const close = () => onOpenChange(false);
 
   const handleSave = async () => {
+    if (isGlobal) {
+      toast.info("Role này không cần workplace assignment");
+      return;
+    }
+
     try {
       await submit();
-      toast.success('Đã cập nhật gán cửa hàng / bếp');
+      toast.success("Đã cập nhật gán cửa hàng / bếp");
       close();
     } catch (e: any) {
-      toast.error(e?.message || 'Cập nhật thất bại');
+      toast.error(e?.message || "Cập nhật thất bại");
     }
   };
 
   const handleRemove = async () => {
+    if (isGlobal) {
+      toast.info("Role này không có workplace assignment để gỡ");
+      return;
+    }
+
     try {
       await removeAssignment();
-      toast.success('Đã gỡ gán cửa hàng / bếp');
+      toast.success("Đã gỡ gán cửa hàng / bếp");
     } catch (e: any) {
-      toast.error(e?.message || 'Gỡ gán thất bại');
+      toast.error(e?.message || "Gỡ gán thất bại");
     }
   };
 
@@ -137,7 +146,9 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({
             <div>
               <p className="font-semibold leading-tight">Gán cửa hàng / bếp</p>
               <p className="text-sm text-muted-foreground">
-                Mỗi user chỉ có 1 nơi làm việc hiện tại
+                {isGlobal
+                  ? "Role này không cần workplace assignment."
+                  : "Mỗi user chỉ có 1 nơi làm việc hiện tại"}
               </p>
             </div>
           </div>
@@ -151,26 +162,27 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="bg-muted/30 border rounded-xl p-3">
               <p className="text-xs text-muted-foreground">Người dùng</p>
-              <p className="font-medium">{user?.username || '-'}</p>
+              <p className="font-medium">{user?.username || "-"}</p>
               <p className="text-xs text-muted-foreground">
-                ID: {user?.userId ?? '-'}
+                ID: {user?.userId ?? "-"}
               </p>
             </div>
 
             <div className="bg-muted/30 border rounded-xl p-3">
               <p className="text-xs text-muted-foreground">Email</p>
-              <p className="font-medium break-all">{user?.email || '-'}</p>
+              <p className="font-medium break-all">{user?.email || "-"}</p>
             </div>
 
             <div className="bg-muted/30 border rounded-xl p-3">
               <p className="text-xs text-muted-foreground">Vai trò</p>
               <span className="inline-flex items-center gap-1 mt-1 px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
                 <Shield size={12} />
-                {user?.roleName || '-'}
+                {user?.roleName || "-"}
               </span>
-              {isAdmin && (
+              {isGlobal && (
                 <p className="text-xs mt-2 text-destructive">
-                  Admin không cần gán cửa hàng / bếp.
+                  Role này hoạt động theo global scope, không cần gán cửa hàng /
+                  bếp.
                 </p>
               )}
             </div>
@@ -181,119 +193,135 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({
               Nơi làm việc hiện tại
             </p>
             <p className="font-medium">{currentAssignedLabel}</p>
-            {!!initialFranchiseId && (
+            {!!initialFranchiseId && !isGlobal && (
               <p className="text-xs text-muted-foreground mt-1">
                 Đã gán trước đó.
               </p>
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Tìm theo tên / địa chỉ / location..."
-                className="w-full h-10 pl-9 pr-3 rounded-xl border bg-background text-sm outline-none focus:ring-2 focus:ring-primary/30"
-                disabled={loading}
-              />
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={() => setQ('')}
-              disabled={!q || loading}
-            >
-              Xóa
-            </Button>
-          </div>
-
-          <div className="border rounded-xl overflow-hidden">
-            <div className="px-4 py-2 bg-muted/30 border-b flex items-center justify-between">
-              <p className="text-sm font-medium">Danh sách cửa hàng / bếp</p>
-              <p className="text-xs text-muted-foreground">
-                Đang chọn:{' '}
-                <span className="font-medium">
-                  {selectedFranchise ? selectedFranchise.name : 'Chưa chọn'}
-                </span>
+          {isGlobal && (
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-3">
+              <p className="text-sm font-medium text-primary">Global role</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                User có role này được mở scope theo role, không phụ thuộc
+                franchiseId hoặc centralKitchenId.
               </p>
             </div>
+          )}
 
-            {loading ? (
-              <div className="p-6 text-center text-sm text-muted-foreground">
-                Đang tải dữ liệu...
+          {!isGlobal && (
+            <>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search
+                    size={16}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                  />
+                  <input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Tìm theo tên / địa chỉ / location..."
+                    className="w-full h-10 pl-9 pr-3 rounded-xl border bg-background text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                    disabled={loading}
+                  />
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={() => setQ("")}
+                  disabled={!q || loading}
+                >
+                  Xóa
+                </Button>
               </div>
-            ) : list.length === 0 ? (
-              <div className="p-6 text-center text-sm text-muted-foreground">
-                Không có cửa hàng / bếp phù hợp.
-              </div>
-            ) : (
-              <div className="max-h-[380px] overflow-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-background">
-                      <th className="text-left p-3 w-12"></th>
-                      <th className="text-left p-3 font-medium">Tên</th>
-                      <th className="text-left p-3 font-medium">Loại</th>
-                      <th className="text-left p-3 font-medium">Trạng thái</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {list.map((f) => {
-                      const fid = getFranchiseId(f);
-                      const checked = selectedFranchiseId === fid;
-                      const allowed = isAllowedFranchise(f);
 
-                      return (
-                        <tr
-                          key={fid}
-                          className={`border-b last:border-0 hover:bg-muted/20 ${
-                            !allowed || isAdmin ? 'opacity-60' : ''
-                          }`}
-                        >
-                          <td className="p-3">
-                            <input
-                              type="radio"
-                              name="user-work-assignment"
-                              checked={checked}
-                              disabled={!allowed || isAdmin}
-                              onChange={() => setSelectedFranchiseId(fid)}
-                              className="h-4 w-4"
-                            />
-                          </td>
+              <div className="border rounded-xl overflow-hidden">
+                <div className="px-4 py-2 bg-muted/30 border-b flex items-center justify-between">
+                  <p className="text-sm font-medium">Danh sách cửa hàng / bếp</p>
+                  <p className="text-xs text-muted-foreground">
+                    Đang chọn:{" "}
+                    <span className="font-medium">
+                      {selectedFranchise ? selectedFranchise.name : "Chưa chọn"}
+                    </span>
+                  </p>
+                </div>
 
-                          <td className="p-3">
-                            <p className="font-medium">{f.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {f.address} • {f.location}
-                            </p>
-                          </td>
-
-                          <td className="p-3">{typeBadge(f.type)}</td>
-
-                          <td className="p-3">
-                            {f.status === 'ACTIVE' ? (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
-                                ACTIVE
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
-                                INACTIVE
-                              </span>
-                            )}
-                          </td>
+                {loading ? (
+                  <div className="p-6 text-center text-sm text-muted-foreground">
+                    Đang tải dữ liệu...
+                  </div>
+                ) : list.length === 0 ? (
+                  <div className="p-6 text-center text-sm text-muted-foreground">
+                    Không có cửa hàng / bếp phù hợp.
+                  </div>
+                ) : (
+                  <div className="max-h-[380px] overflow-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b bg-background">
+                          <th className="text-left p-3 w-12"></th>
+                          <th className="text-left p-3 font-medium">Tên</th>
+                          <th className="text-left p-3 font-medium">Loại</th>
+                          <th className="text-left p-3 font-medium">
+                            Trạng thái
+                          </th>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      </thead>
+                      <tbody>
+                        {list.map((f) => {
+                          const fid = getFranchiseId(f);
+                          const checked = selectedFranchiseId === fid;
+                          const allowed = isAllowedFranchise(f);
+
+                          return (
+                            <tr
+                              key={fid}
+                              className={`border-b last:border-0 hover:bg-muted/20 ${
+                                !allowed ? "opacity-60" : ""
+                              }`}
+                            >
+                              <td className="p-3">
+                                <input
+                                  type="radio"
+                                  name="user-work-assignment"
+                                  checked={checked}
+                                  disabled={!allowed}
+                                  onChange={() => setSelectedFranchiseId(fid)}
+                                  className="h-4 w-4"
+                                />
+                              </td>
+
+                              <td className="p-3">
+                                <p className="font-medium">{f.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {f.address} • {f.location}
+                                </p>
+                              </td>
+
+                              <td className="p-3">{typeBadge(f.type)}</td>
+
+                              <td className="p-3">
+                                {f.status === "ACTIVE" ? (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
+                                    ACTIVE
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground">
+                                    INACTIVE
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
 
         <div className="p-4 border-t flex items-center justify-between gap-2">
@@ -302,10 +330,12 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({
               variant="outline"
               className="gap-2 text-destructive"
               onClick={handleRemove}
-              disabled={removing || submitting || loading || isAdmin || !currentAssignment}
+              disabled={
+                removing || submitting || loading || isGlobal || !currentAssignment
+              }
             >
               <Trash2 size={16} />
-              {removing ? 'Đang gỡ...' : 'Gỡ assignment'}
+              {removing ? "Đang gỡ..." : "Gỡ assignment"}
             </Button>
           </div>
 
@@ -324,11 +354,11 @@ export const UserFranchiseAssignModal: React.FC<Props> = ({
                 submitting ||
                 removing ||
                 loading ||
-                isAdmin ||
+                isGlobal ||
                 !selectedFranchiseId
               }
             >
-              {submitting ? 'Đang lưu...' : 'Lưu'}
+              {submitting ? "Đang lưu..." : "Lưu"}
             </Button>
           </div>
         </div>

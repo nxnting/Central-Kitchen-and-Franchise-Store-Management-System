@@ -9,10 +9,7 @@ import UserFranchiseAssignModal from "./components/UserFranchiseAssignModal";
 import { adminUsersApi } from "@/api/admin/users.api";
 import { adminUserFranchisesApi } from "@/api/admin/userFranchises.api";
 import type { WorkAssignmentType } from "@/types/admin/franchise.types";
-import type {
-  AdminUser,
-  UpdateUserPayload,
-} from "@/types/admin/user.types";
+import type { AdminUser, UpdateUserPayload } from "@/types/admin/user.types";
 import type { CreateUserFormPayload } from "./components/UserUpsertModal";
 
 const ROLE_LABEL: Record<number, string> = {
@@ -87,6 +84,13 @@ const UserManagement: React.FC = () => {
   };
 
   const handleOpenAssign = (user: AdminUser) => {
+    const normalizedRole = (user.roleName ?? "").toLowerCase();
+
+    if (normalizedRole === "admin" || normalizedRole === "manager") {
+      toast.info("Role này không cần workplace assignment");
+      return;
+    }
+
     setAssignUser(user);
     setIsAssignOpen(true);
   };
