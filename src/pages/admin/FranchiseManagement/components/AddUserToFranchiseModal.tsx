@@ -39,17 +39,17 @@ const isUserAllowedForFranchise = (
 ) => {
   const role = normalize(user.roleName);
 
-  if (role === "admin") return false;
+  if (role === "admin" || role === "manager") return false;
 
   if (franchise.type === "STORE") {
-    return role === "storestaff" || role === "manager" || role === "supplycoordinator";
+    return role === "storestaff" || role === "supplycoordinator";
   }
 
   if (franchise.type === "CENTRAL_KITCHEN") {
-    return role === "kitchenstaff" || role === "manager" || role === "supplycoordinator";
+    return role === "kitchenstaff" || role === "supplycoordinator";
   }
 
-  return true;
+  return false;
 };
 
 export const AddUserToFranchiseModal: React.FC<Props> = ({
@@ -135,6 +135,12 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
       return;
     }
 
+    const role = normalize(selected.roleName);
+    if (role === "admin" || role === "manager") {
+      toast.error("Role này không thể gán vào cửa hàng / bếp");
+      return;
+    }
+
     try {
       setSubmitting(true);
 
@@ -169,7 +175,9 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
         raw.includes("inner exception");
 
       if (isAlreadyAssigned) {
-        toast.error("User đã thuộc cửa hàng / bếp khác (1 user chỉ thuộc 1 nơi).");
+        toast.error(
+          "User đã thuộc cửa hàng / bếp khác (1 user chỉ thuộc 1 nơi).",
+        );
 
         if (selected) {
           setUsers((prev) => prev.filter((u) => u.userId !== selected.userId));
@@ -193,7 +201,10 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
             {franchise.name}
           </DialogTitle>
         </DialogHeader>
-
+        <p className="text-xs text-muted-foreground">
+          Chỉ hiển thị user có thể được gán vào{" "}
+          {franchise.type === "STORE" ? "cửa hàng" : "bếp"} này.
+        </p>
         <div className="space-y-3">
           <Input
             placeholder="Tìm theo username / email..."
