@@ -141,6 +141,12 @@
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
   
+  .status-locked {
+  background: #fff7ed;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+  font-weight: 600;
+}
   .status-pending {
     @apply bg-warning/15 text-warning;
   }
