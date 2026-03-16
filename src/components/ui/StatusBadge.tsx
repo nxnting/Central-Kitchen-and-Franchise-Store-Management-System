@@ -39,7 +39,7 @@ const statusConfig: Record<Status, { label: string; className: string }> = {
 
   DRAFT: { label: 'Nháp', className: 'status-badge status-pending' },
   SUBMITTED: { label: 'Đã gửi', className: 'status-badge status-processing' },
-  LOCKED: { label: 'Đã khóa', className: 'status-badge status-delivered' },
+  LOCKED: { label: 'Đã khóa', className: 'status-badge status-locked' },
   CANCELLED: { label: 'Đã hủy', className: 'status-badge status-cancelled' },
 };
 
