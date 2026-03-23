@@ -1,7 +1,13 @@
 import React from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import type { IncomingOrdersFilter } from "../helpers";
 import { INCOMING_ORDER_FILTER_OPTIONS } from "../helpers";
@@ -17,9 +23,18 @@ type Props = {
 const PRIMARY_FILTERS: IncomingOrdersFilter[] = [
   "ALL",
   "SUBMITTED",
-  "LOCKED",
   "RECEIVED_BY_KITCHEN",
   "FORWARDED_TO_SUPPLY",
+];
+
+const MORE_FILTERS: IncomingOrdersFilter[] = [
+  "PREPARING",
+  "READY_TO_DELIVER",
+  "IN_TRANSIT",
+  "DELIVERED",
+  "RECEIVED_BY_STORE",
+  "CANCELLED",
+  "DRAFT",
 ];
 
 const IncomingOrdersToolbar: React.FC<Props> = ({
@@ -33,71 +48,94 @@ const IncomingOrdersToolbar: React.FC<Props> = ({
     PRIMARY_FILTERS.includes(option.value),
   );
 
-  const secondaryOptions = INCOMING_ORDER_FILTER_OPTIONS.filter(
-    (option) => !PRIMARY_FILTERS.includes(option.value),
+  const moreOptions = INCOMING_ORDER_FILTER_OPTIONS.filter((option) =>
+    MORE_FILTERS.includes(option.value),
   );
+
+  const activeMoreOption = moreOptions.find((option) => option.value === filter);
 
   return (
     <div className="rounded-xl border bg-background p-4">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold">Incoming Orders</h3>
-          <p className="text-sm text-muted-foreground">
-            {totalOrders} order{totalOrders === 1 ? "" : "s"} found
-          </p>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <h3 className="text-sm font-semibold">Incoming Orders</h3>
+            <p className="text-sm text-muted-foreground">
+              {totalOrders} order{totalOrders === 1 ? "" : "s"} found
+            </p>
+          </div>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={refreshing}
+          >
+            <RefreshCw
+              size={16}
+              className={`mr-2 ${refreshing ? "animate-spin" : ""}`}
+            />
+            Refresh
+          </Button>
         </div>
 
-        <div className="flex flex-col gap-3 lg:items-end">
-          <div className="flex flex-wrap gap-2">
+        <div className="overflow-x-auto">
+          <div className="inline-flex min-w-max items-center gap-2 rounded-xl border bg-muted/40 p-1">
             {primaryOptions.map((option) => {
               const isActive = option.value === filter;
 
               return (
-                <Button
+                <button
                   key={option.value}
                   type="button"
-                  size="sm"
-                  variant={isActive ? "default" : "outline"}
                   onClick={() => onFilterChange(option.value)}
+                  className={[
+                    "rounded-lg px-4 py-2 text-sm font-medium transition-all",
+                    "whitespace-nowrap",
+                    isActive
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  ].join(" ")}
                 >
                   {option.label}
-                </Button>
+                </button>
               );
             })}
-          </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-            <div className="flex flex-wrap gap-2">
-              {secondaryOptions.map((option) => {
-                const isActive = option.value === filter;
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={[
+                    "inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium transition-all",
+                    "whitespace-nowrap",
+                    activeMoreOption
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground",
+                  ].join(" ")}
+                >
+                  {activeMoreOption ? activeMoreOption.label : "More"}
+                  <ChevronDown size={16} className="ml-2" />
+                </button>
+              </DropdownMenuTrigger>
 
-                return (
-                  <Button
-                    key={option.value}
-                    type="button"
-                    size="sm"
-                    variant={isActive ? "default" : "outline"}
-                    onClick={() => onFilterChange(option.value)}
-                  >
-                    {option.label}
-                  </Button>
-                );
-              })}
-            </div>
+              <DropdownMenuContent align="start" className="w-56">
+                {moreOptions.map((option) => {
+                  const isActive = option.value === filter;
 
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onRefresh}
-              disabled={refreshing}
-            >
-              <RefreshCw
-                size={16}
-                className={`mr-2 ${refreshing ? "animate-spin" : ""}`}
-              />
-              Refresh
-            </Button>
+                  return (
+                    <DropdownMenuItem
+                      key={option.value}
+                      onClick={() => onFilterChange(option.value)}
+                      className={isActive ? "font-semibold" : ""}
+                    >
+                      {option.label}
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

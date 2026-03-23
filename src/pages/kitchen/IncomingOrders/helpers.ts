@@ -5,7 +5,7 @@ import type {
 
 export type IncomingOrdersFilter = "ALL" | IncomingOrderStatus;
 
-export const INCOMING_ORDER_DEFAULT_FILTER: IncomingOrdersFilter = "LOCKED";
+export const INCOMING_ORDER_DEFAULT_FILTER: IncomingOrdersFilter = "SUBMITTED";
 
 export const INCOMING_ORDER_FILTER_OPTIONS: Array<{
   label: string;
@@ -13,10 +13,8 @@ export const INCOMING_ORDER_FILTER_OPTIONS: Array<{
 }> = [
   { label: "All", value: "ALL" },
   { label: "Submitted", value: "SUBMITTED" },
-  { label: "Locked", value: "LOCKED" },
   { label: "Received by Kitchen", value: "RECEIVED_BY_KITCHEN" },
   { label: "Forwarded to Supply", value: "FORWARDED_TO_SUPPLY" },
-
   { label: "Preparing", value: "PREPARING" },
   { label: "Ready to Deliver", value: "READY_TO_DELIVER" },
   { label: "In Transit", value: "IN_TRANSIT" },
@@ -25,6 +23,7 @@ export const INCOMING_ORDER_FILTER_OPTIONS: Array<{
   { label: "Cancelled", value: "CANCELLED" },
   { label: "Draft", value: "DRAFT" },
 ];
+
 export const getIncomingOrders = (
   orders: IncomingOrder[],
   filter: IncomingOrdersFilter = INCOMING_ORDER_DEFAULT_FILTER,
@@ -48,12 +47,12 @@ export const getOrderTotalQuantity = (order: IncomingOrder): number => {
   return order.items.reduce((total, item) => total + (item.quantity || 0), 0);
 };
 
-export const canLockIncomingOrder = (order: IncomingOrder): boolean => {
-  return order.status === "SUBMITTED";
+export const canLockIncomingOrder = (_order: IncomingOrder): boolean => {
+  return false;
 };
 
 export const canProcessIncomingOrder = (order: IncomingOrder): boolean => {
-  return order.status === "LOCKED";
+  return order.status === "SUBMITTED";
 };
 
 export const canForwardIncomingOrder = (order: IncomingOrder): boolean => {

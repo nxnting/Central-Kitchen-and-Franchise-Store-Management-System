@@ -30,7 +30,7 @@ const IncomingOrdersPage: React.FC = () => {
   const centralKitchenId = Number(localStorage.getItem("centralKitchenId") ?? 0);
 
   const [filter, setFilter] = useState<IncomingOrdersFilter>(
-    INCOMING_ORDER_DEFAULT_FILTER
+    INCOMING_ORDER_DEFAULT_FILTER,
   );
   const [selectedOrder, setSelectedOrder] = useState<IncomingOrder | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -42,7 +42,7 @@ const IncomingOrdersPage: React.FC = () => {
       SortBy: "createdAt",
       SortDir: "desc",
     }),
-    []
+    [],
   );
 
   const {
@@ -80,14 +80,14 @@ const IncomingOrdersPage: React.FC = () => {
 
       const response = await incomingOrdersApi.detail(
         centralKitchenId,
-        order.storeOrderId
+        order.storeOrderId,
       );
 
       const detail = (response as any)?.data ?? response;
       setSelectedOrder(detail);
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || "Failed to load order detail."
+        error?.response?.data?.message || "Failed to load order detail.",
       );
     } finally {
       setDetailLoading(false);
@@ -99,45 +99,47 @@ const IncomingOrdersPage: React.FC = () => {
     setDetailLoading(false);
   };
 
-  const handleLockOrder = async (order: IncomingOrder) => {
+  const handleReceiveOrder = async (order: IncomingOrder) => {
     try {
       const franchiseId = Number(order.franchiseId ?? 0);
 
       if (!franchiseId) {
-        toast.error("Missing franchiseId. Cannot lock this order.");
+        toast.error("Missing franchiseId. Cannot receive this order.");
         return;
       }
 
-      const response = await lockIncomingOrderMutation.mutateAsync({
+      const latestDetailResponse = await incomingOrdersApi.detail(
+        centralKitchenId,
+        order.storeOrderId,
+      );
+      const latestOrder =
+        (latestDetailResponse as any)?.data ?? latestDetailResponse;
+
+      if (!latestOrder) {
+        toast.error("Unable to load latest order detail.");
+        return;
+      }
+
+      if (latestOrder.status !== "SUBMITTED") {
+        toast.error(
+          `Order SO-${order.storeOrderId} is currently ${latestOrder.status}. Please refresh and try again.`,
+        );
+
+        await refetch();
+
+        if (selectedOrder?.storeOrderId === order.storeOrderId) {
+          setSelectedOrder(latestOrder);
+        }
+
+        return;
+      }
+
+      const lockResponse = await lockIncomingOrderMutation.mutateAsync({
         franchiseId,
         orderId: order.storeOrderId,
       });
 
-      const result = response?.data;
-
-      await refetch();
-
-      toast.success(
-        response?.message ||
-          `Order SO-${order.storeOrderId} locked successfully.`
-      );
-
-      if (selectedOrder?.storeOrderId === order.storeOrderId) {
-        setSelectedOrder({
-          ...selectedOrder,
-          status: result?.status ?? "LOCKED",
-          lockedAt: result?.lockedAt ?? selectedOrder.lockedAt ?? null,
-          updatedAt: result?.updatedAt ?? selectedOrder.updatedAt,
-        });
-      }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Failed to lock order.");
-    }
-  };
-
-  const handleReceiveOrder = async (order: IncomingOrder) => {
-    try {
-      const result = await receiveIncomingOrderMutation.mutateAsync({
+      const receiveResult = await receiveIncomingOrderMutation.mutateAsync({
         centralKitchenId,
         orderId: order.storeOrderId,
         payload: {
@@ -148,39 +150,49 @@ const IncomingOrdersPage: React.FC = () => {
       await refetch();
 
       toast.success(
-        result.message ||
-          `Order SO-${order.storeOrderId} received successfully.`
+        receiveResult.message ||
+          lockResponse?.message ||
+          `Order SO-${order.storeOrderId} received successfully.`,
       );
 
       if (selectedOrder?.storeOrderId === order.storeOrderId) {
         setSelectedOrder({
           ...selectedOrder,
-          status: result.status,
-          receivedAt: result.receivedAt ?? null,
-          receivedBy: result.receivedBy ?? null,
-          receiveNote: result.receiveNote ?? null,
-          processingNote: result.processingNote ?? null,
-          processingNoteUpdatedAt: result.processingNoteUpdatedAt ?? null,
-          processingNoteUpdatedBy: result.processingNoteUpdatedBy ?? null,
-          forwardedAt: result.forwardedAt ?? null,
-          forwardedBy: result.forwardedBy ?? null,
-          forwardNote: result.forwardNote ?? null,
-          preparedAt: result.preparedAt ?? null,
-          preparedBy: result.preparedBy ?? null,
-          preparingNote: result.preparingNote ?? null,
-          updatedAt: result.updatedAt ?? selectedOrder.updatedAt,
-          updatedBy: result.updatedBy ?? selectedOrder.updatedBy ?? null,
-          statusNote: result.statusNote ?? null,
+          status: receiveResult.status,
+          lockedAt:
+            (lockResponse as any)?.data?.lockedAt ??
+            selectedOrder.lockedAt ??
+            null,
+          receivedAt: receiveResult.receivedAt ?? null,
+          receivedBy: receiveResult.receivedBy ?? null,
+          receiveNote: receiveResult.receiveNote ?? null,
+          processingNote: receiveResult.processingNote ?? null,
+          processingNoteUpdatedAt:
+            receiveResult.processingNoteUpdatedAt ?? null,
+          processingNoteUpdatedBy:
+            receiveResult.processingNoteUpdatedBy ?? null,
+          forwardedAt: receiveResult.forwardedAt ?? null,
+          forwardedBy: receiveResult.forwardedBy ?? null,
+          forwardNote: receiveResult.forwardNote ?? null,
+          preparedAt: receiveResult.preparedAt ?? null,
+          preparedBy: receiveResult.preparedBy ?? null,
+          preparingNote: receiveResult.preparingNote ?? null,
+          updatedAt: receiveResult.updatedAt ?? selectedOrder.updatedAt,
+          updatedBy: receiveResult.updatedBy ?? selectedOrder.updatedBy ?? null,
+          statusNote: receiveResult.statusNote ?? null,
         });
       }
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || "Failed to receive incoming order."
+        error?.response?.data?.message || "Failed to receive incoming order.",
       );
     }
   };
 
-  const handleForwardOrder = async (order: IncomingOrder, note: string = "") => {
+  const handleForwardOrder = async (
+    order: IncomingOrder,
+    note: string = "",
+  ) => {
     try {
       const result = await forwardIncomingOrderMutation.mutateAsync({
         centralKitchenId,
@@ -194,7 +206,7 @@ const IncomingOrdersPage: React.FC = () => {
 
       toast.success(
         result.message ||
-          `Order SO-${order.storeOrderId} forwarded to supply successfully.`
+          `Order SO-${order.storeOrderId} forwarded to supply successfully.`,
       );
 
       if (selectedOrder?.storeOrderId === order.storeOrderId) {
@@ -228,14 +240,14 @@ const IncomingOrdersPage: React.FC = () => {
       }
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || "Failed to forward order to supply."
+        error?.response?.data?.message || "Failed to forward order to supply.",
       );
     }
   };
 
   const handleSaveProcessingNote = async (
     order: IncomingOrder,
-    note: string
+    note: string,
   ) => {
     try {
       const result = await updateProcessingNoteMutation.mutateAsync({
@@ -250,7 +262,7 @@ const IncomingOrdersPage: React.FC = () => {
 
       toast.success(
         result.message ||
-          `Processing note updated for order SO-${order.storeOrderId}.`
+          `Processing note updated for order SO-${order.storeOrderId}.`,
       );
 
       if (selectedOrder?.storeOrderId === order.storeOrderId) {
@@ -283,7 +295,7 @@ const IncomingOrdersPage: React.FC = () => {
       }
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || "Failed to update processing note."
+        error?.response?.data?.message || "Failed to update processing note.",
       );
     }
   };
@@ -352,7 +364,6 @@ const IncomingOrdersPage: React.FC = () => {
             : null
         }
         onViewDetail={handleViewDetail}
-        onLockOrder={handleLockOrder}
         onReceiveOrder={handleReceiveOrder}
         onForwardOrder={handleForwardOrder}
       />
