@@ -39,7 +39,6 @@ type Props = {
 };
 
 const ALLOWED_NOTE_STATUSES = new Set([
-  "LOCKED",
   "RECEIVED_BY_KITCHEN",
   "FORWARDED_TO_SUPPLY",
 ]);
@@ -201,7 +200,7 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-xs text-muted-foreground">
                     {canEditProcessingNote
-                      ? "Có thể cập nhật note khi đơn ở trạng thái Locked, Received by Kitchen hoặc Forwarded to Supply."
+                      ? "Có thể cập nhật note khi đơn ở trạng thái Received by Kitchen hoặc Forwarded to Supply."
                       : "Không thể cập nhật note ở trạng thái hiện tại."}
                   </p>
 
