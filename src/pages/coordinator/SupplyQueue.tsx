@@ -216,9 +216,21 @@ const SupplyQueue: React.FC = () => {
                         {order.requestedDeliveryDate}
                       </td>
                       <td className="p-3 text-center">
-                        <span className="inline-flex items-center justify-center bg-primary/10 text-primary rounded-full px-2.5 py-0.5 text-xs font-medium">
-                          {order.totalItems} món ({order.totalQuantity})
-                        </span>
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="inline-flex items-center justify-center bg-primary/10 text-primary rounded-full px-2.5 py-0.5 text-xs font-medium">
+                            {order.totalItems} món ({order.totalQuantity})
+                          </span>
+                          {(order.forwardedTotalQuantity > 0 || order.droppedTotalQuantity > 0) && (
+                            <div className="flex gap-1 text-[10px]">
+                              {order.forwardedTotalQuantity > 0 && (
+                                <span className="text-green-600 font-medium">Giao: {order.forwardedTotalQuantity}</span>
+                              )}
+                              {order.droppedTotalQuantity > 0 && (
+                                <span className="text-destructive font-medium">Hủy: {order.droppedTotalQuantity}</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </td>
                       <td className="p-3">
                         <StatusBadge status={order.status} />
@@ -238,8 +250,18 @@ const SupplyQueue: React.FC = () => {
                               <div className="space-y-2">
                                 {order.items.map((item, idx) => (
                                   <div key={idx} className="flex justify-between text-sm py-1 border-b border-border/50 last:border-0">
-                                    <span>{item.productName} {item.sku ? `(${item.sku})` : ''}</span>
-                                    <span className="font-medium">{item.quantity} {item.unit}</span>
+                                    <div className="flex flex-col">
+                                      <span>{item.productName} {item.sku ? `(${item.sku})` : ''}</span>
+                                      {item.isDroppedFromForward && (
+                                        <span className="text-[10px] text-destructive font-medium">Bị hủy: {item.dropReason || 'Không đủ tồn kho'}</span>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                      <span className="font-medium">{item.quantity} {item.unit}</span>
+                                      {item.forwardedQuantity > 0 && item.forwardedQuantity < item.quantity && (
+                                        <span className="text-[10px] text-green-600 font-medium">Giao: {item.forwardedQuantity} {item.unit}</span>
+                                      )}
+                                    </div>
                                   </div>
                                 ))}
                               </div>

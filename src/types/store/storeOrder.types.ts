@@ -16,11 +16,20 @@ export interface StoreOrderItem {
   productName: string;
   unit: string;
   quantity: number;
+  sku?: string | null;
+
+  // Fulfillment info (populated after order forwarded to supply)
+  forwardedQuantity?: number | null;
+  droppedQuantity?: number | null;
+  isDroppedFromForward?: boolean | null;
+  dropReason?: string | null;
 }
 
 export interface StoreOrder {
   storeOrderId: number;
+  orderCode?: string | null;
   franchiseId: number;
+  requestedDeliveryDate?: string | null;
 
   status: StoreOrderStatus;
 
@@ -34,6 +43,19 @@ export interface StoreOrder {
   cancelledAt?: string | null;
 
   cancelReason?: string | null;
+
+  // Aggregated fulfillment totals
+  totalItems?: number | null;
+  totalQuantity?: number | null;
+  forwardedTotalItems?: number | null;
+  forwardedTotalQuantity?: number | null;
+  droppedTotalItems?: number | null;
+  droppedTotalQuantity?: number | null;
+
+  forwardedAt?: string | null;
+  forwardedBy?: string | null;
+  forwardNote?: string | null;
+  processingNote?: string | null;
 
   items: StoreOrderItem[];
 }

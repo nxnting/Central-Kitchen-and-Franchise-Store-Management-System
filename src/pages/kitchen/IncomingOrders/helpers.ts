@@ -43,6 +43,7 @@ export const getOrderItemCount = (order: IncomingOrder): number => {
 };
 
 export const getOrderTotalQuantity = (order: IncomingOrder): number => {
+  if (typeof order.totalQuantity === 'number') return order.totalQuantity;
   if (!order.items?.length) return 0;
 
   return order.items.reduce((total, item) => total + (item.quantity || 0), 0);
@@ -249,5 +250,5 @@ export const sortOrdersByNewest = (
 };
 
 export const getOrderDisplayCode = (order: IncomingOrder): string => {
-  return `SO-${String(order.storeOrderId).padStart(6, "0")}`;
+  return order.orderCode || `SO-${String(order.storeOrderId).padStart(6, "0")}`;
 };

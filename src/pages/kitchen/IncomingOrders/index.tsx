@@ -197,23 +197,6 @@ const IncomingOrdersPage: React.FC = () => {
         return;
       }
 
-      if (!hasSufficientCentralKitchenStock(latestOrder)) {
-        const insufficientItems = getInsufficientStockItems(latestOrder);
-
-        toast.error(
-          insufficientItems.length > 0
-            ? `Cannot forward. ${insufficientItems
-                .map((item) => item.productName)
-                .join(", ")} ${
-                insufficientItems.length === 1 ? "is" : "are"
-              } insufficient in central kitchen stock.`
-            : "Cannot forward because central kitchen inventory is insufficient.",
-        );
-
-        setSelectedOrderId(order.storeOrderId);
-        await refetchDetail();
-        return;
-      }
 
       const result = await forwardIncomingOrderMutation.mutateAsync({
         centralKitchenId,

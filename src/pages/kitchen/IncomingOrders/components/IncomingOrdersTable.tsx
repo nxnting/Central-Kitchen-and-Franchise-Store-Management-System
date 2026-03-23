@@ -122,10 +122,7 @@ const IncomingOrdersTable: React.FC<Props> = ({
         const isForwarding = forwardingOrderId === order.storeOrderId;
         const isReceiveFlowLoading = isLocking || isReceiving;
 
-        const disableForwardButton =
-          isForwarding ||
-          isReceiveFlowLoading ||
-          (hasInventoryData && !hasEnoughStock);
+        const disableForwardButton = isForwarding || isReceiveFlowLoading;
 
         return (
           <div className="flex items-center gap-2">

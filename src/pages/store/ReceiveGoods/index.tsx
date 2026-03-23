@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { RefreshCw } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { RefreshCw, Truck, Package, CheckCircle2 } from "lucide-react";
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ const ReceiveGoods: React.FC = () => {
     data: receivings = [],
     isLoading,
     isError,
+    isFetching,
     refetch,
   } = usePendingReceivings(franchiseId ?? 0);
 
@@ -72,10 +73,18 @@ const ReceiveGoods: React.FC = () => {
       {
         onSuccess: () => {
           handleCloseModal();
+          refetch();
         },
       },
     );
   };
+
+  const stats = useMemo(() => {
+    const pending = receivings.filter((r) => r.status !== "RECEIVED_BY_STORE").length;
+    const delivered = receivings.filter((r) => r.status === "DELIVERED").length;
+    const received = receivings.filter((r) => r.status === "RECEIVED_BY_STORE").length;
+    return { pending, delivered, received };
+  }, [receivings]);
 
   if (!franchiseId) {
     return <div className="p-8 text-center">Không tìm thấy mã Cửa hàng.</div>;
@@ -91,8 +100,8 @@ const ReceiveGoods: React.FC = () => {
 
   if (isError) {
     return (
-      <div className="p-8 text-center text-destructive">
-        <p className="mb-4">Không thể tải dữ liệu.</p>
+      <div className="p-8 text-center">
+        <p className="mb-4 text-destructive">Không thể tải dữ liệu.</p>
         <Button onClick={() => refetch()} variant="outline">
           <RefreshCw className="mr-2 h-4 w-4" />
           Thử lại
@@ -106,12 +115,46 @@ const ReceiveGoods: React.FC = () => {
       <PageHeader
         title="Nhận hàng"
         subtitle="Kiểm tra và xác nhận các chuyến giao hàng từ Bếp Trung Tâm"
+        action={{
+          label: isFetching ? "Đang làm mới..." : "Làm mới",
+          icon: RefreshCw,
+          onClick: () => refetch(),
+        }}
       />
+
+      {/* Mini stats */}
+      {receivings.length > 0 && (
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-card rounded-xl border p-4">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-muted-foreground">Chờ xác nhận</p>
+              <Package size={15} className="text-yellow-500" />
+            </div>
+            <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+          </div>
+
+          <div className="bg-card rounded-xl border p-4">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-muted-foreground">Sẵn sàng nhận</p>
+              <Truck size={15} className="text-primary" />
+            </div>
+            <p className="text-2xl font-bold text-primary">{stats.delivered}</p>
+          </div>
+
+          <div className="bg-card rounded-xl border p-4">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-xs text-muted-foreground">Đã nhận xong</p>
+              <CheckCircle2 size={15} className="text-green-500" />
+            </div>
+            <p className="text-2xl font-bold text-green-600">{stats.received}</p>
+          </div>
+        </div>
+      )}
 
       {receivings.length === 0 ? (
         <EmptyReceivingState />
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {receivings.map((receiving) => (
             <ReceivingCard
               key={receiving.receivingId}

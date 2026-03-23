@@ -4,6 +4,10 @@ export interface SupplyOrderQueueItemLineResponse {
     sku?: string;
     unit: string;
     quantity: number;
+    forwardedQuantity: number;
+    droppedQuantity: number;
+    isDroppedFromForward: boolean;
+    dropReason: string | null;
 }
 
 export interface SupplyOrderQueueItemResponse {
@@ -16,6 +20,10 @@ export interface SupplyOrderQueueItemResponse {
     storeName: string;
     totalItems: number;
     totalQuantity: number;
+    forwardedTotalItems: number;
+    forwardedTotalQuantity: number;
+    droppedTotalItems: number;
+    droppedTotalQuantity: number;
     forwardedAt?: string;
     forwardedBy?: string;
     forwardNote?: string;

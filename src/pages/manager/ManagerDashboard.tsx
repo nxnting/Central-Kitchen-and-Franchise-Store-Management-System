@@ -163,7 +163,7 @@ const ManagerDashboard: React.FC = () => {
         </div>
       ) : data ? (
         <>
-          {/* Notes / Alerts */}
+          {/* Notes / Alerts
           {data.notes && data.notes.length > 0 && (
             <div className="bg-warning/20 text-warning-foreground border border-warning/30 rounded-lg p-4 space-y-2">
               <div className="font-medium flex items-center gap-2">
@@ -175,7 +175,7 @@ const ManagerDashboard: React.FC = () => {
                 ))}
               </ul>
             </div>
-          )}
+          )} */}
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

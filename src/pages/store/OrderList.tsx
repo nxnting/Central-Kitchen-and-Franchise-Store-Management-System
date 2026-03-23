@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +25,8 @@ import {
   Clock3,
   XCircle,
   Truck,
+  PlusCircle,
+  RefreshCw,
 } from "lucide-react";
 
 import { useStoreOrders } from "@/hooks/storeOrders/useStoreOrders";
@@ -52,6 +55,21 @@ const DELIVERY_STATUSES = [
   "RECEIVED_BY_STORE",
 ] as const;
 
+const STATUS_OPTIONS = [
+  { value: "ALL", label: "Tất cả" },
+  { value: "DRAFT", label: "Nháp" },
+  { value: "SUBMITTED", label: "Đã gửi" },
+  { value: "LOCKED", label: "Đã khóa" },
+  { value: "RECEIVED_BY_KITCHEN", label: "Bếp tiếp nhận" },
+  { value: "FORWARDED_TO_SUPPLY", label: "Chuyển Cung ứng" },
+  { value: "PREPARING", label: "Đang chuẩn bị" },
+  { value: "READY_TO_DELIVER", label: "Sẵn sàng giao" },
+  { value: "IN_TRANSIT", label: "Đang vận chuyển" },
+  { value: "DELIVERED", label: "Đã giao" },
+  { value: "RECEIVED_BY_STORE", label: "Cửa hàng đã nhận" },
+  { value: "CANCELLED", label: "Đã hủy" },
+];
+
 const OrderList: React.FC = () => {
   const franchiseId = getCurrentFranchiseId();
   const navigate = useNavigate();
@@ -67,7 +85,7 @@ const OrderList: React.FC = () => {
     return {
       Status: statusFilter === "ALL" ? undefined : statusFilter,
       Page: 1,
-      PageSize: 20,
+      PageSize: 50,
       SortBy: "orderDate",
       SortDir: "desc",
     };
@@ -77,6 +95,7 @@ const OrderList: React.FC = () => {
     data: ordersResponse,
     isLoading,
     refetch,
+    isFetching,
   } = useStoreOrders(franchiseId, queryParams);
 
   const cancelOrder = useCancelStoreOrder(franchiseId);
@@ -100,6 +119,15 @@ const OrderList: React.FC = () => {
     ...order,
     id: String(order.storeOrderId),
   }));
+
+  const formatDate = (value?: string | null) => {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return new Intl.DateTimeFormat("vi-VN", {
+      dateStyle: "short",
+    }).format(date);
+  };
 
   const formatDateTime = (value?: string | null) => {
     if (!value) return "-";
@@ -131,18 +159,23 @@ const OrderList: React.FC = () => {
     );
   };
 
+  const getOrderCode = (order: StoreOrder) => {
+    // @ts-ignore – orderCode may exist on newer backend responses
+    return (order as any).orderCode || `SO-${String(order.storeOrderId).padStart(6, "0")}`;
+  };
+
   const columns = [
     {
       key: "storeOrderId",
       label: "Mã đơn",
       render: (order: OrderRow) => (
-        <span className="font-medium">#{order.storeOrderId}</span>
+        <span className="font-semibold text-primary">{getOrderCode(order)}</span>
       ),
     },
     {
       key: "orderDate",
-      label: "Ngày đặt",
-      render: (order: OrderRow) => formatDateTime(order.orderDate),
+      label: "Ngày yêu cầu giao",
+      render: (order: OrderRow) => formatDate(order.orderDate),
     },
     {
       key: "createdAt",
@@ -152,12 +185,16 @@ const OrderList: React.FC = () => {
     {
       key: "itemsCount",
       label: "Sản phẩm",
-      render: (order: OrderRow) => `${order.items.length} sản phẩm`,
+      render: (order: OrderRow) => (
+        <Badge variant="secondary">{order.items.length} SP</Badge>
+      ),
     },
     {
       key: "totalQty",
       label: "Tổng SL",
-      render: (order: OrderRow) => getTotalQty(order),
+      render: (order: OrderRow) => (
+        <span className="font-medium">{getTotalQty(order)}</span>
+      ),
     },
     {
       key: "status",
@@ -176,14 +213,14 @@ const OrderList: React.FC = () => {
               navigate(`/stores/${storeId ?? franchiseId}/orders/${order.storeOrderId}`)
             }
           >
-            <Eye size={16} className="mr-2" />
+            <Eye size={14} className="mr-1" />
             Xem
           </Button>
 
           {canModifyOrder(order) && (
             <>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => {
                   navigate(
@@ -191,19 +228,20 @@ const OrderList: React.FC = () => {
                   );
                 }}
               >
-                <Pencil size={16} className="mr-2" />
+                <Pencil size={14} className="mr-1" />
                 Sửa
               </Button>
 
               <Button
-                variant="destructive"
+                variant="ghost"
                 size="sm"
+                className="text-destructive hover:text-destructive hover:bg-destructive/10"
                 onClick={() => {
                   setCancelingOrder(order);
                   setCancelReason("");
                 }}
               >
-                <XCircle size={16} className="mr-2" />
+                <XCircle size={14} className="mr-1" />
                 Hủy
               </Button>
             </>
@@ -236,7 +274,7 @@ const OrderList: React.FC = () => {
         payload: { reason },
       });
 
-      toast.success(`Đã hủy đơn #${cancelingOrder.storeOrderId}`);
+      toast.success(`Đã hủy đơn ${getOrderCode(cancelingOrder)}`);
       setCancelingOrder(null);
       setCancelReason("");
       await refetch();
@@ -251,92 +289,115 @@ const OrderList: React.FC = () => {
       <PageHeader
         title="Đơn hàng của tôi"
         subtitle="Theo dõi và quản lý các đơn đặt hàng của cửa hàng"
+        action={{
+          label: "Tạo đơn mới",
+          icon: PlusCircle,
+          onClick: () => navigate(`/stores/${storeId ?? franchiseId}/orders/create`),
+        }}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-4 mb-6">
-        <div className="relative">
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div className="bg-card rounded-xl border p-4">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-xs text-muted-foreground">Tổng đơn</p>
+            <ClipboardList size={16} className="text-muted-foreground" />
+          </div>
+          <p className="text-2xl font-bold">{totalOrders}</p>
+        </div>
+
+        <div className="bg-card rounded-xl border p-4">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-xs text-muted-foreground">Nháp</p>
+            <Clock3 size={16} className="text-yellow-500" />
+          </div>
+          <p className="text-2xl font-bold text-yellow-600">{draftCount}</p>
+        </div>
+
+        <div className="bg-card rounded-xl border p-4">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-xs text-muted-foreground">Đã gửi / Đang xử lý</p>
+            <Package size={16} className="text-blue-500" />
+          </div>
+          <p className="text-2xl font-bold text-blue-600">{submittedCount}</p>
+        </div>
+
+        <div className="bg-card rounded-xl border p-4">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-xs text-muted-foreground">Đang giao / Chờ nhận</p>
+            <Truck size={16} className="text-primary" />
+          </div>
+          <p className="text-2xl font-bold text-primary">{deliveryCount}</p>
+        </div>
+
+        <div className="bg-card rounded-xl border p-4">
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-xs text-muted-foreground">Đã hủy</p>
+            <XCircle size={16} className="text-destructive" />
+          </div>
+          <p className="text-2xl font-bold text-destructive">{cancelledCount}</p>
+        </div>
+      </div>
+
+      {/* Filter bar */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-4">
+        <div className="relative flex-1">
           <Search
-            size={18}
+            size={16}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />
           <Input
             placeholder="Tìm theo mã đơn, trạng thái, ngày đặt..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
+            className="pl-9"
           />
         </div>
 
-        <div>
-          <Label htmlFor="statusFilter" className="mb-2 block">
+        <div className="flex items-center gap-2">
+          <Label htmlFor="statusFilter" className="shrink-0 text-sm">
             Trạng thái
           </Label>
           <select
             id="statusFilter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full h-10 rounded-md border bg-background px-3 text-sm"
+            className="h-10 rounded-md border bg-background px-3 text-sm min-w-[180px]"
           >
-            <option value="ALL">Tất cả</option>
-            <option value="DRAFT">DRAFT</option>
-            <option value="SUBMITTED">SUBMITTED</option>
-            <option value="LOCKED">LOCKED</option>
-            <option value="RECEIVED_BY_KITCHEN">RECEIVED_BY_KITCHEN</option>
-            <option value="FORWARDED_TO_SUPPLY">FORWARDED_TO_SUPPLY</option>
-            <option value="PREPARING">PREPARING</option>
-            <option value="READY_TO_DELIVER">READY_TO_DELIVER</option>
-            <option value="IN_TRANSIT">IN_TRANSIT</option>
-            <option value="DELIVERED">DELIVERED</option>
-            <option value="RECEIVED_BY_STORE">RECEIVED_BY_STORE</option>
-            <option value="CANCELLED">CANCELLED</option>
+            {STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
           </select>
+
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            title="Làm mới"
+          >
+            <RefreshCw size={16} className={isFetching ? "animate-spin" : ""} />
+          </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-        <div className="bg-card rounded-xl border p-4">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-muted-foreground">Tổng đơn hàng</p>
-            <ClipboardList size={18} className="text-muted-foreground" />
-          </div>
-          <p className="text-2xl font-semibold">{totalOrders}</p>
+      {isLoading ? (
+        <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
+          Đang tải danh sách đơn hàng...
         </div>
-
-        <div className="bg-card rounded-xl border p-4">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-muted-foreground">DRAFT</p>
-            <Clock3 size={18} className="text-warning" />
-          </div>
-          <p className="text-2xl font-semibold">{draftCount}</p>
+      ) : filteredOrders.length === 0 ? (
+        <div className="rounded-xl border bg-card p-12 text-center">
+          <CheckCircle2 size={40} className="mx-auto mb-3 text-muted-foreground/40" />
+          <p className="font-medium text-muted-foreground">Không có đơn hàng nào</p>
+          <p className="text-sm text-muted-foreground mt-1">Thử thay đổi bộ lọc hoặc tạo đơn mới.</p>
         </div>
+      ) : (
+        <DataTable columns={columns} data={tableData} />
+      )}
 
-        <div className="bg-card rounded-xl border p-4">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-muted-foreground">SUBMITTED</p>
-            <Package size={18} className="text-primary" />
-          </div>
-          <p className="text-2xl font-semibold">{submittedCount}</p>
-        </div>
-
-        <div className="bg-card rounded-xl border p-4">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-muted-foreground">Đang giao / chờ nhận</p>
-            <Truck size={18} className="text-primary" />
-          </div>
-          <p className="text-2xl font-semibold">{deliveryCount}</p>
-        </div>
-
-        <div className="bg-card rounded-xl border p-4">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-muted-foreground">CANCELLED</p>
-            <XCircle size={18} className="text-destructive" />
-          </div>
-          <p className="text-2xl font-semibold">{cancelledCount}</p>
-        </div>
-      </div>
-
-      <DataTable columns={columns} data={tableData} />
-
+      {/* Cancel Dialog */}
       <Dialog
         open={!!cancelingOrder}
         onOpenChange={(open) => {
@@ -349,17 +410,17 @@ const OrderList: React.FC = () => {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>
-              Hủy đơn hàng #{cancelingOrder?.storeOrderId}
+              Hủy đơn hàng {cancelingOrder ? getOrderCode(cancelingOrder) : ""}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Bạn có chắc chắn muốn hủy đơn này không? Vui lòng nhập lý do hủy.
+              Bạn có chắc chắn muốn hủy đơn này không? Hành động này không thể hoàn tác.
             </p>
 
             <div className="space-y-2">
-              <Label htmlFor="cancelReason">Lý do hủy</Label>
+              <Label htmlFor="cancelReason">Lý do hủy <span className="text-destructive">*</span></Label>
               <Textarea
                 id="cancelReason"
                 placeholder="Nhập lý do hủy đơn..."
@@ -382,7 +443,7 @@ const OrderList: React.FC = () => {
               <Button
                 variant="destructive"
                 onClick={handleConfirmCancel}
-                disabled={cancelOrder.isPending}
+                disabled={cancelOrder.isPending || !cancelReason.trim()}
               >
                 {cancelOrder.isPending ? "Đang hủy..." : "Xác nhận hủy"}
               </Button>
@@ -390,10 +451,6 @@ const OrderList: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      {isLoading ? (
-        <div className="mt-4 text-sm text-muted-foreground">Đang tải dữ liệu...</div>
-      ) : null}
     </div>
   );
 };

@@ -37,9 +37,16 @@ const OrderItemRow: React.FC<Props> = ({ item, onChangeQty, onRemove }) => {
           <Minus size={14} />
         </button>
 
-        <span className="w-8 text-center text-sm font-medium">
-          {item.quantity}
-        </span>
+        <input
+          type="number"
+          min="0"
+          value={item.quantity}
+          onChange={(e) => {
+            const val = parseInt(e.target.value, 10);
+            onChangeQty(item.productId, isNaN(val) ? 0 : val);
+          }}
+          className="w-12 text-center text-sm font-medium bg-transparent border rounded h-7 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none focus:outline-none focus:ring-1 focus:ring-primary"
+        />
 
         <button
           type="button"

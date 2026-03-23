@@ -32,6 +32,11 @@ export interface ReceivingDetailItem {
   expectedQuantity?: number;
   deliveredQuantity: number;
   receivedQuantity?: number;
+
+  // Backend drop fields from ReceivingDetailResponse
+  isDropped?: boolean | null;
+  droppedQuantity?: number | null;
+  dropReason?: string | null;
 }
 
 export interface ReceivingDetail {

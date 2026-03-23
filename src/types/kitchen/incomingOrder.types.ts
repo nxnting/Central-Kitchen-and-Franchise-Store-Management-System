@@ -31,16 +31,28 @@ export interface IncomingOrderItem {
   availableInCentralKitchenQuantity?: number | null;
   isSufficientInCentralKitchen?: boolean | null;
   availableCentralKitchenBatches?: IncomingOrderAvailableBatch[] | null;
+
+  forwardedQuantity?: number | null;  // Số lượng thực tế được gửi
+  droppedQuantity?: number | null;   // Số lượng bị hủy
+  isDroppedFromForward?: boolean | null; // Đã bị hủy
+  dropReason?: string | null;         // Lý do drop (nếu có)
+  isDropped?: boolean | null;         // Deprecated: use isDroppedFromForward
 }
 
 export interface IncomingOrder {
   storeOrderId: number;
-  franchiseId: number;
-  franchiseName: string;
+  orderCode: string;
+  requestedDeliveryDate: string;
+  storeId: number;
+  storeName: string;
+  storeNote?: string | null;
+  storeAddress?: string | null;
+
+  franchiseId: number; // Deprecated: use storeId
+  franchiseName: string; // Deprecated: use storeName
+  orderDate: string; // Deprecated: use requestedDeliveryDate
 
   status: IncomingOrderStatus;
-
-  orderDate: string;
 
   createdAt: string;
   updatedAt: string;
@@ -70,6 +82,13 @@ export interface IncomingOrder {
   updatedBy?: string | null;
   statusNote?: string | null;
 
+  totalItems: number;
+  totalQuantity: number;
+  forwardedTotalItems: number;
+  forwardedTotalQuantity: number;
+  droppedTotalItems: number;
+  droppedTotalQuantity: number;
+
   items: IncomingOrderItem[];
 }
 
@@ -91,6 +110,8 @@ export interface ReceiveIncomingOrderResponse {
   receivedAt?: string | null;
   receivedBy?: string | null;
   receiveNote?: string | null;
+  storeNote?: string | null;
+  storeAddress?: string | null;
 
   processingNote?: string | null;
   processingNoteUpdatedAt?: string | null;
@@ -108,6 +129,13 @@ export interface ReceiveIncomingOrderResponse {
   updatedBy?: string | null;
   statusNote?: string | null;
 
+  totalItems?: number;
+  totalQuantity?: number;
+  forwardedTotalItems?: number;
+  forwardedTotalQuantity?: number;
+  droppedTotalItems?: number;
+  droppedTotalQuantity?: number;
+
   message?: string | null;
 }
 
@@ -121,6 +149,8 @@ export interface UpdateProcessingNoteResponse {
   receivedAt?: string | null;
   receivedBy?: string | null;
   receiveNote?: string | null;
+  storeNote?: string | null;
+  storeAddress?: string | null;
 
   processingNote?: string | null;
   processingNoteUpdatedAt?: string | null;
@@ -151,6 +181,8 @@ export interface ForwardIncomingOrderResponse {
   receivedAt?: string | null;
   receivedBy?: string | null;
   receiveNote?: string | null;
+  storeNote?: string | null;
+  storeAddress?: string | null;
 
   processingNote?: string | null;
   processingNoteUpdatedAt?: string | null;
@@ -167,6 +199,13 @@ export interface ForwardIncomingOrderResponse {
   updatedAt?: string | null;
   updatedBy?: string | null;
   statusNote?: string | null;
+
+  totalItems?: number;
+  totalQuantity?: number;
+  forwardedTotalItems?: number;
+  forwardedTotalQuantity?: number;
+  droppedTotalItems?: number;
+  droppedTotalQuantity?: number;
 
   message?: string | null;
 }
