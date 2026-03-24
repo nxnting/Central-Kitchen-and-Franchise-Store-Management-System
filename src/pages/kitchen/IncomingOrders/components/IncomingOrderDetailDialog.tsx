@@ -193,9 +193,13 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
               <div>
                 <p className="text-muted-foreground">Cửa hàng</p>
                 <div className="flex flex-col">
-                  <p className="font-medium">{order.storeName || order.franchiseName}</p>
+                  <p className="font-medium">
+                    {order.storeName || order.franchiseName}
+                  </p>
                   {order.storeAddress && (
-                    <p className="text-[10px] text-muted-foreground italic">{order.storeAddress}</p>
+                    <p className="text-[10px] text-muted-foreground italic">
+                      {order.storeAddress}
+                    </p>
                   )}
                 </div>
               </div>
@@ -206,7 +210,9 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
 
               <div>
                 <p className="text-muted-foreground">Ngày giao yêu cầu</p>
-                <p className="font-medium">{formatDate(order.requestedDeliveryDate || order.orderDate)}</p>
+                <p className="font-medium">
+                  {formatDate(order.requestedDeliveryDate || order.orderDate)}
+                </p>
               </div>
 
               <div>
@@ -235,18 +241,22 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
               </div>
 
               <div>
-                <p className="text-muted-foreground">Thời gian chuyển Cung ứng</p>
+                <p className="text-muted-foreground">
+                  Thời gian chuyển Cung ứng
+                </p>
                 <p>{formatDateTime(order.forwardedAt)}</p>
               </div>
 
-               <div>
+              <div>
                 <p className="text-muted-foreground">Người chuyển Cung ứng</p>
                 <p>{order.forwardedBy || "--"}</p>
               </div>
 
               {order.storeNote && (
                 <div className="col-span-2 mt-2 p-3 bg-muted/30 rounded-lg border border-dashed">
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">Ghi chú từ Cửa hàng</p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1">
+                    Ghi chú từ Cửa hàng
+                  </p>
                   <p className="text-sm italic">"{order.storeNote}"</p>
                 </div>
               )}
@@ -327,8 +337,8 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
                           khi chuyển sang Bộ phận Cung ứng.
                         </p>
                         <p className="mt-1 text-muted-foreground">
-                          Hệ thống sẽ chỉ giao các sản phẩm có đủ tồn kho. Các mặt
-                          hàng sau đây sẽ bị xóa khỏi đơn thực tế:
+                          Hệ thống sẽ chỉ giao các sản phẩm có đủ tồn kho. Các
+                          mặt hàng sau đây sẽ bị xóa khỏi đơn thực tế:
                         </p>
 
                         {insufficientItems.length > 0 && (
@@ -490,11 +500,12 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
                           <div className="rounded-md bg-muted/50 p-2">
                             <p className="text-muted-foreground">Hủy</p>
                             <p className="font-medium text-destructive">
-                              {item.droppedQuantity ?? item.quantity} {item.unit}
+                              {item.droppedQuantity ?? item.quantity}{" "}
+                              {item.unit}
                             </p>
                           </div>
                         </div>
-                        {(item.dropReason) && (
+                        {item.dropReason && (
                           <p className="mt-2 text-xs text-muted-foreground">
                             Lý do: {item.dropReason}
                           </p>
@@ -552,7 +563,8 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
                           <div className="rounded-md bg-muted/50 p-2">
                             <p className="text-muted-foreground">Thiếu</p>
                             <p className="font-medium text-destructive">
-                              {(item.quantity ?? 0) - (item.forwardedQuantity ?? 0)}{" "}
+                              {(item.quantity ?? 0) -
+                                (item.forwardedQuantity ?? 0)}{" "}
                               {item.unit}
                             </p>
                           </div>
@@ -573,31 +585,78 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
                     typeof item.isSufficientInCentralKitchen === "boolean" ||
                     typeof item.availableInCentralKitchenQuantity === "number";
 
+                  const requestedQty = item.quantity ?? 0;
                   const availableQty =
                     item.availableInCentralKitchenQuantity ?? 0;
+
                   const isEnough = hasItemCheckData
                     ? (item.isSufficientInCentralKitchen ??
-                        availableQty >= item.quantity)
+                      availableQty >= requestedQty)
                     : true;
 
-                  const isDropped = item.isDroppedFromForward === true || item.isDropped === true;
+                  const isDropped =
+                    item.isDroppedFromForward === true ||
+                    item.isDropped === true;
+
+                  const hasForwardResult =
+                    typeof item.forwardedQuantity === "number" || isDropped;
+
                   const isPartial =
                     typeof item.forwardedQuantity === "number" &&
                     item.forwardedQuantity > 0 &&
-                    item.forwardedQuantity < (item.quantity || 0);
+                    item.forwardedQuantity < requestedQty;
+
                   const isFull =
-                    (item.forwardedQuantity ?? 0) === (item.quantity || 0);
+                    typeof item.forwardedQuantity === "number" &&
+                    item.forwardedQuantity === requestedQty;
+
+                  const itemState = hasForwardResult
+                    ? isDropped
+                      ? "DROPPED"
+                      : isPartial
+                        ? "PARTIAL"
+                        : "FULL"
+                    : isEnough
+                      ? "SUFFICIENT"
+                      : "INSUFFICIENT";
+
+                  const itemStateClassName =
+                    itemState === "DROPPED"
+                      ? "border-red-200 bg-red-50/70"
+                      : itemState === "PARTIAL"
+                        ? "border-amber-200 bg-amber-50/70"
+                        : itemState === "FULL"
+                          ? "border-emerald-200 bg-emerald-50/70"
+                          : itemState === "INSUFFICIENT"
+                            ? "border-red-200 bg-red-50/70"
+                            : "border-emerald-200 bg-emerald-50/70";
+
+                  const itemStateBadgeClassName =
+                    itemState === "DROPPED"
+                      ? "bg-red-100 text-red-700"
+                      : itemState === "PARTIAL"
+                        ? "bg-amber-100 text-amber-700"
+                        : itemState === "FULL"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : itemState === "INSUFFICIENT"
+                            ? "bg-red-100 text-red-700"
+                            : "bg-emerald-100 text-emerald-700";
+
+                  const itemStateLabel =
+                    itemState === "DROPPED"
+                      ? "Hủy"
+                      : itemState === "PARTIAL"
+                        ? "Một phần"
+                        : itemState === "FULL"
+                          ? "Đã gửi đủ"
+                          : itemState === "INSUFFICIENT"
+                            ? "Thiếu hàng"
+                            : "Đầy đủ";
 
                   return (
                     <div
                       key={item.productId}
-                      className={`rounded-lg border p-3 text-sm ${
-                        isDropped
-                          ? "border-destructive/30 bg-destructive/5"
-                          : isPartial
-                            ? "border-yellow-200 bg-yellow-50"
-                            : "border-green-200 bg-green-50"
-                      }`}
+                      className={`rounded-xl border p-4 ${itemStateClassName}`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -611,27 +670,9 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
 
                         <div className="text-right">
                           <span
-                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                              isDropped
-                                ? "bg-destructive/10 text-destructive"
-                                : isPartial
-                                  ? "bg-yellow-100 text-yellow-800"
-                                  : "bg-green-100 text-green-800"
-                            }`}
+                            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${itemStateBadgeClassName}`}
                           >
-                            {isDropped ? (
-                              <>
-                                <X size={12} /> Hủy
-                              </>
-                            ) : isPartial ? (
-                              <>
-                                <AlertTriangle size={12} /> Một phần
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 size={12} /> Đầy đủ
-                              </>
-                            )}
+                            {itemStateLabel}
                           </span>
                         </div>
                       </div>
@@ -639,7 +680,9 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
                       {hasItemCheckData && (
                         <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
                           <div className="rounded-md bg-background p-2">
-                            <p className="text-muted-foreground">Số lượng đặt</p>
+                            <p className="text-muted-foreground">
+                              Số lượng đặt
+                            </p>
                             <p className="font-medium">
                               {item.quantity} {item.unit}
                             </p>
@@ -651,9 +694,7 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
                             </p>
                             <p
                               className={`font-medium ${
-                                isEnough
-                                  ? "text-green-600"
-                                  : "text-destructive"
+                                isEnough ? "text-green-600" : "text-destructive"
                               }`}
                             >
                               {availableQty} {item.unit}
