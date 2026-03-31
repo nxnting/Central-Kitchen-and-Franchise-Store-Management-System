@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -27,7 +28,7 @@ const DeliveryItemEditModal: React.FC<Props> = ({ open, onClose, order }) => {
 
   useEffect(() => {
     if (detail) {
-      setItems(detail.items.map(i => ({ ...i })));
+      setItems(detail.productItems.map(i => ({ ...i })));
       setIngredientItems((detail.ingredientItems || []).map(i => ({ ...i })));
     } else if (order) {
       setItems(order.items.map(i => ({ ...i })));
@@ -38,11 +39,23 @@ const DeliveryItemEditModal: React.FC<Props> = ({ open, onClose, order }) => {
   const handleUpdateItem = async (itemId: number, type: 'PRODUCT' | 'INGREDIENT', newQty: number) => {
     if (!order?.deliveryId) return;
     
+    if (newQty < 0) {
+      toast.error('Số lượng không thể nhỏ hơn 0');
+      return;
+    }
+
     updateItemMutation.mutate({
       deliveryId: order.deliveryId,
       itemId,
       type,
       data: { quantity: newQty }
+    }, {
+      onSuccess: () => {
+        toast.success(`Đã cập nhật số lượng ${type === 'PRODUCT' ? 'sản phẩm' : 'nguyên liệu'}`);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể cập nhật số lượng');
+      }
     });
   };
 
@@ -132,8 +145,10 @@ const DeliveryItemEditModal: React.FC<Props> = ({ open, onClose, order }) => {
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Đóng</Button>
-          <Button onClick={onClose} className="bg-primary">Hoàn tất điều chỉnh</Button>
+          <Button variant="outline" onClick={onClose} disabled={updateItemMutation.isPending}>Đóng</Button>
+          <Button onClick={onClose} className="bg-primary" disabled={updateItemMutation.isPending}>
+            {updateItemMutation.isPending ? 'Đang lưu...' : 'Hoàn tất điều chỉnh'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -29,6 +29,7 @@ import {
   getOrderTotalQuantity,
   hasIncomingOrderInventoryCheckData,
   hasSufficientCentralKitchenStock,
+  getIncomingOrderStatusLabel,
 } from "../helpers";
 import {
   getPartiallyForwardedItems,
@@ -468,14 +469,12 @@ const IncomingOrderDetailDialog: React.FC<Props> = ({
                           </p>
                         </div>
 
-                        {(item.oldStatus || item.newStatus) && (
                           <div className="text-right text-xs text-muted-foreground">
                             <p>
-                              {item.oldStatus || "--"} →{" "}
-                              {item.newStatus || "--"}
+                              {getIncomingOrderStatusLabel(item.oldStatus)} →{" "}
+                              {getIncomingOrderStatusLabel(item.newStatus)}
                             </p>
                           </div>
-                        )}
                       </div>
 
                       {item.note && (
@@ -671,17 +670,23 @@ binary
                       availableQty >= requestedQty)
                     : true;
 
-                  const isDropped =
-                    item.isDroppedFromForward === true && (item.forwardedQuantity === 0 || item.forwardedQuantity == null);
-
-                  const forwardedQty = item.forwardedQuantity ?? 0;
-                  const droppedQty = item.droppedQuantity ?? 0;
-
+                  // SL giao: Nếu đã forward thì dùng forwardedQuantity, nếu chưa thì dùng planned (min of requested and available)
                   const hasForwardResult =
                     item.hasForwardSnapshot === true ||
-                    forwardedQty > 0 ||
-                    droppedQty > 0 ||
+                    item.forwardedQuantity !== null ||
+                    item.droppedQuantity !== null ||
                     item.isDroppedFromForward === true;
+
+                  const forwardedQty = hasForwardResult
+                    ? (item.forwardedQuantity ?? 0)
+                    : Math.min(requestedQty, availableQty);
+
+                  const isDropped =
+                    item.isDroppedFromForward === true && (forwardedQty === 0);
+
+                  const droppedQty = hasForwardResult
+                    ? (item.droppedQuantity ?? 0)
+                    : requestedQty - forwardedQty;
 
                   const isPartial =
                     forwardedQty > 0 && forwardedQty < requestedQty;
@@ -889,9 +894,15 @@ binary
                           ? (item.isSufficientInCentralKitchen ?? availableQty >= requestedQty)
                           : true;
 
-                        const isDropped = item.isDroppedFromForward === true && (item.forwardedQuantity === 0 || item.forwardedQuantity == null);
-                        const forwardedQty = item.forwardedQuantity ?? 0;
-                        const isPartial = !isDropped && forwardedQty > 0 && forwardedQty < requestedQty;
+                        // SL giao: Nếu đã forward (isDroppedFromForward hoặc có forwardedQuantity) thì dùng forwardedQuantity,
+                        // nếu chưa (draft/received status) thì dùng planned (min of requested and available)
+                        const hasForwarded = item.isDroppedFromForward !== null || (item.forwardedQuantity !== null && item.forwardedQuantity !== undefined);
+                        const forwardedQty = hasForwarded 
+                          ? (item.forwardedQuantity ?? 0) 
+                          : Math.min(requestedQty, availableQty);
+
+                        const isDropped = item.isDroppedFromForward === true && (forwardedQty === 0);
+                        const isPartial = forwardedQty > 0 && forwardedQty < requestedQty;
                         const isFull = requestedQty > 0 && forwardedQty === requestedQty;
 
                         const rowBgClass = isDropped

@@ -224,7 +224,6 @@ const ProductManagement: React.FC = () => {
   const updateMutation = useUpdateProduct();
   const toggleStatusMutation = useToggleProductStatus();
 
-  // Handlers
   const handleSort = (field: string) => {
     const typedField = field as SortField;
     if (sortField === typedField) {
@@ -278,30 +277,64 @@ const ProductManagement: React.FC = () => {
     toggleStatusMutation.mutate({ 
       id: product.id, 
       status: product.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' 
+    }, {
+      onSuccess: () => {
+        toast.success(`Đã ${product.status === 'ACTIVE' ? 'ngừng bán' : 'mở bán'} sản phẩm`);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể thay đổi trạng thái sản phẩm');
+      }
     });
   };
 
   const handleSave = () => {
-    if (!formData.name || !formData.sku || !formData.unit || !formData.shelfLifeDays) {
-      toast.error('Vui lòng điền đầy đủ thông tin bắt buộc');
+    const trimmedName = formData.name.trim();
+    const trimmedSku = formData.sku.trim();
+
+    if (!trimmedName) {
+      toast.error('Vui lòng nhập tên sản phẩm');
       return;
     }
-    if (formData.shelfLifeDays < 1) {
+    if (!trimmedSku) {
+      toast.error('Vui lòng nhập mã SKU');
+      return;
+    }
+    if (!formData.unit) {
+      toast.error('Vui lòng chọn đơn vị tính');
+      return;
+    }
+    if (formData.shelfLifeDays <= 0) {
       toast.error('Hạn sử dụng phải lớn hơn 0 ngày');
       return;
     }
 
+    const payload = {
+      ...formData,
+      name: trimmedName,
+      sku: trimmedSku,
+    };
+
     if (selectedProduct) {
-      updateMutation.mutate({ id: selectedProduct.id, data: formData }, {
+      updateMutation.mutate({ id: selectedProduct.id, data: payload }, {
         onSuccess: () => {
+          toast.success('Cập nhật sản phẩm thành công');
           setIsDialogOpen(false);
           setSelectedProduct(null);
+        },
+        onError: (error: any) => {
+          const errorMsg = error?.response?.data?.message || 'Không thể cập nhật sản phẩm';
+          toast.error(errorMsg);
         }
       });
     } else {
-      createMutation.mutate(formData, {
+      createMutation.mutate(payload, {
         onSuccess: () => {
+          toast.success('Thêm sản phẩm mới thành công');
           setIsDialogOpen(false);
+        },
+        onError: (error: any) => {
+          const errorMsg = error?.response?.data?.message || 'Không thể thêm sản phẩm';
+          toast.error(errorMsg);
         }
       });
     }

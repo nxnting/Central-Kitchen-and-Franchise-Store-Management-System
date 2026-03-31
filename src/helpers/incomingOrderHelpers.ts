@@ -4,10 +4,22 @@ import {
 } from "@/types/kitchen/incomingOrder.types";
 
 const getRequestedQuantity = (item: any) => item.quantity || 0;
-const getForwardedQuantity = (item: any) =>
-  item.forwardedQuantity ?? 0;
-const getDroppedQuantity = (item: any) =>
-  item.droppedQuantity ?? 0;
+const getForwardedQuantity = (item: any) => {
+  if (item.forwardedQuantity !== null && item.forwardedQuantity !== undefined) {
+    return item.forwardedQuantity;
+  }
+  // Nếu chưa forward, dùng số lượng có sẵn trong kho (giới hạn bởi số lượng đặt)
+  const available = item.availableInCentralKitchenQuantity ?? item.quantity ?? 0;
+  return Math.min(getRequestedQuantity(item), available);
+};
+const getDroppedQuantity = (item: any) => {
+  if (item.droppedQuantity !== null && item.droppedQuantity !== undefined) {
+    return item.droppedQuantity;
+  }
+  const requested = getRequestedQuantity(item);
+  const forwarded = getForwardedQuantity(item);
+  return Math.max(0, requested - forwarded);
+};
 
 export const isItemDroppedFromForward = (
   item: IncomingOrderItem,

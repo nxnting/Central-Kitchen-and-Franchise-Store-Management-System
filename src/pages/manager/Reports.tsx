@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { toast } from "sonner";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,7 +131,7 @@ const Reports: React.FC = () => {
   const handleDownloadStore = async () => {
     const targetId = isManager ? selectedFranchiseId : franchiseId;
     if (!targetId) {
-      alert("Vui lòng chọn Cửa hàng để tải báo cáo.");
+      toast.error("Vui lòng chọn Cửa hàng để tải báo cáo.");
       return;
     }
     setDownloading("store");
@@ -141,10 +142,11 @@ const Reports: React.FC = () => {
         franchiseId: targetId,
         timezoneOffsetMinutes: 420,
       });
+      toast.success("Đang tải báo cáo cửa hàng...");
     } catch (e: any) {
       console.error("[Export] store monthly:", e?.response?.data ?? e);
       const msg = e?.response?.data instanceof Blob ? await readBlobError(e.response.data) : (e?.response?.data?.message || "Lỗi tải file");
-      alert(msg);
+      toast.error(msg);
     } finally {
       setDownloading(null);
     }
@@ -153,7 +155,7 @@ const Reports: React.FC = () => {
   const handleDownloadKitchen = async () => {
     const targetId = isManager ? selectedKitchenId : centralKitchenId;
     if (!targetId) {
-      alert("Vui lòng chọn Bếp Trung Tâm để tải báo cáo.");
+      toast.error("Vui lòng chọn Bếp Trung Tâm để tải báo cáo.");
       return;
     }
     setDownloading("kitchen");
@@ -164,10 +166,11 @@ const Reports: React.FC = () => {
         centralKitchenId: targetId,
         timezoneOffsetMinutes: 420,
       });
+      toast.success("Đang tải báo cáo bếp trung tâm...");
     } catch (e: any) {
       console.error("[Export] kitchen monthly:", e?.response?.data ?? e);
       const msg = e?.response?.data instanceof Blob ? await readBlobError(e.response.data) : (e?.response?.data?.message || "Lỗi tải file");
-      alert(msg);
+      toast.error(msg);
     } finally {
       setDownloading(null);
     }

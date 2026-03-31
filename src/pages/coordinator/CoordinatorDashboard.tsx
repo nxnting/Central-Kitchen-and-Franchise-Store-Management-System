@@ -144,7 +144,7 @@ const CoordinatorDashboard: React.FC = () => {
                 <div 
                   key={idx} 
                   className="p-3 rounded-lg bg-muted/30 border text-sm cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => navigate('/coordinator/orders')}
+                  onClick={() => navigate('/coordinator/supply-queue')}
                 >
                   <div className="flex justify-between items-start mb-1">
                     <span className="font-semibold text-primary">{action.actionType}</span>

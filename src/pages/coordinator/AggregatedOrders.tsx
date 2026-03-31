@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -45,22 +46,48 @@ const AggregatedOrders: React.FC = () => {
   // Handlers
   const handleCreateDemand = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newPlanDate) {
+      toast.error('Vui lòng chọn ngày kế hoạch');
+      return;
+    }
+
     createDemand.mutate({ planDate: newPlanDate }, {
-      onSuccess: (newId) => setSelectedDemandId(newId)
+      onSuccess: (newId) => {
+        toast.success(`Đã tạo đợt tổng hợp cho ngày ${format(new Date(newPlanDate), 'dd/MM/yyyy')}`);
+        setSelectedDemandId(newId);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể tạo đợt tổng hợp');
+      }
     });
   };
 
   const handleAddItem = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedDemandId || !addingProductId || !addingQuantity) return;
+    if (!selectedDemandId) {
+      toast.error('Lỗi: Chưa chọn đợt tổng hợp');
+      return;
+    }
+    if (!addingProductId) {
+      toast.error('Vui lòng chọn sản phẩm');
+      return;
+    }
+    if (!addingQuantity || Number(addingQuantity) <= 0) {
+      toast.error('Số lượng phải lớn hơn 0');
+      return;
+    }
     
     addItem.mutate({ 
       productId: Number(addingProductId), 
       quantity: Number(addingQuantity) 
     }, {
       onSuccess: () => {
+        toast.success('Đã thêm sản phẩm vào đợt tổng hợp');
         setAddingProductId('');
         setAddingQuantity('');
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể thêm sản phẩm');
       }
     });
   };

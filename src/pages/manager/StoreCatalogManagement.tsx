@@ -255,8 +255,8 @@ const StoreCatalogDetail: React.FC<StoreCatalogDetailProps> = ({
 
   const handleSavePrice = () => {
     if (!selectedItem) return;
-    if (newPrice < 0) {
-      toast.error('Giá không hợp lệ');
+    if (newPrice <= 0) {
+      toast.error('Giá bán phải lớn hơn 0');
       return;
     }
     updatePriceMutation.mutate({
@@ -265,8 +265,12 @@ const StoreCatalogDetail: React.FC<StoreCatalogDetailProps> = ({
       data: { price: newPrice }
     }, {
       onSuccess: () => {
+        toast.success('Cập nhật giá bán thành công');
         setIsEditPriceDialogOpen(false);
         setSelectedItem(null);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể cập nhật giá bán');
       }
     });
   };
@@ -277,6 +281,13 @@ const StoreCatalogDetail: React.FC<StoreCatalogDetailProps> = ({
       franchiseId: item.franchiseId,
       productId: item.productId,
       data: { status: newStatus }
+    }, {
+      onSuccess: () => {
+        toast.success(`Đã ${newStatus === 'ACTIVE' ? 'mở bán' : 'ngừng bán'} sản phẩm`);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể thay đổi trạng thái sản phẩm');
+      }
     });
   };
 
@@ -299,11 +310,11 @@ const StoreCatalogDetail: React.FC<StoreCatalogDetailProps> = ({
 
   const handleAssignProduct = () => {
     if (!selectedProduct) {
-      toast.error('Vui lòng chọn sản phẩm');
+      toast.error('Vui lòng chọn sản phẩm muốn thêm');
       return;
     }
-    if (assignPrice < 0) {
-      toast.error('Giá không hợp lệ');
+    if (assignPrice <= 0) {
+      toast.error('Vui lòng nhập giá bán hợp lệ (> 0)');
       return;
     }
     assignMutation.mutate({
@@ -312,9 +323,13 @@ const StoreCatalogDetail: React.FC<StoreCatalogDetailProps> = ({
       price: assignPrice,
     }, {
       onSuccess: () => {
+        toast.success('Đã thêm sản phẩm vào danh mục cửa hàng');
         setIsAddProductDialogOpen(false);
         setSelectedProduct(null);
         setAssignPrice(0);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể thêm sản phẩm vào danh mục');
       }
     });
   };

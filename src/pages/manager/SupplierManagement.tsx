@@ -172,30 +172,53 @@ const SupplierManagement: React.FC = () => {
     toggleStatusMutation.mutate({ 
       id: supplier.id, 
       data: { status: newStatus } 
+    }, {
+      onSuccess: () => {
+        toast.success(`Đã ${newStatus === 'ACTIVE' ? 'kích hoạt' : 'ngừng hợp tác'} nhà cung cấp`);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể thay đổi trạng thái nhà cung cấp');
+      }
     });
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) {
+    const trimmedName = formData.name.trim();
+    const trimmedContact = formData.contactInfo.trim();
+
+    if (!trimmedName) {
       toast.error('Vui lòng nhập tên nhà cung cấp');
       return;
     }
 
+    const payload = {
+      name: trimmedName,
+      contactInfo: trimmedContact,
+    };
+
     if (selectedSupplier) {
       updateMutation.mutate(
-        { id: selectedSupplier.id, data: formData },
+        { id: selectedSupplier.id, data: payload },
         {
           onSuccess: () => {
+            toast.success('Cập nhật thông tin nhà cung cấp thành công');
             setIsDialogOpen(false);
             setSelectedSupplier(null);
+          },
+          onError: (error: any) => {
+            toast.error(error?.response?.data?.message || 'Không thể cập nhật nhà cung cấp');
           }
         }
       );
     } else {
-      createMutation.mutate(formData, {
+      createMutation.mutate(payload, {
         onSuccess: () => {
+          toast.success('Thêm nhà cung cấp mới thành công');
           setIsDialogOpen(false);
           setSelectedSupplier(null);
+        },
+        onError: (error: any) => {
+          toast.error(error?.response?.data?.message || 'Không thể thêm nhà cung cấp');
         }
       });
     }

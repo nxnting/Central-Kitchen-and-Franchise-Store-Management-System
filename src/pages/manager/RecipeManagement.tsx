@@ -144,82 +144,92 @@ const RecipeManagement: React.FC = () => {
   };
 
   const handleSave = async () => {
-    console.log('--- START SAVING ---');
-    console.log('Selected Product ID:', selectedProductId);
-    console.log('Form Instructions:', formInstructions);
-    console.log('Form Ingredients:', formIngredients);
+    const trimmedInstructions = formInstructions.trim();
 
+    // 1. Basic validation
     if (!selectedProductId) {
       toast.error('Vui lòng chọn sản phẩm');
       return;
     }
+
+    // 2. BOM Validation
+    const hasIngredients = formIngredients.length > 0;
+    const invalidIngredients = formIngredients.filter(i => i.ingredientId <= 0 || i.quantity <= 0);
+
+    if (hasIngredients && invalidIngredients.length > 0) {
+      toast.error('Vui lòng điền đầy đủ thông tin hoặc xóa các dòng nguyên liệu trống/không hợp lệ');
+      return;
+    }
+
+    // 3. Duplicate Ingredient Check
+    const ingredientIds = formIngredients.map(i => i.ingredientId);
+    const uniqueIds = new Set(ingredientIds);
+    if (uniqueIds.size !== ingredientIds.length) {
+      toast.error('Mỗi nguyên liệu chỉ được xuất hiện một lần trong một công thức');
+      return;
+    }
+
+    // 4. Ensure at least something is being saved
+    if (!trimmedInstructions && !hasIngredients) {
+      toast.error('Vui lòng nhập hướng dẫn pha chế hoặc thêm ít nhất một nguyên liệu');
+      return;
+    }
+
+    setIsViewMode(true); // Temporarily disable inputs during save
 
     try {
       const existingData = combinedData.find(d => d.productId === selectedProductId);
       const recipeId = existingData?.recipeItem?.id;
       const bomId = existingData?.bomItem?.id;
       
-      console.log('Existing Recipe ID:', recipeId);
-      console.log('Existing BOM ID:', bomId);
+      const promises = [];
 
-      let recipePromise = null;
-      let bomPromise = null;
-
-      // Save Recipe if instructions exist or updating
-      if (formInstructions.trim() || recipeId) {
+      // Save Recipe
+      if (trimmedInstructions || recipeId) {
         if (recipeId) {
-          recipePromise = updateRecipe.mutateAsync({ id: recipeId, data: { instructions: formInstructions } });
+          promises.push(updateRecipe.mutateAsync({ 
+            id: recipeId, 
+            data: { instructions: trimmedInstructions } 
+          }));
         } else {
-          recipePromise = createRecipe.mutateAsync({ productId: selectedProductId as number, instructions: formInstructions });
+          promises.push(createRecipe.mutateAsync({ 
+            productId: selectedProductId as number, 
+            instructions: trimmedInstructions 
+          }));
         }
       }
 
-      // Save BOM if items exist
-      const bomItems = formIngredients.filter(i => {
-        const isValid = i.ingredientId > 0 && i.quantity > 0;
-        if (!isValid) {
-            console.log('Filtering out invalid ingredient:', i);
-        }
-        return isValid;
-      });
-      console.log('Valid BOM Items to save:', bomItems);
-      
-      if (bomItems.length > 0) {
+      // Save BOM
+      if (hasIngredients) {
+        const mappedBomItems = formIngredients.map(i => ({
+          ingredientId: i.ingredientId,
+          quantity: i.quantity
+        }));
+
         if (bomId) {
-          const mappedBomItems = bomItems.map(i => ({
-            ingredientId: i.ingredientId,
-            quantity: i.quantity
-          }));
-          
           if (existingData?.bomItem?.status === 'ACTIVE') {
-            toast.error('Không thể cập nhật BOM đang hoạt động. Vui lòng tạo phiên bản mới (chức năng này sẽ được cập nhật sau).');
+            toast.error('Không thể cập nhật trực tiếp BOM đang hoạt động. Vui lòng tạo phiên bản mới.');
+            setIsViewMode(false);
             return;
           }
-          console.log('Updating BOM with payload:', { id: bomId, data: { items: mappedBomItems } });
-          bomPromise = updateBom.mutateAsync({ id: bomId, data: { items: mappedBomItems } });
+          promises.push(updateBom.mutateAsync({ id: bomId, data: { items: mappedBomItems } }));
         } else {
-          const payload = { productId: selectedProductId as number, items: bomItems.map(i => ({ ingredientId: i.ingredientId, quantity: i.quantity })) };
-          console.log('Creating BOM with payload:', payload);
-          bomPromise = createBom.mutateAsync(payload);
+          promises.push(createBom.mutateAsync({ 
+            productId: selectedProductId as number, 
+            items: mappedBomItems 
+          }));
         }
-      } else if (bomId && bomItems.length === 0) {
-        toast.error('BOM cần ít nhất 1 nguyên liệu.');
-        return;
       }
 
-      if (!recipePromise && !bomPromise) {
-        toast.error('Vui lòng nhập công thức hoặc thêm ít nhất 1 nguyên liệu.');
-        return;
-      }
-
-      await Promise.all([recipePromise, bomPromise].filter(Boolean));
+      await Promise.all(promises);
 
       toast.success('Đã lưu công thức và BOM thành công');
       setIsDialogOpen(false);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra khi lưu. Vui lòng thử lại.';
+      const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi lưu dữ liệu. Vui lòng thử lại.';
       toast.error(errorMessage);
-      console.error(error);
+    } finally {
+      setIsViewMode(false);
     }
   };
 
@@ -436,12 +446,25 @@ const RecipeManagement: React.FC = () => {
             </div>
 
             <div className="flex gap-3 pt-4 border-t">
-              <Button variant="outline" className={isViewMode ? 'w-full' : 'flex-1'} onClick={() => setIsDialogOpen(false)}>
-                Đóng
+              <Button 
+                variant="outline" 
+                className={isViewMode ? 'w-full' : 'flex-1'} 
+                onClick={() => setIsDialogOpen(false)} 
+                disabled={createRecipe.isPending || updateRecipe.isPending || createBom.isPending || updateBom.isPending}
+              >
+                {isViewMode ? 'Đóng' : 'Hủy'}
               </Button>
               {!isViewMode && (
-                <Button className="flex-1" onClick={handleSave} disabled={createRecipe.isPending || updateRecipe.isPending || createBom.isPending || updateBom.isPending}>
-                  {createRecipe.isPending || updateRecipe.isPending ? 'Đang lưu...' : 'Lưu công thức'}
+                <Button 
+                  className="flex-1" 
+                  onClick={handleSave} 
+                  disabled={createRecipe.isPending || updateRecipe.isPending || createBom.isPending || updateBom.isPending}
+                >
+                  {(createRecipe.isPending || updateRecipe.isPending || createBom.isPending || updateBom.isPending) ? (
+                    <>Đang lưu...</>
+                  ) : (
+                    'Lưu thay đổi'
+                  )}
                 </Button>
               )}
             </div>

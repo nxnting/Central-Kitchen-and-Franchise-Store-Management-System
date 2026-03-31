@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Button } from '@/components/ui/button';
@@ -80,17 +81,37 @@ const SupplyQueue: React.FC = () => {
 
   const confirmPrepareDelivery = () => {
     if (!selectedOrder) return;
+    const trimmedNote = note.trim();
     prepareDeliveryMutation.mutate(
-      { orderId: selectedOrder.storeOrderId, data: { preparingNote: note } },
-      { onSuccess: () => setIsPrepareModalOpen(false) }
+      { orderId: selectedOrder.storeOrderId, data: { preparingNote: trimmedNote } },
+      { 
+        onSuccess: () => {
+          toast.success('Đã xác nhận chuẩn bị hàng thành công');
+          setIsPrepareModalOpen(false);
+          refetch();
+        },
+        onError: (error: any) => {
+          toast.error(error?.response?.data?.message || 'Không thể cập nhật trạng thái chuẩn bị');
+        }
+      }
     );
   };
 
   const confirmUpdateStatus = () => {
     if (!selectedOrder) return;
+    const trimmedNote = note.trim();
     updateDeliveryStatusMutation.mutate(
-      { orderId: selectedOrder.storeOrderId, data: { status: targetStatus, statusNote: note } },
-      { onSuccess: () => setIsStatusModalOpen(false) }
+      { orderId: selectedOrder.storeOrderId, data: { status: targetStatus, statusNote: trimmedNote } },
+      { 
+        onSuccess: () => {
+          toast.success('Đã cập nhật trạng thái đơn hàng thành công');
+          setIsStatusModalOpen(false);
+          refetch();
+        },
+        onError: (error: any) => {
+          toast.error(error?.response?.data?.message || 'Không thể cập nhật trạng thái đơn hàng');
+        }
+      }
     );
   };
 
@@ -272,43 +293,49 @@ const SupplyQueue: React.FC = () => {
                                       </tr>
                                     </thead>
                                     <tbody className="divide-y">
-                                      {order.items.map((item, idx) => (
-                                        <tr key={idx} className={item.isDroppedFromForward ? "bg-destructive/5" : "hover:bg-muted/5"}>
-                                          <td className="px-3 py-2">
-                                            <p className={`font-medium ${item.isDroppedFromForward ? "line-through text-muted-foreground" : ""}`}>
-                                              {item.productName}
-                                            </p>
-                                            {item.sku && <p className="text-[10px] text-muted-foreground">SKU: {item.sku}</p>}
-                                          </td>
-                                          <td className="px-3 py-2 text-center font-medium">
-                                            {item.quantity} {item.unit}
-                                          </td>
-                                          <td className="px-3 py-2 text-center font-bold">
-                                            {item.isDroppedFromForward ? (
-                                              <span className="text-destructive">0 {item.unit}</span>
-                                            ) : (
-                                              <span className={item.forwardedQuantity < item.quantity ? "text-amber-600" : "text-green-600"}>
-                                                {item.forwardedQuantity} {item.unit}
-                                              </span>
-                                            )}
-                                          </td>
-                                          <td className="px-3 py-2 text-center">
-                                            {item.isDroppedFromForward ? (
-                                              <span className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full font-medium">
-                                                Bị hủy: {item.dropReason || "Hết hàng"}
-                                              </span>
-                                            ) : item.forwardedQuantity < item.quantity ? (
-                                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
-                                                Giao thiếu
-                                              </span>
-                                            ) : (
-                                              <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
-                                                Đủ hàng
-                                              </span>
-                                            )}
-                                          </td>
-                                        </tr>
-                                      ))}
+                                        {order.items.map((item, idx) => {
+                                          const isDropped = item.isDroppedFromForward === true && (item.forwardedQuantity === 0);
+                                          const isPartial = item.forwardedQuantity > 0 && item.forwardedQuantity < item.quantity;
+                                          const isFull = item.quantity > 0 && item.forwardedQuantity === item.quantity;
+
+                                          return (
+                                            <tr key={idx} className={isDropped ? "bg-destructive/5" : "hover:bg-muted/5 font-normal"}>
+                                              <td className="px-3 py-2">
+                                                <p className={`font-medium ${isDropped ? "line-through text-muted-foreground" : ""}`}>
+                                                  {item.productName}
+                                                </p>
+                                                {item.sku && <p className="text-[10px] text-muted-foreground">SKU: {item.sku}</p>}
+                                              </td>
+                                              <td className="px-3 py-2 text-center font-medium">
+                                                {item.quantity} {item.unit}
+                                              </td>
+                                              <td className="px-3 py-2 text-center font-bold">
+                                                <span className={isDropped ? "text-destructive" : isPartial ? "text-amber-600" : "text-green-600"}>
+                                                  {item.forwardedQuantity} {item.unit}
+                                                </span>
+                                              </td>
+                                              <td className="px-3 py-2 text-center">
+                                                {isDropped ? (
+                                                  <span className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full font-medium">
+                                                    Bị hủy: {item.dropReason || "Hết hàng"}
+                                                  </span>
+                                                ) : isPartial ? (
+                                                  <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
+                                                    Giao thiếu
+                                                  </span>
+                                                ) : isFull ? (
+                                                  <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+                                                    Đủ hàng
+                                                  </span>
+                                                ) : (
+                                                  <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full font-medium">
+                                                    Chuẩn bị
+                                                  </span>
+                                                )}
+                                              </td>
+                                            </tr>
+                                          );
+                                        })}
                                     </tbody>
                                   </table>
                                 </div>
@@ -333,42 +360,48 @@ const SupplyQueue: React.FC = () => {
                                       </tr>
                                     </thead>
                                     <tbody className="divide-y divide-blue-100">
-                                      {order.ingredientItems!.map((item, idx) => (
-                                        <tr key={idx} className={item.isDroppedFromForward ? "bg-destructive/5" : "hover:bg-blue-100/20"}>
-                                          <td className="px-3 py-2">
-                                            <p className={`font-medium ${item.isDroppedFromForward ? "line-through text-muted-foreground" : ""}`}>
-                                              {item.ingredientName}
-                                            </p>
-                                          </td>
-                                          <td className="px-3 py-2 text-center font-medium">
-                                            {item.quantity} {item.unit}
-                                          </td>
-                                          <td className="px-3 py-2 text-center font-bold">
-                                            {item.isDroppedFromForward ? (
-                                              <span className="text-destructive">0 {item.unit}</span>
-                                            ) : (
-                                              <span className={item.forwardedQuantity < item.quantity ? "text-amber-600" : "text-green-600"}>
+                                      {(order.ingredientItems ?? []).map((item, idx) => {
+                                        const isDropped = item.isDroppedFromForward === true && (item.forwardedQuantity === 0);
+                                        const isPartial = item.forwardedQuantity > 0 && item.forwardedQuantity < item.quantity;
+                                        const isFull = item.quantity > 0 && item.forwardedQuantity === item.quantity;
+
+                                        return (
+                                          <tr key={idx} className={isDropped ? "bg-destructive/5" : "hover:bg-blue-100/20 font-normal"}>
+                                            <td className="px-3 py-2">
+                                              <p className={`font-medium ${isDropped ? "line-through text-muted-foreground" : ""}`}>
+                                                {item.ingredientName}
+                                              </p>
+                                            </td>
+                                            <td className="px-3 py-2 text-center font-medium">
+                                              {item.quantity} {item.unit}
+                                            </td>
+                                            <td className="px-3 py-2 text-center font-bold">
+                                              <span className={isDropped ? "text-destructive" : isPartial ? "text-amber-600" : "text-green-600"}>
                                                 {item.forwardedQuantity} {item.unit}
                                               </span>
-                                            )}
-                                          </td>
-                                          <td className="px-3 py-2 text-center">
-                                            {item.isDroppedFromForward ? (
-                                              <span className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full font-medium">
-                                                Bị hủy
-                                              </span>
-                                            ) : item.forwardedQuantity < item.quantity ? (
-                                              <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
-                                                Thiếu
-                                              </span>
-                                            ) : (
-                                              <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
-                                                Đủ
-                                              </span>
-                                            )}
-                                          </td>
-                                        </tr>
-                                      ))}
+                                            </td>
+                                            <td className="px-3 py-2 text-center">
+                                              {isDropped ? (
+                                                <span className="text-[10px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded-full font-medium">
+                                                  Bị hủy
+                                                </span>
+                                              ) : isPartial ? (
+                                                <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
+                                                  Thiếu
+                                                </span>
+                                              ) : isFull ? (
+                                                <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">
+                                                  Đủ
+                                                </span>
+                                              ) : (
+                                                <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full font-medium">
+                                                  --
+                                                </span>
+                                              )}
+                                            </td>
+                                          </tr>
+                                        );
+                                      })}
                                     </tbody>
                                   </table>
                                 </div>

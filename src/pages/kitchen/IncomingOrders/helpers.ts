@@ -256,3 +256,40 @@ export const sortOrdersByNewest = (
 export const getOrderDisplayCode = (order: IncomingOrder): string => {
   return order.orderCode || `SO-${String(order.storeOrderId).padStart(6, "0")}`;
 };
+
+export const getIncomingOrderStatusLabel = (
+  status: IncomingOrderStatus | string | null | undefined,
+): string => {
+  if (!status) return "--";
+
+  const option = INCOMING_ORDER_FILTER_OPTIONS.find((opt) => opt.value === status);
+  if (option) return option.label;
+
+  // Fallback for statuses not in filter options (like LOCKED or internal states)
+  switch (status) {
+    case "LOCKED":
+      return "Đã khóa";
+    case "SUBMITTED":
+      return "Đã gửi";
+    case "RECEIVED_BY_KITCHEN":
+      return "Bếp đã tiếp nhận";
+    case "FORWARDED_TO_SUPPLY":
+      return "Đã chuyển Cung ứng";
+    case "PREPARING":
+      return "Đang chuẩn bị";
+    case "READY_TO_DELIVER":
+      return "Sẵn sàng giao";
+    case "IN_TRANSIT":
+      return "Đang giao";
+    case "DELIVERED":
+      return "Đã giao";
+    case "RECEIVED_BY_STORE":
+      return "Cửa hàng đã nhận";
+    case "CANCELLED":
+      return "Đã hủy";
+    case "DRAFT":
+      return "Nháp";
+    default:
+      return status;
+  }
+};

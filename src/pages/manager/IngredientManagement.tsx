@@ -18,8 +18,6 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  ChevronLeft,
-  ChevronRight,
   Leaf,
   Loader2,
   RefreshCw
@@ -28,6 +26,7 @@ import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Pagination } from '@/components/common/Pagination';
 import {
   Select,
   SelectContent,
@@ -99,10 +98,8 @@ const IngredientManagement: React.FC = () => {
   const toggleStatusMutation = useToggleIngredientStatus();
 
   // Get ingredients array from API response
-  // API returns: { success: true, data: { items: [...], page, pageSize, totalItems, totalPages } }
   const ingredients: Ingredient[] = useMemo(() => {
     if (!ingredientsResponse) return [];
-    // Extract items from paginated response
     return ingredientsResponse.data?.items || [];
   }, [ingredientsResponse]);
 
@@ -140,7 +137,7 @@ const IngredientManagement: React.FC = () => {
     return result;
   }, [ingredients, searchTerm, statusFilter, sortField, sortOrder]);
 
-  // Pagination
+  // Pagination logic
   const totalPages = Math.ceil(processedIngredients.length / pageSize);
   const paginatedIngredients = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -209,45 +206,79 @@ const IngredientManagement: React.FC = () => {
   };
 
   const handleToggleStatus = (ingredient: Ingredient) => {
-    toggleStatusMutation.mutate(ingredient.id);
+    toggleStatusMutation.mutate(ingredient.id, {
+      onSuccess: () => {
+        toast.success(`Đã ${ingredient.status === 'ACTIVE' ? 'ngưng hoạt động' : 'kích hoạt'} nguyên liệu`);
+      },
+      onError: (error: any) => {
+        toast.error(error?.response?.data?.message || 'Không thể thay đổi trạng thái');
+      }
+    });
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim() || !formData.unit || !formData.supplierId) {
-      toast.error('Vui lòng nhập tên, chọn đơn vị và nhà cung cấp');
+    const trimmedName = formData.name.trim();
+    const trimmedUnit = formData.unit.trim();
+
+    if (!trimmedName) {
+      toast.error('Vui lòng nhập tên nguyên liệu');
       return;
     }
-    if (formData.shelfLifeDays < 1) {
-      toast.error('Hạn sử dụng phải lớn hơn 0 ngày');
+    if (!trimmedUnit) {
+      toast.error('Vui lòng nhập/chọn đơn vị tính');
+      return;
+    }
+    if (!formData.supplierId) {
+      toast.error('Vui lòng chọn nhà cung cấp');
       return;
     }
 
-    // Check unique name (frontend validation)
-    const existingIngredient = ingredients.find(
-      item => item.name.toLowerCase() === formData.name.toLowerCase() && item.id !== selectedIngredient?.id
-    );
-    if (existingIngredient) {
-      toast.error('Tên nguyên liệu đã tồn tại');
+    if (formData.shelfLifeDays < 1) {
+      toast.error('Hạn sử dụng phải ít nhất là 1 ngày');
       return;
     }
+    if (formData.price < 0) {
+      toast.error('Giá sản phẩm không được là số âm');
+      return;
+    }
+    if (formData.safetyStock < 0) {
+      toast.error('Tồn kho an toàn không được là số âm');
+      return;
+    }
+    if (formData.wasteThreshold < 0 || formData.wasteThreshold > 100) {
+      toast.error('Ngưỡng hao hụt phải từ 0% đến 100%');
+      return;
+    }
+
+    const payload = { 
+      ...formData, 
+      name: trimmedName,
+      unit: trimmedUnit 
+    };
 
     if (selectedIngredient) {
-      // Update
       updateMutation.mutate(
-        { id: selectedIngredient.id, data: formData },
+        { id: selectedIngredient.id, data: payload },
         {
           onSuccess: () => {
+            toast.success('Cập nhật nguyên liệu thành công');
             setIsDialogOpen(false);
             setSelectedIngredient(null);
+          },
+          onError: (error: any) => {
+            toast.error(error?.response?.data?.message || 'Không thể cập nhật nguyên liệu');
           }
         }
       );
     } else {
-      // Create
-      createMutation.mutate(formData, {
+      createMutation.mutate(payload, {
         onSuccess: () => {
+          toast.success('Thêm nguyên liệu mới thành công');
           setIsDialogOpen(false);
           setSelectedIngredient(null);
+        },
+        onError: (error: any) => {
+          toast.error(error?.response?.data?.message || 'Không thể thêm nguyên liệu');
         }
       });
     }
@@ -255,36 +286,24 @@ const IngredientManagement: React.FC = () => {
 
   const isSaving = createMutation.isPending || updateMutation.isPending;
 
-  // Loading state
   if (isLoading) {
     return (
       <div className="animate-fade-in">
-        <PageHeader 
-          title="Quản lý Nguyên vật liệu" 
-          subtitle="Quản lý danh sách nguyên vật liệu cho sản xuất"
-        />
+        <PageHeader title="Quản lý Nguyên vật liệu" subtitle="Đang tải dữ liệu..." />
         <div className="flex items-center justify-center py-20">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <span className="ml-3 text-muted-foreground">Đang tải dữ liệu...</span>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (isError) {
     return (
       <div className="animate-fade-in">
-        <PageHeader 
-          title="Quản lý Nguyên vật liệu" 
-          subtitle="Quản lý danh sách nguyên vật liệu cho sản xuất"
-        />
+        <PageHeader title="Quản lý Nguyên vật liệu" subtitle="Lỗi tải dữ liệu" />
         <div className="flex flex-col items-center justify-center py-20">
           <p className="text-destructive mb-4">Không thể tải dữ liệu nguyên liệu</p>
-          <Button onClick={() => refetch()} variant="outline">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Thử lại
-          </Button>
+          <Button onClick={() => refetch()} variant="outline">Thử lại</Button>
         </div>
       </div>
     );
@@ -302,7 +321,6 @@ const IngredientManagement: React.FC = () => {
         }}
       />
 
-      {/* Search, Filter & Stats */}
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="relative flex-1 min-w-[250px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
@@ -325,75 +343,31 @@ const IngredientManagement: React.FC = () => {
           </SelectContent>
         </Select>
 
-        <div className="flex items-center gap-2 ml-auto">
-          <Button variant="ghost" size="icon" onClick={() => refetch()} title="Làm mới">
-            <RefreshCw size={18} />
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Tổng: <span className="font-semibold text-foreground">{processedIngredients.length}</span> nguyên liệu
-          </span>
+        <div className="flex items-center gap-2 ml-auto text-sm text-muted-foreground">
+          Tổng: <span className="font-semibold text-foreground">{processedIngredients.length}</span> nguyên liệu
         </div>
       </div>
 
-      {/* Data Table */}
-      <div className="bg-card border rounded-xl overflow-hidden">
+      <div className="bg-card border rounded-xl overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead 
-                className="cursor-pointer select-none"
-                onClick={() => handleSort('name')}
-              >
-                <div className="flex items-center">
-                  Tên nguyên liệu
-                  {getSortIcon('name')}
-                </div>
+            <TableRow className="bg-muted/50">
+              <TableHead className="cursor-pointer" onClick={() => handleSort('name')}>
+                <div className="flex items-center">Tên nguyên liệu {getSortIcon('name')}</div>
               </TableHead>
-              <TableHead 
-                className="cursor-pointer select-none"
-                onClick={() => handleSort('unit')}
-              >
-                <div className="flex items-center">
-                  Đơn vị
-                  {getSortIcon('unit')}
-                </div>
+              <TableHead className="cursor-pointer" onClick={() => handleSort('unit')}>
+                <div className="flex items-center">Đơn vị {getSortIcon('unit')}</div>
               </TableHead>
-              <TableHead 
-                className="cursor-pointer select-none text-right"
-                onClick={() => handleSort('safetyStock')}
-              >
-                <div className="flex items-center justify-end">
-                  Tồn kho an toàn
-                  {getSortIcon('safetyStock')}
-                </div>
+              <TableHead className="text-right cursor-pointer" onClick={() => handleSort('safetyStock')}>
+                <div className="flex items-center justify-end">Tồn kho an toàn {getSortIcon('safetyStock')}</div>
               </TableHead>
-              <TableHead 
-                className="cursor-pointer select-none text-right"
-                onClick={() => handleSort('wasteThreshold')}
-              >
-                <div className="flex items-center justify-end">
-                  Ngưỡng hao hụt
-                  {getSortIcon('wasteThreshold')}
-                </div>
+              <TableHead className="text-right cursor-pointer" onClick={() => handleSort('wasteThreshold')}>
+                <div className="flex items-center justify-end">Hao hụt {getSortIcon('wasteThreshold')}</div>
               </TableHead>
-              <TableHead 
-                className="cursor-pointer select-none"
-                onClick={() => handleSort('status')}
-              >
-                <div className="flex items-center">
-                  Trạng thái
-                  {getSortIcon('status')}
-                </div>
+              <TableHead className="cursor-pointer" onClick={() => handleSort('status')}>
+                <div className="flex items-center">Trạng thái {getSortIcon('status')}</div>
               </TableHead>
-              <TableHead 
-                className="cursor-pointer select-none"
-                onClick={() => handleSort('updatedAt')}
-              >
-                <div className="flex items-center">
-                  Cập nhật lần cuối
-                  {getSortIcon('updatedAt')}
-                </div>
-              </TableHead>
+              <TableHead>Cập nhật cuối</TableHead>
               <TableHead className="text-right">Thao tác</TableHead>
             </TableRow>
           </TableHeader>
@@ -410,41 +384,41 @@ const IngredientManagement: React.FC = () => {
                 <TableRow key={ingredient.id} className={ingredient.status === 'INACTIVE' ? 'opacity-60' : ''}>
                   <TableCell>
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <Leaf size={18} className="text-primary" />
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Leaf size={14} className="text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium">{ingredient.name}</p>
-                        <p className="text-xs text-muted-foreground">{ingredient.id}</p>
+                        <p className="font-medium text-sm">{ingredient.name}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">{ingredient.id}</p>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>{ingredient.unit}</TableCell>
-                  <TableCell className="text-right font-medium">{ingredient.safetyStock}</TableCell>
+                  <TableCell className="text-right font-medium">{ingredient.safetyStock.toLocaleString()}</TableCell>
                   <TableCell className="text-right">{ingredient.wasteThreshold}%</TableCell>
                   <TableCell>
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
                       ingredient.status === 'ACTIVE' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-                        : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-muted text-muted-foreground'
                     }`}>
-                      {ingredient.status === 'ACTIVE' ? 'Đang hoạt động' : 'Ngưng hoạt động'}
+                      {ingredient.status === 'ACTIVE' ? 'Hoạt động' : 'Ngưng'}
                     </span>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{formatDateTime(ingredient.updatedAt)}</TableCell>
+                  <TableCell className="text-xs text-muted-foreground">{formatDateTime(ingredient.updatedAt)}</TableCell>
                   <TableCell>
                     <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => handleView(ingredient)} title="Xem chi tiết">
-                        <Eye size={16} />
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleView(ingredient)}>
+                        <Eye size={14} />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(ingredient)} title="Chỉnh sửa">
-                        <Edit size={16} />
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(ingredient)}>
+                        <Edit size={14} />
                       </Button>
                       <Switch
                         checked={ingredient.status === 'ACTIVE'}
                         onCheckedChange={() => handleToggleStatus(ingredient)}
                         disabled={toggleStatusMutation.isPending}
-                        className="ml-2"
+                        className="scale-90 ml-1"
                       />
                     </div>
                   </TableCell>
@@ -454,53 +428,15 @@ const IngredientManagement: React.FC = () => {
           </TableBody>
         </Table>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/30">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Hiển thị</span>
-            <Select value={pageSize.toString()} onValueChange={(val) => { setPageSize(Number(val)); setCurrentPage(1); }}>
-              <SelectTrigger className="w-[70px] h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
-            <span className="text-sm text-muted-foreground">dòng</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
-              Trang {currentPage} / {totalPages || 1}
-            </span>
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
-                <ChevronLeft size={16} />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages || totalPages === 0}
-              >
-                <ChevronRight size={16} />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => { setPageSize(size); setCurrentPage(1); }}
+        />
       </div>
 
-      {/* Add/Edit Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -509,8 +445,8 @@ const IngredientManagement: React.FC = () => {
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <div>
+          <div className="space-y-4 pt-4">
+            <div className="space-y-2">
               <Label>Tên nguyên liệu <span className="text-destructive">*</span></Label>
               <Input 
                 value={formData.name}
@@ -519,24 +455,16 @@ const IngredientManagement: React.FC = () => {
                 placeholder="VD: Đường đen Okinawa"
               />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Đơn vị tính <span className="text-destructive">*</span></Label>
-              <Select 
-                value={formData.unit} 
-                onValueChange={(val) => setFormData(prev => ({ ...prev, unit: val }))}
+              <Input 
+                value={formData.unit}
+                onChange={(e) => setFormData(prev => ({ ...prev, unit: e.target.value }))}
                 disabled={isViewMode}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Chọn đơn vị" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="g">g (Gram)</SelectItem>
-                  <SelectItem value="pcs">pcs (Cái/Chiếc)</SelectItem>
-                  <SelectItem value="ml">ml (Mililit)</SelectItem>
-                </SelectContent>
-              </Select>
+                placeholder="VD: g, ml, pcs..."
+              />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Nhà cung cấp <span className="text-destructive">*</span></Label>
               <Select
                 value={formData.supplierId?.toString() ?? ''}
@@ -547,82 +475,61 @@ const IngredientManagement: React.FC = () => {
                   <SelectValue placeholder="Chọn nhà cung cấp" />
                 </SelectTrigger>
                 <SelectContent>
-                  {suppliers.filter(s => s.status === 'ACTIVE').map(s => (
+                  {suppliers.map(s => (
                     <SelectItem key={s.id} value={s.id.toString()}>{s.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Hạn sử dụng (ngày) <span className="text-destructive">*</span></Label>
+              <div className="space-y-2">
+                <Label>Hạn sử dụng (ngày)</Label>
                 <Input
                   type="number"
-                  min={1}
                   value={formData.shelfLifeDays}
                   onChange={(e) => setFormData(prev => ({ ...prev, shelfLifeDays: Number(e.target.value) }))}
                   disabled={isViewMode}
-                  placeholder="VD: 7"
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label>Giá (VNĐ)</Label>
                 <Input
                   type="number"
-                  min={0}
                   value={formData.price}
                   onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
                   disabled={isViewMode}
-                  placeholder="0"
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div>
+              <div className="space-y-2">
                 <Label>Tồn kho an toàn</Label>
                 <Input 
                   type="number"
                   value={formData.safetyStock}
                   onChange={(e) => setFormData(prev => ({ ...prev, safetyStock: Number(e.target.value) }))}
                   disabled={isViewMode}
-                  placeholder="0"
                 />
               </div>
-              <div>
+              <div className="space-y-2">
                 <Label>Ngưỡng hao hụt (%)</Label>
                 <Input 
                   type="number"
                   value={formData.wasteThreshold}
                   onChange={(e) => setFormData(prev => ({ ...prev, wasteThreshold: Number(e.target.value) }))}
                   disabled={isViewMode}
-                  placeholder="0"
                 />
               </div>
             </div>
 
-            {selectedIngredient && isViewMode && (
-              <div className="pt-2 border-t">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Trạng thái:</span>
-                  <span className={selectedIngredient.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'}>
-                    {selectedIngredient.status === 'ACTIVE' ? 'Đang hoạt động' : 'Ngưng hoạt động'}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm mt-1">
-                  <span className="text-muted-foreground">Cập nhật lần cuối:</span>
-                  <span>{formatDateTime(selectedIngredient.updatedAt)}</span>
-                </div>
-              </div>
-            )}
-
             {!isViewMode && (
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-6">
                 <Button variant="outline" className="flex-1" onClick={() => setIsDialogOpen(false)} disabled={isSaving}>
                   Hủy
                 </Button>
                 <Button className="flex-1" onClick={handleSave} disabled={isSaving}>
                   {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                  {selectedIngredient ? 'Cập nhật' : 'Thêm mới'}
+                  Lưu
                 </Button>
               </div>
             )}
