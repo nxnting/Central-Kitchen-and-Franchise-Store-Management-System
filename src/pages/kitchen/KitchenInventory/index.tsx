@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { toast } from "sonner";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -29,7 +29,11 @@ import {
   useRenameProductBatchCode,
 } from "@/hooks/kitchen/useKitchenInventory";
 
-import { filterInventoryBatches, getInventorySummary } from "./helpers";
+import {
+  filterInventoryBatches,
+  getInventorySummary,
+  sortInventoryBatchesByName,
+} from "./helpers";
 
 import InventoryToolbar from "./components/InventoryToolbar";
 import InventoryTabs from "./components/InventoryTabs";
@@ -52,6 +56,7 @@ const KitchenInventory: React.FC = () => {
 
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState<KitchenInventoryTab>("INGREDIENT");
+  const [selectedItemId, setSelectedItemId] = useState<string>("ALL");
 
   const [createOpen, setCreateOpen] = useState(false);
   const [adjustOpen, setAdjustOpen] = useState(false);
@@ -61,12 +66,30 @@ const KitchenInventory: React.FC = () => {
 
   const [selectedBatch, setSelectedBatch] = useState<BatchRow | null>(null);
 
+  const isIngredientTab = activeTab === "INGREDIENT";
+
+  useEffect(() => {
+    setSelectedItemId("ALL");
+  }, [activeTab]);
+
+  const ingredientFilterId =
+    activeTab === "INGREDIENT" && selectedItemId !== "ALL"
+      ? Number(selectedItemId)
+      : undefined;
+
+  const productFilterId =
+    activeTab === "PRODUCT" && selectedItemId !== "ALL"
+      ? Number(selectedItemId)
+      : undefined;
+
   const ingredientBatchesQuery = useIngredientBatches(centralKitchenId, {
     includeZero: true,
+    ingredientId: ingredientFilterId,
   });
 
   const productBatchesQuery = useProductBatches(centralKitchenId, {
     includeZero: true,
+    productId: productFilterId,
   });
 
   const ingredientOptionsQuery = useIngredientOptions();
@@ -84,8 +107,6 @@ const KitchenInventory: React.FC = () => {
   const deleteIngredientBatch = useDeleteIngredientBatch();
   const deleteProductBatch = useDeleteProductBatch();
 
-  const isIngredientTab = activeTab === "INGREDIENT";
-
   const currentData = useMemo<BatchRow[]>(
     () =>
       isIngredientTab
@@ -94,10 +115,10 @@ const KitchenInventory: React.FC = () => {
     [ingredientBatchesQuery.data, productBatchesQuery.data, isIngredientTab],
   );
 
-  const filteredData = useMemo(
-    () => filterInventoryBatches(currentData, search),
-    [currentData, search],
-  );
+  const filteredData = useMemo(() => {
+    const searched = filterInventoryBatches(currentData, search);
+    return sortInventoryBatchesByName(searched);
+  }, [currentData, search]);
 
   const summary = useMemo(
     () => getInventorySummary(filteredData),
@@ -144,6 +165,15 @@ const KitchenInventory: React.FC = () => {
   const activeOptionsQuery = isIngredientTab
     ? ingredientOptionsQuery
     : productOptionsQuery;
+
+  const filterOptions = useMemo(
+    () =>
+      (activeOptionsQuery.options ?? []).map((item) => ({
+        value: String(item.value),
+        label: item.label,
+      })),
+    [activeOptionsQuery.options],
+  );
 
   const loading = !centralKitchenId || activeListQuery.isLoading;
   const refreshing = activeListQuery.isFetching;
@@ -370,6 +400,9 @@ const KitchenInventory: React.FC = () => {
         search={search}
         onSearchChange={setSearch}
         activeTab={activeTab}
+        selectedItemId={selectedItemId}
+        onSelectedItemIdChange={setSelectedItemId}
+        filterOptions={filterOptions}
         onRefresh={handleRefresh}
         refreshing={refreshing}
         onCreateInbound={() => setCreateOpen(true)}
