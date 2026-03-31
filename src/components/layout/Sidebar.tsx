@@ -130,6 +130,11 @@ const getNavItems = (
         path: "/coordinator/supply-queue",
         icon: <Package size={20} />,
       },
+      {
+        label: "Lịch sử đơn hàng",
+        path: "/coordinator/orders/history",
+        icon: <History size={20} />,
+      },
       // {
       //   label: "Theo dõi giao hàng",
       //   path: "/coordinator/tracking",

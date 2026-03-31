@@ -5,6 +5,8 @@ import type {
   StoreOrderListData,
   CreateStoreOrderPayload,
   UpdateStoreOrderPayload,
+  UpdateStoreOrderProductItemPayload,
+  UpdateStoreOrderIngredientItemPayload,
   CancelStoreOrderPayload,
   StoreOrderQuery,
 } from "@/types/store/storeOrder.types";
@@ -44,6 +46,7 @@ export const storeOrdersApi = {
         payload
       )
     ).data,
+
 
   submit: async (franchiseId: number, orderId: number) =>
     (

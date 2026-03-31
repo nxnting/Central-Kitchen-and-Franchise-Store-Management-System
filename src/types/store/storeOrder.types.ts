@@ -115,6 +115,14 @@ export interface UpdateStoreOrderPayload {
   }[];
 }
 
+export interface UpdateStoreOrderProductItemPayload {
+  quantity: number;
+}
+
+export interface UpdateStoreOrderIngredientItemPayload {
+  quantity: number;
+}
+
 export interface CancelStoreOrderPayload {
   reason: string;
 }

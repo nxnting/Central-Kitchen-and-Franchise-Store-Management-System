@@ -60,6 +60,36 @@ export interface SupplyOrderQueueItemResponse {
     ingredientItems?: SupplyOrderQueueIngredientLineResponse[];
 }
 
+export interface SupplyProcessedOrderResponse {
+    storeOrderId: number;
+    orderCode: string;
+    status: string;
+    requestedDeliveryDate: string; // ISO Date String
+    createdAt: string; // ISO Date String
+    storeId: number;
+    storeName: string;
+    totalItems: number;
+    totalQuantity: number;
+    forwardedAt?: string;
+    forwardedBy?: string;
+    preparedAt?: string;
+    preparedBy?: string;
+    endedAt: string;
+    endedBy?: string;
+    endedNote?: string;
+    forwardNote?: string;
+    processingNote?: string;
+    preparingNote?: string;
+}
+
+export interface PaginatedSupplyProcessedOrderResponse {
+    items: SupplyProcessedOrderResponse[];
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+}
+
 export interface SupplyOrderListQuery {
     status?: string;
     franchiseId?: number;
@@ -127,4 +157,55 @@ export interface DeliveryDetailResponse {
     confirmedAt?: string | null;
     productItems: DeliveryItemDetailResponse[];
     ingredientItems: DeliveryIngredientDetailResponse[];
+}
+
+export interface IncomingOrderDetailItemResponse {
+    productId: number;
+    productName: string;
+    sku?: string;
+    unit: string;
+    quantity: number;
+    productStatus?: string;
+    forwardedQuantity: number;
+    droppedQuantity: number;
+    isDroppedFromForward: boolean;
+    dropReason: string | null;
+}
+
+export interface IncomingOrderDetailIngredientItemResponse {
+    ingredientId: number;
+    ingredientName: string;
+    unit: string;
+    quantity: number;
+    ingredientStatus?: string;
+    forwardedQuantity: number;
+    droppedQuantity: number;
+    isDroppedFromForward: boolean;
+    dropReason: string | null;
+}
+
+export interface IncomingOrderDetailResponse {
+    storeOrderId: number;
+    orderCode: string;
+    status: string;
+    requestedDeliveryDate: string;
+    createdAt: string;
+    storeNote?: string;
+    storeId: number;
+    storeName: string;
+    storeAddress?: string;
+    totalItems: number;
+    totalQuantity: number;
+    forwardedTotalItems: number;
+    forwardedTotalQuantity: number;
+    droppedTotalItems: number;
+    droppedTotalQuantity: number;
+    receivedAt?: string;
+    receivedBy?: string;
+    forwardedAt?: string;
+    forwardedBy?: string;
+    processingNote?: string;
+    forwardNote?: string;
+    items: IncomingOrderDetailItemResponse[];
+    ingredientItems: IncomingOrderDetailIngredientItemResponse[];
 }

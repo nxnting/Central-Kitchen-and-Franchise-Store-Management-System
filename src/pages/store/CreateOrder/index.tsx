@@ -272,8 +272,12 @@ const CreateOrderPage: React.FC = () => {
         await updateOrder.mutateAsync({ orderId: parsedOrderId, payload: buildPayload() as UpdateStoreOrderPayload });
         toast.success(`Đã cập nhật đơn #${parsedOrderId}`);
         navigate(`/stores/${storeId ?? franchiseId}/orders`);
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
+        if (e?.response?.status === 409) {
+          toast.error("Không thể chỉnh sửa: Đơn hàng đã bị khóa hoặc hết hạn thời gian chỉnh sửa (30 phút).");
+          return;
+        }
         toast.error("Cập nhật đơn thất bại");
       }
       return;
@@ -300,8 +304,12 @@ const CreateOrderPage: React.FC = () => {
         await updateOrder.mutateAsync({ orderId: parsedOrderId, payload: buildPayload() as UpdateStoreOrderPayload });
         toast.success(`Đã cập nhật đơn #${parsedOrderId}`);
         navigate(`/stores/${storeId ?? franchiseId}/orders`);
-      } catch (e) {
+      } catch (e: any) {
         console.error(e);
+        if (e?.response?.status === 409) {
+          toast.error("Không thể chỉnh sửa: Đơn hàng đã bị khóa hoặc hết hạn thời gian chỉnh sửa (30 phút).");
+          return;
+        }
         toast.error("Cập nhật đơn thất bại");
       }
       return;

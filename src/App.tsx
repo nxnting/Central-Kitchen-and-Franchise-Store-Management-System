@@ -31,6 +31,7 @@ import ProductionCoordination from "@/pages/coordinator/ProductionCoordination";
 import SupplyQueue from "@/pages/coordinator/SupplyQueue";
 import DeliveryTracking from "@/pages/coordinator/DeliveryTracking";
 import ExceptionHandling from "@/pages/coordinator/ExceptionHandling";
+import HistoryOrders from "@/pages/coordinator/HistoryOrders";
 // Manager Pages
 import ManagerDashboard from "@/pages/manager/ManagerDashboard";
 import ProductManagement from "@/pages/manager/ProductManagement";
@@ -133,6 +134,10 @@ const App = () => (
               <Route
                 path="/coordinator/exceptions"
                 element={<ExceptionHandling />}
+              />
+              <Route
+                path="/coordinator/orders/history"
+                element={<HistoryOrders />}
               />
               {/* Manager Routes */}
               <Route path="/manager" element={<ManagerDashboard />} />

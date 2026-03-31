@@ -1,4 +1,5 @@
 import adminApi from "../api";
+import { unwrapResponse } from "../unwrapResponse";
 import type { ApiResponse } from "@/types/common/apiResponse.types";
 import type {
   IssueIngredientsByProductionPlanPayload,
@@ -15,6 +16,7 @@ import type {
   ProductAdjustmentResult,
   ProductBatch,
   ProductBatchListParams,
+  CentralKitchenInventorySummaryResponse,
   UpdateBatchCodePayload,
 } from "@/types/kitchen/inventoryBatch.types";
 
@@ -172,4 +174,12 @@ export const inventoryApi = {
         `/central-kitchens/${centralKitchenId}/inventory/products/batches/${batchId}`,
       )
     ).data,
+  getCentralKitchenInventorySummary: async (
+    centralKitchenId: number,
+  ): Promise<any> => {
+    const res = await adminApi.get(
+      `/central-kitchens/${centralKitchenId}/inventory/summary`,
+    );
+    return res.data;
+  },
 };

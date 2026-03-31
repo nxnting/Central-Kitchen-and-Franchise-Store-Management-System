@@ -102,3 +102,25 @@ export interface ProductAdjustmentResult {
   reason: string;
   createdAt: string;
 }
+
+export interface CentralKitchenInventoryBatchResponse {
+  batchId: number;
+  batchCode: string;
+  expiredAt?: string; // YYYY-MM-DD
+  quantity: number;
+}
+
+export interface CentralKitchenInventorySummaryItemResponse {
+  itemType: "PRODUCT" | "INGREDIENT";
+  itemId: number;
+  itemName: string;
+  unit: string;
+  totalQuantity: number;
+  lowStockThreshold?: number;
+  isLowStock: boolean;
+  batches: CentralKitchenInventoryBatchResponse[];
+}
+
+export interface CentralKitchenInventorySummaryResponse {
+  items: CentralKitchenInventorySummaryItemResponse[];
+}

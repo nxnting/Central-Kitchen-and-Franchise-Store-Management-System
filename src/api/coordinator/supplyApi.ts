@@ -5,7 +5,10 @@ import type {
     UpdateSupplyDeliveryStatusRequest,
     SupplyOrderQueueItemResponse,
     UpdateDeliveryItemRequest,
-    DeliveryDetailResponse
+    DeliveryDetailResponse,
+    SupplyProcessedOrderResponse,
+    PaginatedSupplyProcessedOrderResponse,
+    IncomingOrderDetailResponse
 } from '@/types/supply';
 
 const ENDPOINT = '/supply/orders';
@@ -64,4 +67,36 @@ export const getDeliveryDetail = async (
     deliveryId: number
 ): Promise<DeliveryDetailResponse> => {
     return get<DeliveryDetailResponse>(`${DELIVERIES_ENDPOINT}/${deliveryId}`);
+};
+
+/**
+ * Láy lịch sử đơn hàng đã xử lý (DELIVERED, RECEIVED, CANCELLED)
+ */
+export const getSupplyHistory = async (
+    params?: SupplyOrderListQuery
+): Promise<PaginatedSupplyProcessedOrderResponse> => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.franchiseId) queryParams.append('franchiseId', params.franchiseId.toString());
+    if (params?.fromDate) queryParams.append('fromDate', params.fromDate);
+    if (params?.toDate) queryParams.append('toDate', params.toDate);
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString());
+    if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
+    if (params?.sortDir) queryParams.append('sortDir', params.sortDir);
+
+    const query = queryParams.toString();
+    return get<PaginatedSupplyProcessedOrderResponse>(`${ENDPOINT}/history${query ? `?${query}` : ''}`);
+};
+
+/**
+ * Lấy chi tiết đơn hàng cho nhân viên điều phối (Coordinator)
+ */
+export const getIncomingOrderDetail = async (
+    centralKitchenId: number,
+    orderId: number
+): Promise<IncomingOrderDetailResponse> => {
+    return get<IncomingOrderDetailResponse>(`/central-kitchens/${centralKitchenId}/incoming-orders/${orderId}`);
 };
