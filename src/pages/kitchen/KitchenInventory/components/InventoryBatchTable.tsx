@@ -76,7 +76,19 @@ const InventoryBatchTable: React.FC<Props> = ({
     {
       key: "quantity",
       label: "Số lượng",
-      render: (item: TableRow) => `${item.quantity} ${item.unit}`,
+      render: (item: TableRow) => (
+        <div className="space-y-1">
+          <div className={item.quantity === 0 ? "font-medium text-red-600" : ""}>
+            {item.quantity} {item.unit}
+          </div>
+
+          {item.quantity === 0 ? (
+            <span className="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
+              Hết hàng
+            </span>
+          ) : null}
+        </div>
+      ),
     },
     {
       key: "expiredAt",

@@ -56,24 +56,10 @@ export const formatDate = (
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "--";
 
-  return new Intl.DateTimeFormat(locale).format(date);
-};
-
-export const formatDateTime = (
-  value?: string | null,
-  locale: string = "vi-VN",
-): string => {
-  if (!value) return "--";
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "--";
-
   return new Intl.DateTimeFormat(locale, {
-    year: "numeric",
-    month: "2-digit",
     day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   }).format(date);
 };
 
@@ -130,6 +116,16 @@ export const filterInventoryBatches = (
       unit.includes(keyword)
     );
   });
+};
+
+export const sortInventoryBatchesByName = (
+  batches: KitchenInventoryBatchRow[],
+) => {
+  return [...batches].sort((a, b) =>
+    getBatchItemName(a).localeCompare(getBatchItemName(b), "vi", {
+      sensitivity: "base",
+    }),
+  );
 };
 
 export const getInventorySummary = (batches: KitchenInventoryBatchRow[]) => {
