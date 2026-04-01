@@ -64,6 +64,17 @@ const CREATE_ROLE_OPTIONS: Array<{ label: string; value: number }> = [
   { label: "StoreStaff", value: ROLE_STORE_STAFF },
 ];
 
+const ROLE_LABEL_VI: Record<number, string> = {
+  [ROLE_SUPPLY_COORDINATOR]: "Điều phối cung ứng",
+  [ROLE_KITCHEN_STAFF]: "Nhân viên bếp",
+  [ROLE_STORE_STAFF]: "Nhân viên cửa hàng",
+};
+
+const STATUS_LABEL_VI: Record<UserStatus, string> = {
+  ACTIVE: "Hoạt động",
+  INACTIVE: "Ngừng hoạt động",
+};
+
 const resolveDefaultAssignmentType = (
   roleId: number,
 ): WorkAssignmentType | "" => {
@@ -406,8 +417,8 @@ export const UserUpsertModal: React.FC<Props> = ({
             {isEdit && isProtectedRole ? (
               <div className="h-10 px-3 rounded-md border bg-muted/30 flex items-center text-sm font-medium">
                 {normalizedRoleName === "admin" || selectedUser?.roleId === 1
-                  ? "Admin"
-                  : "Manager"}
+                  ? "Quản trị viên"
+                  : "Quản lý"}
               </div>
             ) : (
               <>
@@ -421,7 +432,7 @@ export const UserUpsertModal: React.FC<Props> = ({
                   <SelectContent>
                     {roleOptions.map((r) => (
                       <SelectItem key={r.value} value={String(r.value)}>
-                        {r.label}
+                        {ROLE_LABEL_VI[r.value] || r.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -443,8 +454,8 @@ export const UserUpsertModal: React.FC<Props> = ({
                   <Label>Loại nơi làm việc</Label>
                   <div className="h-10 px-3 rounded-md border bg-muted/30 flex items-center text-sm font-medium">
                     {effectiveAssignmentType === "CENTRAL_KITCHEN"
-                      ? "Central Kitchen"
-                      : "Franchise"}
+                      ? "Bếp trung tâm"
+                      : "Cửa hàng"}
                   </div>
                   {errors.assignmentType && (
                     <p className="text-xs text-destructive mt-1">
@@ -529,8 +540,12 @@ export const UserUpsertModal: React.FC<Props> = ({
                   <SelectValue placeholder="Chọn trạng thái" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ACTIVE">ACTIVE</SelectItem>
-                  <SelectItem value="INACTIVE">INACTIVE</SelectItem>
+                  <SelectItem value="ACTIVE">
+                    {STATUS_LABEL_VI.ACTIVE}
+                  </SelectItem>
+                  <SelectItem value="INACTIVE">
+                    {STATUS_LABEL_VI.INACTIVE}
+                  </SelectItem>
                 </SelectContent>
               </Select>
               {errors.status && (

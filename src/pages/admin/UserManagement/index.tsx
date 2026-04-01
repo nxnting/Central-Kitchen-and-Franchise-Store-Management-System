@@ -20,6 +20,36 @@ const ROLE_LABEL: Record<number, string> = {
   5: "StoreStaff",
 };
 
+const extractApiErrorMessage = (error: any) => {
+  const data = error?.response?.data;
+
+  if (data?.fieldErrors && typeof data.fieldErrors === "object") {
+    const firstFieldError = Object.values(data.fieldErrors)[0];
+
+    if (Array.isArray(firstFieldError) && firstFieldError.length > 0) {
+      return String(firstFieldError[0]);
+    }
+
+    if (typeof firstFieldError === "string" && firstFieldError.trim()) {
+      return firstFieldError;
+    }
+  }
+
+  if (Array.isArray(data?.errors) && data.errors.length > 0) {
+    const firstError = data.errors.find(
+      (item: unknown) => typeof item === "string" && item.trim(),
+    );
+
+    if (firstError) return firstError;
+  }
+
+  if (typeof data?.message === "string" && data.message.trim()) {
+    return data.message;
+  }
+
+  return "Có lỗi xảy ra, vui lòng thử lại";
+};
+
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(false);
@@ -131,14 +161,7 @@ const UserManagement: React.FC = () => {
       await loadUsers();
     } catch (e: any) {
       console.error(e);
-
-      const data = e?.response?.data;
-      const message =
-        typeof data?.message === "string"
-          ? data.message
-          : "Tạo người dùng thất bại";
-
-      toast.error(message);
+      toast.error(extractApiErrorMessage(e));
     }
   };
 
@@ -149,9 +172,9 @@ const UserManagement: React.FC = () => {
       setIsDialogOpen(false);
       setSelectedUser(null);
       await loadUsers();
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast.error("Cập nhật thất bại");
+      toast.error(extractApiErrorMessage(e));
     }
   };
 
