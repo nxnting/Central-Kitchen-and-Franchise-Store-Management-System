@@ -20,6 +20,32 @@ type Props = {
   onAssignFranchises: (user: AdminUser) => void;
 };
 
+const ROLE_LABEL_VI_BY_NAME: Record<string, string> = {
+  admin: "Quản trị viên",
+  manager: "Quản lý",
+  supplycoordinator: "Điều phối cung ứng",
+  kitchenstaff: "Nhân viên bếp",
+  storestaff: "Nhân viên cửa hàng",
+};
+
+const ROLE_LABEL_VI_BY_ID: Record<number, string> = {
+  1: "Quản trị viên",
+  9: "Quản lý",
+  3: "Điều phối cung ứng",
+  4: "Nhân viên bếp",
+  5: "Nhân viên cửa hàng",
+};
+
+const getRoleLabelVi = (user: { roleId: number; roleName?: string | null }) => {
+  const normalizedRoleName = (user.roleName || "").trim().toLowerCase();
+
+  if (normalizedRoleName && ROLE_LABEL_VI_BY_NAME[normalizedRoleName]) {
+    return ROLE_LABEL_VI_BY_NAME[normalizedRoleName];
+  }
+
+  return ROLE_LABEL_VI_BY_ID[user.roleId] || user.roleName || `Role#${user.roleId}`;
+};
+
 const getRoleBadgeColor = (roleName: string) => {
   const r = roleName?.toLowerCase();
   const colors: Record<string, string> = {
@@ -106,7 +132,7 @@ export const UsersTable: React.FC<Props> = ({
                       )}`}
                     >
                       <Shield size={12} />
-                      {user.roleName}
+                      {getRoleLabelVi(user)}
                     </span>
                   </td>
 
