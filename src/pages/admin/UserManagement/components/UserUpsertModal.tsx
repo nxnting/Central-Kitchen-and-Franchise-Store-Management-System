@@ -355,7 +355,7 @@ export const UserUpsertModal: React.FC<Props> = ({
                     }
                   }}
                   onBlur={() => handleFieldBlur("email")}
-                  placeholder="email@example.com"
+                  placeholder="abc@gmail.com"
                 />
                 {errors.email && (
                   <p className="text-xs text-destructive mt-1">

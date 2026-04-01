@@ -16,7 +16,7 @@ export const UsersToolbar: React.FC<Props> = ({ searchTerm, onSearchTermChange, 
       <div className="relative flex-1 max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
         <Input
-          placeholder="Tìm kiếm theo username/email/role..."
+          placeholder="Tìm kiếm theo username/email/..."
           value={searchTerm}
           onChange={(e) => onSearchTermChange(e.target.value)}
           className="pl-10"

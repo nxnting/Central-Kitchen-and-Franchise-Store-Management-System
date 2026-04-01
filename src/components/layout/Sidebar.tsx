@@ -83,21 +83,21 @@ const getNavItems = (
         path: "/kitchen/orders",
         icon: <ClipboardList size={20} />,
       },
-      {
-        label: "Tổng hợp đơn SX",
-        path: "/kitchen/production-summary",
-        icon: <Layers size={20} />,
-      },
-      {
-        label: "Kế hoạch sản xuất",
-        path: "/kitchen/production",
-        icon: <Factory size={20} />,
-      },
-      {
-        label: "Đóng gói cửa hàng",
-        path: "/kitchen/packaging",
-        icon: <PackageCheck size={20} />,
-      },
+      // {
+      //   label: "Tổng hợp đơn SX",
+      //   path: "/kitchen/production-summary",
+      //   icon: <Layers size={20} />,
+      // },
+      // {
+      //   label: "Kế hoạch sản xuất",
+      //   path: "/kitchen/production",
+      //   icon: <Factory size={20} />,
+      // },
+      // {
+      //   label: "Đóng gói cửa hàng",
+      //   path: "/kitchen/packaging",
+      //   icon: <PackageCheck size={20} />,
+      // },
       {
         label: "Tồn kho",
         path: "/kitchen/inventory",
@@ -194,22 +194,22 @@ const getNavItems = (
         path: "/admin/users",
         icon: <Users size={20} />,
       },
-      { label: "Phân quyền", path: "/admin/rbac", icon: <Shield size={20} /> },
-      {
-        label: "Cấu hình hệ thống",
-        path: "/admin/config",
-        icon: <Settings size={20} />,
-      },
+      // { label: "Phân quyền", path: "/admin/rbac", icon: <Shield size={20} /> },
+      // {
+      //   label: "Cấu hình hệ thống",
+      //   path: "/admin/config",
+      //   icon: <Settings size={20} />,
+      // },
       {
         label: "Cửa hàng & Bếp",
         path: "/admin/locations",
         icon: <Store size={20} />,
       },
-      {
-        label: "Báo cáo tổng hợp",
-        path: "/admin/reports",
-        icon: <FileText size={20} />,
-      },
+      // {
+      //   label: "Báo cáo tổng hợp",
+      //   path: "/admin/reports",
+      //   icon: <FileText size={20} />,
+      // },
     ],
   };
 
