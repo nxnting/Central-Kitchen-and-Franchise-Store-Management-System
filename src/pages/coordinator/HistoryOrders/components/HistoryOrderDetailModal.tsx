@@ -86,6 +86,13 @@ const HistoryOrderDetailModal: React.FC<HistoryOrderDetailModalProps> = ({
                   </div>
                 )}
               </div>
+              {order.storeNote && (
+                <div className="col-span-full pt-2 border-t flex items-start gap-2 text-sm">
+                  <FileText className="w-4 h-4 text-muted-foreground mt-0.5" />
+                  <span className="font-medium">Ghi chú từ cửa hàng:</span>
+                  <span className="text-muted-foreground italic">{order.storeNote}</span>
+                </div>
+              )}
             </div>
 
             {/* Products Table */}

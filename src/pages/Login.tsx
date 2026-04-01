@@ -12,8 +12,9 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   
   const { login, isLoading, data, reset } = useLogin({
-    onError: () => {
-      setError('Không thể kết nối đến máy chủ');
+    onError: (err: any) => {
+      const message = err?.response?.data?.error || 'Tài khoản hoặc mật khẩu không đúng';
+      setError(message);
     },
   });
 

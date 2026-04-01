@@ -36,7 +36,9 @@ api.interceptors.response.use(
                 case 401:
                     localStorage.removeItem('accessToken');
                     localStorage.removeItem('refreshToken');
-                    window.location.href = '/login';
+                    if (window.location.pathname !== '/login') {
+                        window.location.href = '/login';
+                    }
                     break;
                 case 403:
                     console.error('Bạn không có quyền truy cập tài nguyên này');

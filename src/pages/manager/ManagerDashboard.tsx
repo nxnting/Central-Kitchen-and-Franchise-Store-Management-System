@@ -389,7 +389,7 @@ const ManagerDashboard: React.FC = () => {
                               </Badge>
                             </TableCell>
                             <TableCell className="text-right text-muted-foreground">
-                              {formatPercent(alert.wasteThreshold)}
+                              {alert.wasteThreshold}%
                             </TableCell>
                           </TableRow>
                         ))}
