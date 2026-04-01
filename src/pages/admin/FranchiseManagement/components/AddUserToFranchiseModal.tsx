@@ -32,6 +32,23 @@ const isUserAllowedForStore = (user: AdminUser) => {
   return role === "storestaff";
 };
 
+const getRoleLabel = (roleName?: string) => {
+  const role = normalize(roleName);
+
+  switch (role) {
+    case "storestaff":
+      return "Nhân viên cửa hàng";
+    case "kitchenstaff":
+      return "Nhân viên bếp";
+    case "manager":
+      return "Quản lý";
+    case "admin":
+      return "Quản trị viên";
+    default:
+      return roleName || "-";
+  }
+};
+
 export const AddUserToFranchiseModal: React.FC<Props> = ({
   open,
   onOpenChange,
@@ -84,7 +101,7 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
         setUsers(freeUsers);
       } catch (e) {
         console.error(e);
-        toast.error("Không tải được danh sách user");
+        toast.error("Không tải được danh sách người dùng");
       } finally {
         setLoading(false);
       }
@@ -109,18 +126,18 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
 
   const handleSubmit = async () => {
     if (!selected) {
-      toast.error("Vui lòng chọn 1 user");
+      toast.error("Vui lòng chọn 1 người dùng");
       return;
     }
 
     const role = normalize(selected.roleName);
     if (role === "admin" || role === "manager") {
-      toast.error("Role này không thể gán vào cửa hàng");
+      toast.error("Vai trò này không thể gán vào cửa hàng");
       return;
     }
 
     if (role !== "storestaff") {
-      toast.error("Chỉ StoreStaff mới có thể gán vào cửa hàng");
+      toast.error("Chỉ nhân viên cửa hàng mới có thể gán vào cửa hàng");
       return;
     }
 
@@ -134,7 +151,7 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
         centralKitchenId: null,
       });
 
-      toast.success("Đã gán user vào cửa hàng");
+      toast.success("Đã gán người dùng vào cửa hàng");
       onOpenChange(false);
       await onAssigned?.();
     } catch (e: any) {
@@ -155,7 +172,7 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
 
       if (isAlreadyAssigned) {
         toast.error(
-          "User đã thuộc nơi làm việc khác (1 user chỉ thuộc 1 nơi).",
+          "Người dùng đã thuộc nơi làm việc khác (1 người dùng chỉ thuộc 1 nơi).",
         );
 
         if (selected) {
@@ -165,7 +182,7 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
         return;
       }
 
-      toast.error(message || "Gán user thất bại");
+      toast.error(message || "Gán người dùng thất bại");
     } finally {
       setSubmitting(false);
     }
@@ -175,15 +192,15 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add user vào Cửa hàng: {franchise.name}</DialogTitle>
+          <DialogTitle>Thêm người dùng vào cửa hàng: {franchise.name}</DialogTitle>
         </DialogHeader>
         <p className="text-xs text-muted-foreground">
-          Chỉ hiển thị user StoreStaff chưa được gán nơi làm việc.
+          Chỉ hiển thị nhân viên cửa hàng chưa được gán nơi làm việc.
         </p>
 
         <div className="space-y-3">
           <Input
-            placeholder="Tìm theo username / email..."
+            placeholder="Tìm theo tên đăng nhập / email..."
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
@@ -196,7 +213,7 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
                 </div>
               ) : filtered.length === 0 ? (
                 <div className="p-4 text-sm text-muted-foreground">
-                  Không có user phù hợp để gán.
+                  Không có người dùng phù hợp để gán.
                 </div>
               ) : (
                 <div className="divide-y">
@@ -213,18 +230,13 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div>
-                            <div className="font-medium">
-                              {u.username}{" "}
-                              <span className="text-xs text-muted-foreground">
-                                #{u.userId}
-                              </span>
-                            </div>
+                            <div className="font-medium">{u.username}</div>
                             <div className="text-xs text-muted-foreground">
                               {u.email}
                             </div>
                           </div>
                           <div className="text-xs px-2 py-1 rounded-full border">
-                            {u.roleName}
+                            {getRoleLabel(u.roleName)}
                           </div>
                         </div>
                       </button>
@@ -241,10 +253,10 @@ export const AddUserToFranchiseModal: React.FC<Props> = ({
               onClick={() => onOpenChange(false)}
               disabled={submitting}
             >
-              Huỷ
+              Hủy
             </Button>
             <Button onClick={handleSubmit} disabled={submitting || !selected}>
-              {submitting ? "Đang lưu..." : "Gán user"}
+              {submitting ? "Đang lưu..." : "Gán người dùng"}
             </Button>
           </div>
         </div>
