@@ -88,10 +88,13 @@ const AdminDashboard: React.FC = () => {
     'STORE_ORDER_CREATE': 'Tạo đơn hàng',
     'STORE_ORDER_SUBMIT': 'Gửi đơn hàng',
     'RECEIVING_CONFIRM': 'Xác nhận nhận hàng',
-    'STORE_ORDER_FORWARDED_TO_SUPPLY': 'Chuyển Cung ứng',
+    'STORE_ORDER_FORWARDED_TO_SUPPLY': 'Chuyển cho Cung ứng',
     'STORE_ORDER_LOCK': 'Khóa đơn hàng',
-    'STORE_ORDER_PREPARED': 'Soạn đơn xong',
+    'STORE_ORDER_PREPARED': 'Chuẩn bị hàng xong',
     'STORE_ORDER_RECEIVED_BY_KITCHEN': 'Bếp tiếp nhận',
+    'STORE_CATALOG_ASSIGN': 'Mở bán cho Store',
+    'PRODUCTION_PLAN_CREATE': 'Tạo kế hoạch SX',
+    'PRODUCTION_PLAN_UPDATE': 'Cập nhật kế hoạch SX',
   };
 
   const topActionsData = data.auditActivity.topActions.map(action => ({
@@ -102,13 +105,13 @@ const AdminDashboard: React.FC = () => {
   // Prepare workload chart data side-by-side
   const workloadData = [
     { 
-      name: 'Đơn vị cửa hàng', 
+      name: 'Đơn hàng Store', 
       total: data.storeOrders.totalInRange,
       topStatus: data.storeOrders.topStatuses[0]?.count || 0,
       topStatusName: data.storeOrders.topStatuses[0]?.name || 'N/A'
     },
     { 
-      name: 'Giao hàng', 
+      name: 'Vận chuyển', 
       total: data.deliveries.totalInRange,
       topStatus: data.deliveries.topStatuses[0]?.count || 0,
       topStatusName: data.deliveries.topStatuses[0]?.name || 'N/A'
@@ -120,7 +123,7 @@ const AdminDashboard: React.FC = () => {
       topStatusName: data.productionPlans.topStatuses[0]?.name || 'N/A'
     },
     { 
-      name: 'Y/C Hỗ trợ', 
+      name: 'Yêu cầu hỗ trợ', 
       total: data.supportRequests.totalInRange,
       topStatus: data.supportRequests.topStatuses[0]?.count || 0,
       topStatusName: data.supportRequests.topStatuses[0]?.name || 'N/A'
@@ -159,7 +162,7 @@ const AdminDashboard: React.FC = () => {
           />
         </div>
         <div className="space-y-2">
-          <label className="text-sm font-medium text-muted-foreground">Giới hạn Top N</label>
+          <label className="text-sm font-medium text-muted-foreground">Số lượng hiển thị (Top)</label>
           <Input 
             type="number" 
             min={1} 
@@ -188,19 +191,19 @@ const AdminDashboard: React.FC = () => {
       {/* Operational Snapshot */}
       <div className="bg-card rounded-xl border p-4 flex flex-wrap gap-4 justify-around text-center items-center mb-6">
           <div className="flex-1 min-w-[150px]">
-            <p className="text-sm text-muted-foreground">Đơn Đặt Mở</p>
+            <p className="text-sm text-muted-foreground">Đơn đặt hàng mới</p>
             <p className="text-3xl font-bold text-primary">{data.operationalSnapshot.openStoreOrdersCount}</p>
           </div>
           <div className="flex-1 min-w-[150px]">
-            <p className="text-sm text-muted-foreground">KH Sản Xuất Active</p>
+            <p className="text-sm text-muted-foreground">Lệnh sản xuất đang chạy</p>
             <p className="text-3xl font-bold text-warning">{data.operationalSnapshot.activeProductionPlansCount}</p>
           </div>
           <div className="flex-1 min-w-[150px]">
-            <p className="text-sm text-muted-foreground">Chuyến Giao Mở</p>
+            <p className="text-sm text-muted-foreground">Chuyến giao đang thực hiện</p>
             <p className="text-3xl font-bold text-info">{data.operationalSnapshot.openDeliveriesCount}</p>
           </div>
           <div className="flex-1 min-w-[150px]">
-            <p className="text-sm text-muted-foreground">Chờ Xác Nhận Nhận</p>
+            <p className="text-sm text-muted-foreground">Đang chờ xác nhận nhận</p>
             <p className="text-3xl font-bold text-success">{data.operationalSnapshot.pendingReceivingCount}</p>
           </div>
       </div>
@@ -231,33 +234,8 @@ const AdminDashboard: React.FC = () => {
           variant="primary" 
           onClick={() => navigate('/admin/users')}
         />
-        <MetricCard 
-          title="Phân quyền (RBAC)" 
-          value={data.rbacSummary.roleActiveCount.toString()} 
-          subtitle={`${data.rbacSummary.permissionActiveCount} Nhóm quyền | ${data.rbacSummary.rolePermissionLinkCount} Liên kết`} 
-          icon={Shield} 
-          variant="default" 
-          onClick={() => navigate('/admin/rbac')}
-        />
       </div>
 
-      {/* Roles Breakdown */}
-      <div className="bg-card rounded-xl border p-4">
-        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <Users size={16} className="text-primary"/> Chi tiết tài khoản Active theo Vai trò
-        </h3>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(data.userSummary.activeUsersByRole).map(([role, count]) => (
-            <div key={role} className="px-3 py-1.5 bg-muted rounded-md text-sm border flex items-center gap-2">
-              <span className="font-medium">{role}:</span>
-              <span className="text-primary font-bold">{count}</span>
-            </div>
-          ))}
-          {Object.keys(data.userSummary.activeUsersByRole).length === 0 && (
-            <div className="text-sm text-muted-foreground">Không có dữ liệu vai trò.</div>
-          )}
-        </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
@@ -275,7 +253,7 @@ const AdminDashboard: React.FC = () => {
                 <BarChart data={topActionsData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
                   <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 12 }} />
+                  <YAxis dataKey="name" type="category" width={130} tick={{ fontSize: 11 }} />
                   <Tooltip contentStyle={{ borderRadius: '8px', background: 'hsl(var(--card))' }} />
                   <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} name="Lần thực hiện"/>
                 </BarChart>

@@ -182,6 +182,11 @@ const getNavItems = (
         path: "/manager/inventory",
         icon: <Warehouse size={20} />,
       },
+      {
+        label: "Báo cáo tổng hợp",
+        path: "/manager/reports",
+        icon: <BarChart3 size={20} />,
+      },
     ],
     admin: [
       {

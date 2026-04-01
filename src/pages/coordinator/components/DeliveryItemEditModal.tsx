@@ -36,11 +36,16 @@ const DeliveryItemEditModal: React.FC<Props> = ({ open, onClose, order }) => {
     }
   }, [detail, order]);
 
-  const handleUpdateItem = async (itemId: number, type: 'PRODUCT' | 'INGREDIENT', newQty: number) => {
+  const handleUpdateItem = async (itemId: number, type: 'PRODUCT' | 'INGREDIENT', newQty: number, maxQty: number) => {
     if (!order?.deliveryId) return;
     
     if (newQty < 0) {
       toast.error('Số lượng không thể nhỏ hơn 0');
+      return;
+    }
+
+    if (newQty > maxQty) {
+      toast.error(`Số lượng thực giao (${newQty}) không thể lớn hơn số lượng yêu cầu (${maxQty})`);
       return;
     }
 
@@ -73,7 +78,7 @@ const DeliveryItemEditModal: React.FC<Props> = ({ open, onClose, order }) => {
             <AlertCircle className="h-5 w-5 shrink-0" />
             <p>
               Bạn có thể điều chỉnh số lượng thực tế sẽ giao. 
-              Nếu số lượng giao nhỏ hơn số lượng yêu cầu, hệ thống sẽ ghi nhận là giao thiếu (Partial Drop).
+              <strong> Không được giao vượt quá số lượng yêu cầu.</strong> Nếu ít hơn, hệ thống sẽ ghi nhận là giao thiếu.
             </p>
           </div>
 
@@ -95,10 +100,12 @@ const DeliveryItemEditModal: React.FC<Props> = ({ open, onClose, order }) => {
                         type="number"
                         className="h-8 text-right"
                         defaultValue={item.forwardedQuantity}
+                        min={0}
+                        max={item.quantity}
                         onBlur={(e) => {
                            const val = parseFloat(e.target.value);
                            if (!isNaN(val) && val !== item.forwardedQuantity) {
-                             handleUpdateItem(item.productId, 'PRODUCT', val);
+                             handleUpdateItem(item.productId, 'PRODUCT', val, item.quantity);
                            }
                         }}
                       />
@@ -128,10 +135,12 @@ const DeliveryItemEditModal: React.FC<Props> = ({ open, onClose, order }) => {
                         type="number"
                         className="h-8 text-right"
                         defaultValue={item.forwardedQuantity}
+                        min={0}
+                        max={item.quantity}
                         onBlur={(e) => {
                            const val = parseFloat(e.target.value);
                            if (!isNaN(val) && val !== item.forwardedQuantity) {
-                             handleUpdateItem(item.ingredientId, 'INGREDIENT', val);
+                             handleUpdateItem(item.ingredientId, 'INGREDIENT', val, item.quantity);
                            }
                         }}
                       />

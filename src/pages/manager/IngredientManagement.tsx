@@ -211,7 +211,12 @@ const IngredientManagement: React.FC = () => {
         toast.success(`Đã ${ingredient.status === 'ACTIVE' ? 'ngưng hoạt động' : 'kích hoạt'} nguyên liệu`);
       },
       onError: (error: any) => {
-        toast.error(error?.response?.data?.message || 'Không thể thay đổi trạng thái');
+        const status = error.response?.status;
+        if (status === 409 || status === 500) {
+          toast.error('Nguyên liệu này không thể ngưng hoạt động vì đã có dữ liệu liên quan (đơn hàng hoặc công thức).');
+        } else {
+          toast.error(error?.response?.data?.message || 'Không thể thay đổi trạng thái nguyên liệu');
+        }
       }
     });
   };
@@ -332,17 +337,6 @@ const IngredientManagement: React.FC = () => {
           />
         </div>
         
-        <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); setCurrentPage(1); }}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Trạng thái" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tất cả trạng thái</SelectItem>
-            <SelectItem value="ACTIVE">Đang hoạt động</SelectItem>
-            <SelectItem value="INACTIVE">Ngưng hoạt động</SelectItem>
-          </SelectContent>
-        </Select>
-
         <div className="flex items-center gap-2 ml-auto text-sm text-muted-foreground">
           Tổng: <span className="font-semibold text-foreground">{processedIngredients.length}</span> nguyên liệu
         </div>

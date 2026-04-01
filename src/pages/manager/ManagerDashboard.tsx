@@ -85,15 +85,20 @@ const ManagerDashboard: React.FC = () => {
     DRAFT: 'Bản nháp',
     SUBMITTED: 'Đã gửi',
     RECEIVED_BY_KITCHEN: 'Bếp đã nhận',
-    FORWARDED_TO_SUPPLY: 'Chuyển Cung Ứng',
+    FORWARDED_TO_SUPPLY: 'Chuyển Cung ứng',
+    PREPARING: 'Đang chuẩn bị',
+    READY_TO_DELIVER: 'Sẵn sàng giao',
     DELIVERED: 'Đã giao',
     RECEIVED_BY_STORE: 'CH đã nhận',
+    CANCELLED: 'Đã hủy',
   };
 
   const DELIVERY_STATUS_MAP: Record<string, string> = {
-    CONFIRMED: 'Đã xác nhận',
+    CREATED: 'Chờ đóng gói',
+    PENDING: 'Đang đóng gói',
+    CONFIRMED: 'Sẵn sàng giao',
+    IN_TRANSIT: 'Đang giao',
     DELIVERED: 'Đã giao',
-    PENDING: 'Chờ xử lý',
     CANCELLED: 'Đã hủy',
   };
 
@@ -231,7 +236,7 @@ const ManagerDashboard: React.FC = () => {
             <MetricCard 
               title="Cửa hàng hoạt động" 
               value={data.franchiseCount.toString()} 
-              subtitle="Đang vận hành trong scope" 
+              subtitle="Đang vận hành trong hệ thống" 
               icon={BarChart3} 
               variant="success" 
               onClick={() => navigate('/manager/store-catalog')}
@@ -239,7 +244,7 @@ const ManagerDashboard: React.FC = () => {
           </div>
 
           {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <div className="bg-card rounded-xl border p-6">
               <h2 className="text-lg font-semibold mb-4">Trạng thái đơn hàng</h2>
               <div className="h-64">
@@ -257,35 +262,6 @@ const ManagerDashboard: React.FC = () => {
                       >
                         {orderData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground">Không có dữ liệu</div>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-card rounded-xl border p-6">
-              <h2 className="text-lg font-semibold mb-4">Trạng thái giao hàng</h2>
-              <div className="h-64">
-                {deliveryData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={deliveryData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {deliveryData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[(index + 1) % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px' }} />
@@ -385,7 +361,7 @@ const ManagerDashboard: React.FC = () => {
               <div className="bg-card rounded-xl border overflow-hidden xl:col-span-2">
                 <div className="p-4 bg-muted/30 border-b flex items-center gap-2">
                   <Trash2 size={18} className="text-destructive" />
-                  <h3 className="font-semibold">Cảnh báo hao hụt / Waste ({data.wasteAlerts.length})</h3>
+                  <h3 className="font-semibold">Cảnh báo hao hụt / Lãng phí ({data.wasteAlerts.length})</h3>
                 </div>
                 {data.wasteAlerts.length > 0 ? (
                   <div className="max-h-80 overflow-auto">

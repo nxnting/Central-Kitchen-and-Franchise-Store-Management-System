@@ -8,6 +8,8 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import Login from "@/pages/Login";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
+import Unauthorized from "@/pages/Unauthorized";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 // Store Pages
 import CreateOrderPage from "@/pages/store/CreateOrder";
 import StoreDashboard from "@/pages/store/StoreDashboard";
@@ -63,116 +65,128 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="/" element={<Navigate to="/login" replace />} />
 
             <Route element={<MainLayout />}>
               <Route path="/profile" element={<Profile />} />
 
               {/* Store Routes */}
-              <Route path="/stores/:storeId" element={<StoreDashboard />} />
-              <Route
-                path="/stores/:storeId/orders/new"
-                element={<CreateOrderPage />}
-              />
-              <Route
-                path="/stores/:storeId/orders/:orderId/edit"
-                element={<CreateOrderPage />}
-              />
-              <Route path="/stores/:storeId/orders" element={<OrderList />} />
-              <Route
-                path="/stores/:storeId/receive"
-                element={<ReceiveGoods />}
-              />
-              <Route
-                path="/stores/:storeId/inventory"
-                element={<StoreInventory />}
-              />
-              <Route
-                path="/stores/:storeId/inventory-history"
-                element={<StoreInventoryHistory />}
-              />
-              <Route
-                path="/stores/:storeId/orders/:orderId"
-                element={<StoreOrderDetail />}
-              />
+              <Route element={<ProtectedRoute allowedRoles={['franchise_store']} />}>
+                <Route path="/stores/:storeId" element={<StoreDashboard />} />
+                <Route
+                  path="/stores/:storeId/orders/new"
+                  element={<CreateOrderPage />}
+                />
+                <Route
+                  path="/stores/:storeId/orders/:orderId/edit"
+                  element={<CreateOrderPage />}
+                />
+                <Route path="/stores/:storeId/orders" element={<OrderList />} />
+                <Route
+                  path="/stores/:storeId/receive"
+                  element={<ReceiveGoods />}
+                />
+                <Route
+                  path="/stores/:storeId/inventory"
+                  element={<StoreInventory />}
+                />
+                <Route
+                  path="/stores/:storeId/inventory-history"
+                  element={<StoreInventoryHistory />}
+                />
+                <Route
+                  path="/stores/:storeId/orders/:orderId"
+                  element={<StoreOrderDetail />}
+                />
+              </Route>
+
               {/* Kitchen Routes */}
-              <Route path="/kitchen" element={<KitchenDashboard />} />
-              <Route path="/kitchen/orders" element={<IncomingOrders />} />
-              <Route
-                path="/kitchen/production-summary"
-                element={<ProductionSummary />}
-              />
-              <Route
-                path="/kitchen/production"
-                element={<ProductionPlanning />}
-              />
-              <Route path="/kitchen/packaging" element={<StorePackaging />} />
-              <Route path="/kitchen/inventory" element={<KitchenInventory />} />
+              <Route element={<ProtectedRoute allowedRoles={['central_kitchen']} />}>
+                <Route path="/kitchen" element={<KitchenDashboard />} />
+                <Route path="/kitchen/orders" element={<IncomingOrders />} />
+                <Route
+                  path="/kitchen/production-summary"
+                  element={<ProductionSummary />}
+                />
+                <Route
+                  path="/kitchen/production"
+                  element={<ProductionPlanning />}
+                />
+                <Route path="/kitchen/packaging" element={<StorePackaging />} />
+                <Route path="/kitchen/inventory" element={<KitchenInventory />} />
+                <Route
+                  path="/kitchen/inventory-history"
+                  element={<KitchenInventoryHistory />}
+                />
+              </Route>
 
-              <Route
-                path="/kitchen/inventory-history"
-                element={<KitchenInventoryHistory />}
-              />
               {/* Coordinator Routes */}
-              <Route path="/coordinator" element={<CoordinatorDashboard />} />
-              <Route
-                path="/coordinator/orders"
-                element={<AggregatedOrders />}
-              />
-              <Route
-                path="/coordinator/coordination"
-                element={<ProductionCoordination />}
-              />
-              <Route
-                path="/coordinator/supply-queue"
-                element={<SupplyQueue />}
-              />
-              <Route
-                path="/coordinator/tracking"
-                element={<DeliveryTracking />}
-              />
-              <Route
-                path="/coordinator/exceptions"
-                element={<ExceptionHandling />}
-              />
-              <Route
-                path="/coordinator/orders/history"
-                element={<HistoryOrders />}
-              />
+              <Route element={<ProtectedRoute allowedRoles={['supply_coordinator']} />}>
+                <Route path="/coordinator" element={<CoordinatorDashboard />} />
+                <Route
+                  path="/coordinator/orders"
+                  element={<AggregatedOrders />}
+                />
+                <Route
+                  path="/coordinator/coordination"
+                  element={<ProductionCoordination />}
+                />
+                <Route
+                  path="/coordinator/supply-queue"
+                  element={<SupplyQueue />}
+                />
+                <Route
+                  path="/coordinator/tracking"
+                  element={<DeliveryTracking />}
+                />
+                <Route
+                  path="/coordinator/exceptions"
+                  element={<ExceptionHandling />}
+                />
+                <Route
+                  path="/coordinator/orders/history"
+                  element={<HistoryOrders />}
+                />
+              </Route>
+
               {/* Manager Routes */}
-              <Route path="/manager" element={<ManagerDashboard />} />
-              <Route path="/manager/products" element={<ProductManagement />} />
-              <Route path="/manager/recipes" element={<RecipeManagement />} />
-              <Route
-                path="/manager/inventory"
-                element={<InventoryOverview />}
-              />
-              <Route path="/manager/reports" element={<Reports />} />
-              <Route
-                path="/manager/ingredients"
-                element={<IngredientManagement />}
-              />
-              <Route
-                path="/manager/store-catalog"
-                element={<StoreCatalogManagement />}
-              />
-              <Route
-                path="/manager/suppliers"
-                element={<SupplierManagement />}
-              />
+              <Route element={<ProtectedRoute allowedRoles={['manager']} />}>
+                <Route path="/manager" element={<ManagerDashboard />} />
+                <Route path="/manager/products" element={<ProductManagement />} />
+                <Route path="/manager/recipes" element={<RecipeManagement />} />
+                <Route
+                  path="/manager/inventory"
+                  element={<InventoryOverview />}
+                />
+                <Route path="/manager/reports" element={<Reports />} />
+                <Route
+                  path="/manager/ingredients"
+                  element={<IngredientManagement />}
+                />
+                <Route
+                  path="/manager/store-catalog"
+                  element={<StoreCatalogManagement />}
+                />
+                <Route
+                  path="/manager/suppliers"
+                  element={<SupplierManagement />}
+                />
+              </Route>
+
               {/* Admin Routes */}
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/users" element={<UserManagement />} />
-
-              <Route
-                path="/admin/franchises/:franchiseId"
-                element={<FranchiseDetail />}
-              />
-
-              <Route path="/admin/rbac" element={<RbacManagement />} />
-              <Route path="/admin/config" element={<SystemConfig />} />
-              <Route path="/admin/locations" element={<LocationManagement />} />
-              <Route path="/admin/reports" element={<SystemReports />} />
+              <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/users" element={<UserManagement />} />
+                <Route
+                  path="/admin/franchises/:franchiseId"
+                  element={<FranchiseDetail />}
+                />
+                <Route path="/admin/rbac" element={<RbacManagement />} />
+                <Route path="/admin/config" element={<SystemConfig />} />
+                <Route path="/admin/locations" element={<LocationManagement />} />
+                <Route path="/admin/reports" element={<SystemReports />} />
+              </Route>
             </Route>
 
             <Route path="*" element={<NotFound />} />

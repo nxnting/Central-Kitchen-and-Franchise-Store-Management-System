@@ -73,11 +73,12 @@ export const useToggleIngredientStatus = () => {
             queryClient.invalidateQueries({ queryKey: [INGREDIENTS_KEY] });
             toast.success('Đã cập nhật trạng thái nguyên liệu');
         },
-        onError: (error: Error & { response?: { status?: number } }) => {
-            if (error.response?.status === 409) {
-                toast.error('Không thể thay đổi trạng thái. Nguyên liệu đang được sử dụng trong workflow khác.');
+        onError: (error: Error & { response?: { status?: number; data?: { message?: string } } }) => {
+            const status = error.response?.status;
+            if (status === 409 || status === 500) {
+                toast.error('Nguyên liệu này không thể ngưng hoạt động/xóa vì đã có dữ liệu liên quan (đơn hàng hoặc công thức). Vui lòng kiểm tra lại!');
             } else {
-                toast.error(error.message || 'Không thể thay đổi trạng thái');
+                toast.error(error.response?.data?.message || error.message || 'Không thể thay đổi trạng thái nguyên liệu');
             }
         },
     });
