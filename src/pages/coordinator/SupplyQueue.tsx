@@ -120,9 +120,9 @@ const SupplyQueue: React.FC = () => {
       case 'FORWARDED_TO_SUPPLY':
         return (
           <div className="flex gap-2 justify-end">
-            <Button size="sm" variant="outline" onClick={() => { setSelectedOrder(order); setIsEditModalOpen(true); }}>
+            {/* <Button size="sm" variant="outline" onClick={() => { setSelectedOrder(order); setIsEditModalOpen(true); }}>
               <Edit size={14} className="mr-1" /> Chỉnh SL
-            </Button>
+            </Button> */}
             <Button size="sm" onClick={() => handleOpenPrepareModal(order)}>
               <Box size={14} className="mr-1" /> Chuẩn bị giao hàng
             </Button>

@@ -170,11 +170,7 @@ const IncomingOrdersPage: React.FC = () => {
         await refetchDetail();
       }
 
-      toast.success(
-        receiveResult.message ||
-          lockResponse?.message ||
-          `Đã tiếp nhận đơn SO-${order.storeOrderId} thành công.`,
-      );
+      toast.success(`Đã tiếp nhận đơn SO-${order.storeOrderId} thành công.`);
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message || "Tiếp nhận đơn hàng thất bại.",
@@ -235,8 +231,7 @@ const IncomingOrdersPage: React.FC = () => {
       }
 
       toast.success(
-        result.message ||
-          `Đã chuyển đơn SO-${order.storeOrderId} sang Cung ứng thành công.`,
+        `Đã chuyển đơn SO-${order.storeOrderId} sang Cung ứng thành công.`,
       );
     } catch (error: any) {
       const apiErrors = error?.response?.data?.errors;
@@ -276,8 +271,7 @@ const IncomingOrdersPage: React.FC = () => {
       }
 
       toast.success(
-        result.message ||
-          `Đã cập nhật ghi chú xử lý cho đơn SO-${order.storeOrderId}.`,
+        `Đã cập nhật ghi chú xử lý cho đơn SO-${order.storeOrderId}.`,
       );
     } catch (error: any) {
       toast.error(
@@ -381,7 +375,9 @@ const IncomingOrdersPage: React.FC = () => {
               sang bộ phận Cung ứng không?
               <br />
               <br />
-              <span className="font-semibold text-destructive">Cảnh báo:</span>{" "}
+              <span className="font-semibold text-destructive">
+                Cảnh báo:
+              </span>{" "}
               Các sản phẩm không đủ tồn kho tại Bếp Trung tâm sẽ bị loại bỏ
               (drop) khỏi đơn hàng này.
             </AlertDialogDescription>
