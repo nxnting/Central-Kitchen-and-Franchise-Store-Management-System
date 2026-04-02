@@ -58,6 +58,7 @@ const FranchiseManagement: React.FC = () => {
 
   const kitchenOptions = useMemo<CentralKitchenOption[]>(() => {
     return (kitchens || [])
+      .filter((item) => item.status === "ACTIVE")
       .map((item) => ({
         value: item.centralKitchenId,
         label: item.name,
@@ -78,30 +79,38 @@ const FranchiseManagement: React.FC = () => {
     return { stores, kitchens: kitchensCount, active, inactive };
   }, [items, kitchens]);
 
+  const activeStores = useMemo(() => {
+    return items.filter((x) => x.status === "ACTIVE");
+  }, [items]);
+
+  const activeKitchens = useMemo(() => {
+    return kitchens.filter((x) => x.status === "ACTIVE");
+  }, [kitchens]);
+
   const filteredStores = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return items;
+    if (!term) return activeStores;
 
-    return items.filter(
+    return activeStores.filter(
       (x) =>
         x.name.toLowerCase().includes(term) ||
         x.address.toLowerCase().includes(term) ||
         x.location.toLowerCase().includes(term) ||
         x.centralKitchenName?.toLowerCase().includes(term),
     );
-  }, [items, searchTerm]);
+  }, [activeStores, searchTerm]);
 
   const filteredKitchens = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return kitchens;
+    if (!term) return activeKitchens;
 
-    return kitchens.filter(
+    return activeKitchens.filter(
       (x) =>
         x.name.toLowerCase().includes(term) ||
         x.address.toLowerCase().includes(term) ||
         x.location.toLowerCase().includes(term),
     );
-  }, [kitchens, searchTerm]);
+  }, [activeKitchens, searchTerm]);
 
   const handleOpenCreate = () => {
     if (tab === "CENTRAL_KITCHEN") {
@@ -226,11 +235,11 @@ const FranchiseManagement: React.FC = () => {
           <TabsList>
             <TabsTrigger value="STORE" className="gap-2">
               <Store size={16} />
-              Cửa hàng ({stats.stores})
+              Cửa hàng ({filteredStores.length})
             </TabsTrigger>
             <TabsTrigger value="CENTRAL_KITCHEN" className="gap-2">
               <Factory size={16} />
-              Bếp trung tâm ({stats.kitchens})
+              Bếp trung tâm ({filteredKitchens.length})
             </TabsTrigger>
           </TabsList>
         </div>
