@@ -5,7 +5,6 @@ import {
   Edit,
   Mail,
   Shield,
-  Trash2,
   UserCheck,
   UserX,
 } from "lucide-react";
@@ -16,7 +15,6 @@ type Props = {
   loading?: boolean;
   onEdit: (user: AdminUser) => void;
   onToggleStatus: (user: AdminUser) => void | Promise<void>;
-  onDelete: (id: number) => void | Promise<void>;
   onAssignFranchises: (user: AdminUser) => void;
 };
 
@@ -63,7 +61,6 @@ export const UsersTable: React.FC<Props> = ({
   loading,
   onEdit,
   onToggleStatus,
-  onDelete,
   onAssignFranchises,
 }) => {
   return (
@@ -198,15 +195,7 @@ export const UsersTable: React.FC<Props> = ({
                         )}
                       </Button>
 
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive"
-                        onClick={() => onDelete(user.userId)}
-                        title="Xóa người dùng"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                      
                     </div>
                   </td>
                 </tr>

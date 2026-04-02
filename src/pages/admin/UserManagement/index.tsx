@@ -187,16 +187,6 @@ const UserManagement: React.FC = () => {
     });
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await adminUsersApi.remove(id);
-      toast.success("Đã xóa người dùng");
-      await loadUsers();
-    } catch (e) {
-      console.error(e);
-      toast.error("Xóa thất bại");
-    }
-  };
 
   return (
     <div className="animate-fade-in">
@@ -243,7 +233,6 @@ const UserManagement: React.FC = () => {
         loading={loading}
         onEdit={handleOpenEdit}
         onToggleStatus={handleToggleStatus}
-        onDelete={handleDelete}
         onAssignFranchises={handleOpenAssign}
       />
 
