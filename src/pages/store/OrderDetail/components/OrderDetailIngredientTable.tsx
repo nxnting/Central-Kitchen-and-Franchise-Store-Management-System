@@ -33,7 +33,7 @@ const OrderDetailIngredientTable: React.FC<Props> = ({
             <div className="col-span-1 text-center font-mono opacity-60">#</div>
             <div className="col-span-6">Nguyên liệu</div>
             <div className="col-span-2 text-center border-l border-blue-200/50 bg-white/20">SL đặt</div>
-            <div className="col-span-3 text-center border-l border-blue-200/50 bg-white/20 font-bold uppercase tracking-widest">SL giao</div>
+            <div className="col-span-3 text-center border-l border-blue-200/50 bg-white/20 font-bold uppercase tracking-widest">SL chốt</div>
           </div>
           <div className="divide-y divide-blue-100/50">
             {ingredientItems.map((item, index) => {
@@ -91,7 +91,7 @@ const OrderDetailIngredientTable: React.FC<Props> = ({
                       )
                     ) : (
                       <span className="text-muted-foreground/40 italic font-normal text-xs animate-pulse">
-                        Chưa giao...
+                        Chưa xử lý...
                       </span>
                     )}
                   </div>

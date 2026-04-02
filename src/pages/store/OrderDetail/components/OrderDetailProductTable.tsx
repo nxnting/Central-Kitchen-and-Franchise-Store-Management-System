@@ -36,7 +36,7 @@ const OrderDetailProductTable: React.FC<Props> = ({
             <div className="col-span-1 text-center">#</div>
             <div className="col-span-5">Sản phẩm</div>
             <div className="col-span-2 text-center border-l bg-white/50">SL đặt</div>
-            <div className="col-span-2 text-center border-l bg-white/50">SL giao</div>
+            <div className="col-span-2 text-center border-l bg-white/50">SL chốt</div>
             <div className="col-span-2 text-center border-l bg-white/50">Trạng thái</div>
           </div>
           <div className="divide-y divide-border/50">
@@ -116,7 +116,7 @@ const OrderDetailProductTable: React.FC<Props> = ({
                       </span>
                     ) : typeof item.forwardedQuantity === "number" ? (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-tighter bg-emerald-100 text-emerald-800 border border-emerald-200 scale-95 origin-center">
-                        Đã giao
+                        Đã xác nhận
                       </span>
                     ) : (
                       <span className="text-[10px] text-muted-foreground opacity-50 uppercase tracking-widest">
