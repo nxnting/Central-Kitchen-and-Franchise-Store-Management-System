@@ -1,8 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { Plus, Store, Factory, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Plus,
+  Store,
+  Factory,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 import { adminFranchisesApi } from "@/api/admin/franchises.api";
 import { adminCentralKitchensApi } from "@/api/admin/centralKitchens.api";
@@ -20,7 +31,7 @@ import {
   FranchiseUpsertModal,
 } from "./components";
 
-type TabKey = "STORE" | "CENTRAL_KITCHEN";
+type TabKey = "STORE" | "CENTRAL_KITCHEN" | "INACTIVE_STORE";
 
 const FranchiseManagement: React.FC = () => {
   const [items, setItems] = useState<AdminFranchise[]>([]);
@@ -83,6 +94,10 @@ const FranchiseManagement: React.FC = () => {
     return items.filter((x) => x.status === "ACTIVE");
   }, [items]);
 
+  const inactiveStores = useMemo(() => {
+    return items.filter((x) => x.status === "INACTIVE");
+  }, [items]);
+
   const activeKitchens = useMemo(() => {
     return kitchens.filter((x) => x.status === "ACTIVE");
   }, [kitchens]);
@@ -100,6 +115,19 @@ const FranchiseManagement: React.FC = () => {
     );
   }, [activeStores, searchTerm]);
 
+  const filteredInactiveStores = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return inactiveStores;
+
+    return inactiveStores.filter(
+      (x) =>
+        x.name.toLowerCase().includes(term) ||
+        x.address.toLowerCase().includes(term) ||
+        x.location.toLowerCase().includes(term) ||
+        x.centralKitchenName?.toLowerCase().includes(term),
+    );
+  }, [inactiveStores, searchTerm]);
+
   const filteredKitchens = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     if (!term) return activeKitchens;
@@ -113,8 +141,8 @@ const FranchiseManagement: React.FC = () => {
   }, [activeKitchens, searchTerm]);
 
   const handleOpenCreate = () => {
-    if (tab === "CENTRAL_KITCHEN") {
-      toast.info("Tạo / sửa bếp trung tâm sẽ xử lý ở luồng riêng.");
+    if (tab !== "STORE") {
+      toast.info("Chỉ hỗ trợ thêm mới ở tab Cửa hàng.");
       return;
     }
 
@@ -237,9 +265,15 @@ const FranchiseManagement: React.FC = () => {
               <Store size={16} />
               Cửa hàng ({filteredStores.length})
             </TabsTrigger>
+
             <TabsTrigger value="CENTRAL_KITCHEN" className="gap-2">
               <Factory size={16} />
               Bếp trung tâm ({filteredKitchens.length})
+            </TabsTrigger>
+
+            <TabsTrigger value="INACTIVE_STORE" className="gap-2">
+              <XCircle size={16} />
+              Cửa hàng tạm ngưng ({filteredInactiveStores.length})
             </TabsTrigger>
           </TabsList>
         </div>
@@ -262,6 +296,15 @@ const FranchiseManagement: React.FC = () => {
 
         <TabsContent value="CENTRAL_KITCHEN">
           <CentralKitchensGrid items={filteredKitchens} loading={loading} />
+        </TabsContent>
+
+        <TabsContent value="INACTIVE_STORE">
+          <FranchisesGrid
+            items={filteredInactiveStores}
+            loading={loading}
+            onEdit={handleOpenEdit}
+            onDelete={handleDelete}
+          />
         </TabsContent>
       </Tabs>
 
