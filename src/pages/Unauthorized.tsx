@@ -25,7 +25,7 @@ const Unauthorized = () => {
         
         <h1 className="text-4xl font-bold tracking-tight mb-2">Truy cập bị từ chối</h1>
         <p className="text-muted-foreground text-lg mb-8">
-          Bạn không có quyền truy cập vào trang này. Vui lòng quay lại khu vực làm việc của bạn.
+          Bạn không có quyền truy cập vào trang này.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full">
